@@ -7,6 +7,29 @@ namespace Spire.Tests
 {
     public class NetworkTests
     {
+        [Test] public void RealTcpCooperativeVictoryUsesProductionCards()
+        {
+            byte[] table=Resources.Load<TextAsset>("Tables/cards").bytes;
+            using(var host=new CoopSession(table)) using(var client=new CoopSession(table))
+            {
+                host.Host(0,42); client.Join("127.0.0.1",host.Port); Wait(host,client,()=>client.Connected);
+                for(int step=0;step<3000 && host.Run.Phase!=Phase.Won && host.Run.Phase!=Phase.Lost;step++)
+                {
+                    for(int p=0;p<2;p++)
+                    {
+                        var r=host.Run;
+                        if(!r.Heroes[p].Alive || r.Resolved.Contains(p) || (r.Phase==Phase.Combat && r.Heroes[p].Ended) || r.Phase==Phase.Won || r.Phase==Phase.Lost) continue;
+                        ProductionRunTests.Choose(r,p,out var action,out var arg);
+                        int revision=r.Revision;
+                        Assert.IsTrue((p==0?host:client).Submit(action,arg));
+                        Wait(host,client,()=>client.Run.Revision==revision+1 && host.Run.Revision==revision+1);
+                        Assert.AreEqual(host.Run.Random.State,client.Run.Random.State);
+                    }
+                }
+                Assert.AreEqual(Phase.Won,host.Run.Phase); Assert.AreEqual(Phase.Won,client.Run.Phase);
+                Assert.AreEqual(host.Run.Heroes.Select(h=>h.Hp),client.Run.Heroes.Select(h=>h.Hp));
+            }
+        }
         static void Wait(CoopSession host,CoopSession client,Func<bool> done)
         {
             var until=DateTime.UtcNow.AddSeconds(5);
