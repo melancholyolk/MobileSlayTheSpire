@@ -2,6 +2,7 @@ using System.Collections;
 using System.Linq;
 using NUnit.Framework;
 using Spire;
+using SpireLocalization;
 using SpirePresentation;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -11,6 +12,8 @@ public class FlowTests
 {
     [UnityTest] public IEnumerator MenuToMapCombatAndDefeatUsesVisibleButtons()
     {
+        ExcelLocalization.Initialize(); var previousLanguage=ExcelLocalization.Language;
+        ExcelLocalization.Select("en");
         var root=new GameObject("TestApp"); var app=root.AddComponent<GameApp>(); yield return null;
         try
         {
@@ -25,7 +28,29 @@ public class FlowTests
             Assert.AreEqual(Phase.Lost,app.State.Phase);
             Assert.IsTrue(root.GetComponentsInChildren<Text>().Any(t=>t.text=="THE ASCENT ENDS"));
         }
-        finally { Object.Destroy(root); }
+        finally { Object.Destroy(root); ExcelLocalization.Select(previousLanguage); }
+        yield return null;
+    }
+    [UnityTest] public IEnumerator LanguageButtonRefreshesMenuAndCardNamesWithoutChangingRun()
+    {
+        ExcelLocalization.Initialize(); var previousLanguage=ExcelLocalization.Language;
+        ExcelLocalization.Select("en");
+        var root=new GameObject("LocalizedApp"); var app=root.AddComponent<GameApp>(); yield return null;
+        try
+        {
+            root.GetComponentsInChildren<Button>().Single(b=>b.name=="Language").onClick.Invoke(); yield return null;
+            Assert.AreEqual("zh-Hans",ExcelLocalization.Language);
+            Assert.IsTrue(root.GetComponentsInChildren<Text>().Any(t=>t.text=="灰烬之巅"));
+            app.StartSolo(HeroClass.Warrior); app.Send("vote",0); yield return null;
+            var state=app.State; int revision=state.Revision;
+            var first=state.Cards[state.Heroes[0].Hand[0]];
+            Assert.IsTrue(root.GetComponentsInChildren<Text>().Any(t=>t.text.StartsWith(ExcelLocalization.Text("card."+first.Id+".name"))));
+            root.GetComponentsInChildren<Button>().Single(b=>b.name=="Language").onClick.Invoke(); yield return null;
+            Assert.AreSame(state,app.State); Assert.AreEqual(revision,state.Revision);
+            Assert.AreEqual("en",ExcelLocalization.Language);
+            Assert.IsTrue(root.GetComponentsInChildren<Text>().Any(t=>t.text.StartsWith(first.Name)));
+        }
+        finally { Object.Destroy(root); ExcelLocalization.Select(previousLanguage); }
         yield return null;
     }
 }

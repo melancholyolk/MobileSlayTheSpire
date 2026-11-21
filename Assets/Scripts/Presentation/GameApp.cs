@@ -1,6 +1,9 @@
 using System;
 using System.Linq;
 using Spire;
+using SpireLocalization;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -33,7 +36,9 @@ namespace SpirePresentation
         {
             Instance=this; Application.runInBackground=true;
             table=Resources.Load<TextAsset>("Tables/cards").bytes;
-            font=Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            font=Font.CreateDynamicFontFromOSFont(new[]{"Microsoft YaHei","Noto Sans CJK SC","PingFang SC","Droid Sans Fallback","Arial"},24);
+            ExcelLocalization.Initialize();
+            LocalizationSettings.SelectedLocaleChanged+=OnLocaleChanged;
             if(FindObjectOfType<EventSystem>()==null) new GameObject("EventSystem",typeof(EventSystem),typeof(StandaloneInputModule));
             var canvas=new GameObject("SpireCanvas",typeof(Canvas),typeof(CanvasScaler),typeof(GraphicRaycaster));
             canvas.transform.SetParent(transform,false); canvas.GetComponent<Canvas>().renderMode=RenderMode.ScreenSpaceOverlay;
@@ -47,7 +52,9 @@ namespace SpirePresentation
             network?.Pump();
             if(network!=null && (lastRevision!=(State?.Revision ?? -1) || lastNetworkStatus!=network.Status)) Render();
         }
-        void OnDestroy() { network?.Dispose(); if(Instance==this) Instance=null; }
+        void OnLocaleChanged(Locale locale) { if(page!=null) Render(); }
+        static string L(string key) => ExcelLocalization.Text(key);
+        void OnDestroy() { LocalizationSettings.SelectedLocaleChanged-=OnLocaleChanged; network?.Dispose(); if(Instance==this) Instance=null; }
         public void StartSolo(HeroClass cls,uint seed=42)
         {
             network?.Dispose(); network=null; solo=new Run(CardTable.Read(table),seed,cls); status="Choose a route."; Render();
@@ -98,18 +105,19 @@ namespace SpirePresentation
             foreach(Transform child in page) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
             var background=Box("Background",0,0,1280,720,ink);
             background.anchorMin=Vector2.zero; background.anchorMax=Vector2.one; background.offsetMin=background.offsetMax=Vector2.zero;
-            Label("ASHEN ASCENT",32,20,780,55,36);
-            Label("A cooperative deckbuilding prototype",34,70,800,30,17);
+            Label(L("ui.title"),32,20,780,55,36);
+            Label(L("ui.subtitle"),34,70,800,30,17);
             var run=State; lastRevision=run?.Revision??-1; lastNetworkStatus=network?.Status;
             Label(network?.Status??status,32,672,1040,40,18);
-            Button("Menu","Menu",1140,25,108,42,()=>{ network?.Dispose(); network=null; solo=null; status="Choose a class."; Render(); });
+            Button("Menu",L("ui.menu"),1140,25,108,42,()=>{ network?.Dispose(); network=null; solo=null; status="Choose a class."; Render(); });
+            Button("Language",ExcelLocalization.Language,990,25,135,42,()=>{ var languages=ExcelLocalization.Languages; int index=Array.IndexOf(languages.ToArray(),ExcelLocalization.Language); ExcelLocalization.Select(languages[(index+1)%languages.Count]); });
             if(run==null)
             {
-                Label("Choose your path",80,150,600,50,30);
-                Button("Warrior","WARRIOR\nStrength & steel",80,230,260,130,()=>StartSolo(HeroClass.Warrior));
-                Button("Hunter","HUNTER\nPoison & precision",370,230,260,130,()=>StartSolo(HeroClass.Hunter));
-                Button("Host","Host co-op\nPlay as Warrior",80,410,260,90,Host);
-                Button("Join","Join co-op\nPlay as Hunter",370,410,260,90,()=>Join(false));
+                Label(L("ui.choose"),80,150,600,50,30);
+                Button("Warrior",L("ui.warrior"),80,230,260,130,()=>StartSolo(HeroClass.Warrior));
+                Button("Hunter",L("ui.hunter"),370,230,260,130,()=>StartSolo(HeroClass.Hunter));
+                Button("Host",L("ui.host"),80,410,260,90,Host);
+                Button("Join",L("ui.join"),370,410,260,90,()=>Join(false));
                 var inputRoot=Box("HostAddress",80,535,550,48,new Color(.2f,.21f,.23f));
                 var input=inputRoot.gameObject.AddComponent<InputField>(); var t=Label(address,10,8,530,32,20,inputRoot);
                 input.textComponent=t; input.text=address; input.onValueChanged.AddListener(v=>address=v);
@@ -123,7 +131,7 @@ namespace SpirePresentation
             }
             Label($"{run.Phase}   /   Floor {(run.Current<0?0:run.Map[run.Current].Floor+1)} of {Run.Floors}",32,160,900,35,24);
             bool ready=network==null || network.Connected;
-            if(!ready && !network.IsHost) Button("Reconnect","Reconnect",1080,665,160,40,()=>Join(true));
+            if(!ready && !network.IsHost) Button("Reconnect",L("ui.reconnect"),1080,665,160,40,()=>Join(true));
             var hero=run.Heroes[Player];
             switch(run.Phase)
             {
@@ -144,24 +152,24 @@ namespace SpirePresentation
                     for(int i=0;i<hero.Hand.Count;i++)
                     {
                         int index=i; var c=run.Cards[hero.Hand[i]];
-                        Button("Card_"+i,$"{c.Name}\nCost {c.Cost}\n{c.Effect} {c.Amount}{(c.Hits>1?" x"+c.Hits:"")}\n{(c.Exhaust?"Exhaust":"")}",32+i*(width+4),495,width-4,155,()=>Send("play",index),ready && hero.Alive && !hero.Ended && hero.Energy>=c.Cost);
+                        Button("Card_"+i,$"{ExcelLocalization.Text("card."+c.Id+".name",c.Name)}\nCost {c.Cost}\n{c.Effect} {c.Amount}{(c.Hits>1?" x"+c.Hits:"")}\n{(c.Exhaust?"Exhaust":"")}",32+i*(width+4),495,width-4,155,()=>Send("play",index),ready && hero.Alive && !hero.Ended && hero.Energy>=c.Cost);
                     }
-                    Button("EndTurn",hero.Ended?"Waiting...":"End turn",1060,400,185,70,()=>Send("end"),ready && hero.Alive && !hero.Ended);
+                    Button("EndTurn",hero.Ended?L("ui.wait"):L("ui.end"),1060,400,185,70,()=>Send("end"),ready && hero.Alive && !hero.Ended);
                     break;
                 case Phase.Reward:
-                    Label("Victory — choose one card, or skip.",60,240,1100,50,27);
+                    Label(L("ui.reward"),60,240,1100,50,27);
                     for(int i=0;i<run.Rewards[Player].Count;i++)
                     {
                         int index=i; var c=run.Cards[run.Rewards[Player][i]];
-                        Button("Reward_"+i,$"{c.Name}\nCost {c.Cost} / {c.Effect} {c.Amount}",60+i*380,330,350,150,()=>Send("reward",index),ready && !run.Resolved.Contains(Player) && hero.Alive);
+                        Button("Reward_"+i,$"{ExcelLocalization.Text("card."+c.Id+".name",c.Name)}\nCost {c.Cost} / {c.Effect} {c.Amount}",60+i*380,330,350,150,()=>Send("reward",index),ready && !run.Resolved.Contains(Player) && hero.Alive);
                     }
-                    Button("SkipReward","Skip",500,540,280,60,()=>Send("reward",-1),ready && !run.Resolved.Contains(Player) && hero.Alive); break;
+                    Button("SkipReward",L("ui.skip"),500,540,280,60,()=>Send("reward",-1),ready && !run.Resolved.Contains(Player) && hero.Alive); break;
                 case Phase.Camp: Room("Rest: heal 33%","Train: +5 max HP"); break;
                 case Phase.Shop: Room("Heal 25 HP: 30 gold","Leave shop"); break;
                 case Phase.Event: Room("Pay 6 HP: gain 35 gold","Walk away"); break;
                 case Phase.Won: case Phase.Lost:
-                    Label(run.Phase==Phase.Won?"THE WARDEN FALLS":"THE ASCENT ENDS",220,300,900,90,48);
-                    Label("Return to the menu to begin a new run.",300,420,800,60,25); break;
+                    Label(run.Phase==Phase.Won?L("ui.win"):L("ui.lose"),220,300,900,90,48);
+                    Label(L("ui.restart"),300,420,800,60,25); break;
             }
             void Room(string a,string b)
             {

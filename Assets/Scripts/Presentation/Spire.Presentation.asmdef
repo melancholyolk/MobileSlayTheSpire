@@ -1,1 +1,1 @@
-{"name":"Spire.Presentation","references":["AssemblyRuntime","Unity.ugui"]}
+{"name":"Spire.Presentation","references":["AssemblyRuntime","Unity.ugui","Spire.Localization","Unity.Localization"]}

@@ -1,0 +1,1 @@
+{"name":"Spire.Localization.Tests","references":["Spire.Localization","Unity.Localization","Unity.Addressables","Unity.ResourceManager"],"includePlatforms":["Editor"],"optionalUnityReferences":["TestAssemblies"]}

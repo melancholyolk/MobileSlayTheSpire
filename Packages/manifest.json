@@ -7,6 +7,7 @@
     }
   ],
   "dependencies": {
+    "com.unity.localization": "1.5.3",
     "com.veriorpies.parrelsync": "file:com.veriorpies.parrelsync",
     "io.github.hatayama.uloopmcp": "3.35.1",
     "com.unity.collab-proxy": "2.7.1",
