@@ -281,6 +281,12 @@
       },
       "url": "https://packages.tuanjie.cn"
     },
+    "com.veriorpies.parrelsync": {
+      "version": "file:com.veriorpies.parrelsync",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "io.github.hatayama.uloopmcp": {
       "version": "3.35.1",
       "depth": 0,
