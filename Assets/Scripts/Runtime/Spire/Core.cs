@@ -48,6 +48,7 @@ namespace Spire
     {
         public string Name;
         public int Hp, Block, Poison, Damage;
+        public int VisualId;
         public bool Alive => Hp > 0;
     }
     [Serializable] public sealed class MapNode
@@ -73,6 +74,9 @@ namespace Spire
         public int Turn { get; private set; }
         public int Revision { get; private set; }
         public const int Floors = 8;
+        readonly List<BattleCue> cues=new List<BattleCue>();
+        public IReadOnlyList<BattleCue> Cues=>cues;
+        void Cue(BattleCueKind kind,int actor,int target=0,int art=0,int amount=0) => cues.Add(new BattleCue(kind,actor,target,art,amount));
 
         public Run(IEnumerable<Card> cards, uint seed, params HeroClass[] classes)
         {
@@ -102,7 +106,7 @@ namespace Spire
         public IEnumerable<int> Choices => Current < 0 ? Map.Where(n => n.Floor == 0).Select(n => n.Id) : Map[Current].Next;
         public bool Apply(int player, string action, int argument, out string error)
         {
-            error = null;
+            error = null; cues.Clear();
             if (player < 0 || player >= Heroes.Count || !Heroes[player].Alive) { error = "Invalid or defeated player"; return false; }
             bool ok = false;
             switch (action)
@@ -139,11 +143,14 @@ namespace Spire
         {
             Phase = Phase.Combat; Turn = 0; Enemies.Clear();
             bool boss = Map[Current].Kind == RoomKind.Boss, elite = Map[Current].Kind == RoomKind.Elite;
-            Enemies.Add(new Enemy { Name = boss ? "Ash Warden" : elite ? "Iron Revenant" : "Hollow", Hp = (boss ? 100 : elite ? 48 : 28) * Heroes.Count, Damage = boss ? 12 : elite ? 9 : 6 });
+            int visual=boss?2:elite?1:new[]{0,3,4,5,6,7,8,9}[Current%8];
+            string[] names={"Hollow","Iron Revenant","Ash Warden","Cultist","Goblin","Bandit","Plague Doctor","Frost Giant","Sporekin","Bronze Sentinel"};
+            Enemies.Add(new Enemy { VisualId=visual, Name = names[visual], Hp = (boss ? 100 : elite ? 48 : 28) * Heroes.Count, Damage = boss ? 12 : elite ? 9 : 6 });
             foreach (var h in Heroes)
             {
                 h.Strength = 0; h.Block = 0; h.Draw.Clear(); h.Draw.AddRange(h.Deck); Random.Shuffle(h.Draw);
                 h.Hand.Clear(); h.Discard.Clear(); h.Exhausted.Clear();
+                Cue(BattleCueKind.Shuffle,Heroes.IndexOf(h));
             }
             BeginTurn();
         }
@@ -156,9 +163,9 @@ namespace Spire
         {
             for (int i = 0; i < count && h.Hand.Count < 10; i++)
             {
-                if (h.Draw.Count == 0) { h.Draw.AddRange(h.Discard); h.Discard.Clear(); Random.Shuffle(h.Draw); }
+                if (h.Draw.Count == 0 && h.Discard.Count>0) { h.Draw.AddRange(h.Discard); h.Discard.Clear(); Random.Shuffle(h.Draw); Cue(BattleCueKind.Shuffle,Heroes.IndexOf(h)); }
                 if (h.Draw.Count == 0) break;
-                int last = h.Draw.Count - 1; h.Hand.Add(h.Draw[last]); h.Draw.RemoveAt(last);
+                int last = h.Draw.Count - 1; h.Hand.Add(h.Draw[last]); h.Draw.RemoveAt(last); Cue(BattleCueKind.Draw,Heroes.IndexOf(h),art:Cards[h.Hand.Last()].ArtId);
             }
         }
         static int Hit(int damage, ref int block) { int absorbed = Math.Min(block, Math.Max(0, damage)); block -= absorbed; return Math.Max(0, damage - absorbed); }
@@ -168,6 +175,8 @@ namespace Spire
             if (Phase != Phase.Combat || h.Ended || index < 0 || index >= h.Hand.Count) return false;
             Card c = Cards[h.Hand[index]];
             if (h.Energy < c.Cost) return false;
+            Cue(BattleCueKind.Play,p,-1,c.ArtId);
+            Cue(c.Effect==Effect.Attack?BattleCueKind.Attack:c.Effect==Effect.Block?BattleCueKind.Guard:BattleCueKind.Skill,p,-1);
             h.Energy -= c.Cost; h.Hand.RemoveAt(index);
             if (c.Exhaust) h.Exhausted.Add(c.Id); else h.Discard.Add(c.Id);
             var enemy = Enemies.FirstOrDefault(e => e.Alive);
@@ -182,6 +191,8 @@ namespace Spire
                 case Effect.Heal: h.Hp = Math.Min(h.MaxHp, h.Hp + c.Amount); break;
                 case Effect.Energy: h.Energy += c.Amount; break;
             }
+            if(c.Effect==Effect.Attack && enemy!=null) Cue(enemy.Alive?BattleCueKind.Hit:BattleCueKind.Death,-1,p,amount:c.Amount*c.Hits);
+            Cue(c.Exhaust?BattleCueKind.Exhaust:BattleCueKind.Discard,p,art:c.ArtId);
             CheckCombat(); return true;
         }
         bool End(int p)
@@ -189,11 +200,15 @@ namespace Spire
             if (Phase != Phase.Combat || Heroes[p].Ended) return false;
             Heroes[p].Ended = true;
             if (Heroes.Any(h => h.Alive && !h.Ended)) return true;
-            foreach (var h in Heroes) { h.Discard.AddRange(h.Hand); h.Hand.Clear(); }
+            foreach (var h in Heroes) { foreach(var id in h.Hand) Cue(BattleCueKind.Discard,Heroes.IndexOf(h),art:Cards[id].ArtId); h.Discard.AddRange(h.Hand); h.Hand.Clear(); }
             foreach (var e in Enemies.Where(e => e.Alive)) { e.Hp = Math.Max(0, e.Hp - e.Poison); e.Poison = Math.Max(0, e.Poison - 1); }
             if (CheckCombat()) return true;
             foreach (var e in Enemies.Where(e => e.Alive))
-                foreach (var h in Heroes.Where(h => h.Alive)) h.Hp = Math.Max(0, h.Hp - Hit(e.Damage + (Turn % 3 == 0 ? 3 : 0), ref h.Block));
+                {
+                    Cue(BattleCueKind.Attack,-1-Enemies.IndexOf(e));
+                    foreach (var h in Heroes.Where(h => h.Alive))
+                    { h.Hp = Math.Max(0, h.Hp - Hit(e.Damage + (Turn % 3 == 0 ? 3 : 0), ref h.Block)); Cue(h.Alive?BattleCueKind.Hit:BattleCueKind.Death,Heroes.IndexOf(h),-1,amount:e.Damage); }
+                }
             if (!CheckCombat()) BeginTurn();
             return true;
         }
@@ -202,6 +217,7 @@ namespace Spire
             if (Heroes.All(h => !h.Alive)) { Phase = Phase.Lost; return true; }
             if (Enemies.Any(e => e.Alive)) return false;
             if (Map[Current].Kind == RoomKind.Boss) { Phase = Phase.Won; return true; }
+            foreach(var h in Heroes.Where(h=>h.Alive)) Cue(BattleCueKind.Victory,Heroes.IndexOf(h));
             Phase = Phase.Reward; Resolved.Clear();
             for (int i = 0; i < Heroes.Count; i++)
             {
