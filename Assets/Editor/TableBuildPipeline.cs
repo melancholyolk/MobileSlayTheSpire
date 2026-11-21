@@ -26,7 +26,8 @@ public static class TableBuildPipeline
     {
         var folder=Path.Combine(Root,"GameData/Excel");
         if(!Directory.Exists(folder)) return "missing";
-        return string.Join("|",Directory.GetFiles(folder,"*.xlsx",SearchOption.AllDirectories)
+        return string.Join("|",Directory.GetFiles(folder,"*",SearchOption.AllDirectories)
+            .Where(p=>new[]{".xlsx",".csv",".json"}.Contains(Path.GetExtension(p).ToLowerInvariant()))
             .Where(p=>!Path.GetFileName(p).StartsWith("~$")).OrderBy(p=>p)
             .Select(p=>p+":"+File.GetLastWriteTimeUtc(p).Ticks+":"+new FileInfo(p).Length));
     }

@@ -13,11 +13,11 @@
 配置源为 `GameData/Excel/Cards.xlsx` 的 `Cards` 工作表。不要重新运行初始化脚本覆盖策划修改。安装 Python 3 和 `openpyxl` 后在根目录运行：
 
 ```powershell
-python Tools/Tables/compile_cards.py
-python Tools/Tables/test_compile_cards.py
+python Tools/Tables/build_tables.py
+python -m unittest discover -s Tools/Tables -p 'test_*.py'
 ```
 
-输出 `Assets/Resources/Tables/cards.bytes`。编译器校验列头、重复 ID、枚举、数值范围和初始牌组，失败不覆盖旧文件；不接受公式字段，以免 Excel 缓存导致过期数值。运行时只读取 SPCR v1 二进制，不需要 Excel 库。
+输出 `Assets/Resources/Tables/cards.bytes`。编译器校验列头、重复 ID、枚举、数值范围和初始牌组，失败不覆盖旧文件；不接受公式字段，以免 Excel 缓存导致过期数值。运行时读取 SPCR v2 二进制，卡牌 Name 字段声明为 string(Common)，打表时替换为 int32 NameId，不需要 Excel 库。业务表第 1 行为字段名、第 2 行为类型、第 3 行起为数据。完整本地化 CSV 增量流程见 [本地化说明](GameData/Excel/Localization/README.md)。
 
 表头：`Id, Name, Class, Cost, Effect, Amount, Hits, Exhaust, StarterCopies`。职业为 Warrior／Hunter；Effect 为 Attack／Block／Strength／Poison／Draw／Heal／Energy。Exhaust 必须是 Excel 布尔值。Hits 仅用于攻击。新增卡牌时同步维护美术主题表。
 

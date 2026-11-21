@@ -5,10 +5,10 @@ namespace Spire.Tests
     public class CoreTests
     {
         public static Card[] FixtureCards() => new[] {
-            new Card { Id="strike", Name="Strike", Class=HeroClass.Warrior, Cost=1, Amount=8, Effect=Effect.Attack, StarterCopies=5 },
-            new Card { Id="guard", Name="Guard", Class=HeroClass.Warrior, Cost=1, Amount=7, Effect=Effect.Block, StarterCopies=5 },
-            new Card { Id="shot", Name="Shot", Class=HeroClass.Hunter, Cost=1, Amount=8, Effect=Effect.Attack, StarterCopies=5 },
-            new Card { Id="dodge", Name="Dodge", Class=HeroClass.Hunter, Cost=1, Amount=7, Effect=Effect.Block, StarterCopies=5 }};
+            new Card { Id="strike", NameId=1, Class=HeroClass.Warrior, Cost=1, Amount=8, Effect=Effect.Attack, StarterCopies=5 },
+            new Card { Id="guard", NameId=1, Class=HeroClass.Warrior, Cost=1, Amount=7, Effect=Effect.Block, StarterCopies=5 },
+            new Card { Id="shot", NameId=1, Class=HeroClass.Hunter, Cost=1, Amount=8, Effect=Effect.Attack, StarterCopies=5 },
+            new Card { Id="dodge", NameId=1, Class=HeroClass.Hunter, Cost=1, Amount=7, Effect=Effect.Block, StarterCopies=5 }};
         static void Do(Run r,int p,string action,int arg=0) { Assert.That(r.Apply(p,action,arg,out var error),Is.True,error); }
         [Test] public void SeedProducesIdenticalMapAndHands()
         {

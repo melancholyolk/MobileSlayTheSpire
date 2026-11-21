@@ -44,11 +44,11 @@ public class FlowTests
             app.StartSolo(HeroClass.Warrior); app.Send("vote",0); yield return null;
             var state=app.State; int revision=state.Revision;
             var first=state.Cards[state.Heroes[0].Hand[0]];
-            Assert.IsTrue(root.GetComponentsInChildren<Text>().Any(t=>t.text.StartsWith(ExcelLocalization.Text("card."+first.Id+".name"))));
+            Assert.IsTrue(root.GetComponentsInChildren<Text>().Any(t=>t.text.StartsWith(ExcelLocalization.Text(first.NameId))));
             root.GetComponentsInChildren<Button>().Single(b=>b.name=="Language").onClick.Invoke(); yield return null;
             Assert.AreSame(state,app.State); Assert.AreEqual(revision,state.Revision);
             Assert.AreEqual("en",ExcelLocalization.Language);
-            Assert.IsTrue(root.GetComponentsInChildren<Text>().Any(t=>t.text.StartsWith(first.Name)));
+            Assert.IsTrue(root.GetComponentsInChildren<Text>().Any(t=>t.text.StartsWith(ExcelLocalization.Text(first.NameId))));
         }
         finally { Object.Destroy(root); ExcelLocalization.Select(previousLanguage); }
         yield return null;

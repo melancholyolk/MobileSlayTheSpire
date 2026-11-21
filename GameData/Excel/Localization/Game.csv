@@ -1,0 +1,29 @@
+﻿Id,Source,Comment,Symbol,en,zh-Hans
+1,ASHEN ASCENT,Game title,UiTitle,ASHEN ASCENT,灰烬之巅
+2,A cooperative deckbuilding prototype,Main menu,UiSubtitle,A cooperative deckbuilding prototype,合作卡牌冒险原型
+3,Menu,Navigation,UiMenu,Menu,菜单
+4,Choose your path,Class selection,UiChoose,Choose your path,选择你的道路
+5,"WARRIOR
+Strength & steel",Class button,UiWarrior,"WARRIOR
+Strength & steel","战士
+力量与钢铁"
+6,"HUNTER
+Poison & precision",Class button,UiHunter,"HUNTER
+Poison & precision","猎人
+毒素与精准"
+7,"Host co-op
+Play as Warrior",Network button,UiHost,"Host co-op
+Play as Warrior","创建联机
+扮演战士"
+8,"Join co-op
+Play as Hunter",Network button,UiJoin,"Join co-op
+Play as Hunter","加入联机
+扮演猎人"
+9,End turn,Combat button,UiEnd,End turn,结束回合
+10,Waiting...,Combat button,UiWait,Waiting...,等待中……
+11,Skip,Reward button,UiSkip,Skip,跳过
+12,"Victory — choose one card, or skip.",Reward title,UiReward,"Victory — choose one card, or skip.",战斗胜利——选择一张卡牌，或跳过。
+13,THE WARDEN FALLS,Run ending,UiWin,THE WARDEN FALLS,守望者倒下了
+14,THE ASCENT ENDS,Run ending,UiLose,THE ASCENT ENDS,攀登之旅结束
+15,Return to the menu to begin a new run.,Run ending,UiRestart,Return to the menu to begin a new run.,返回菜单，开始新的冒险。
+16,Reconnect,Network button,UiReconnect,Reconnect,重新连接

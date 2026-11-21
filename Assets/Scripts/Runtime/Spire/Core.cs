@@ -11,7 +11,8 @@ namespace Spire
 
     [Serializable] public sealed class Card
     {
-        public string Id, Name;
+        public string Id;
+        public int NameId;
         public HeroClass Class;
         public int Cost, Amount, Hits = 1, StarterCopies;
         public Effect Effect;
