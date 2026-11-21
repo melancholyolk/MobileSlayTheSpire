@@ -27,3 +27,5 @@ Play as Hunter","加入联机
 14,THE ASCENT ENDS,Run ending,UiLose,THE ASCENT ENDS,攀登之旅结束
 15,Return to the menu to begin a new run.,Run ending,UiRestart,Return to the menu to begin a new run.,返回菜单，开始新的冒险。
 16,Reconnect,Network button,UiReconnect,Reconnect,重新连接
+37,WRITE YOUR FATE IN THE ASHES,Start screen,UiStartTagline,WRITE YOUR FATE IN THE ASHES,在灰烬之上，书写你的命运。
+38,PARTNER'S HOST ADDRESS,Start screen,UiHostAddress,PARTNER'S HOST ADDRESS,伙伴的主机地址

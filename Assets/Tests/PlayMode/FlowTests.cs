@@ -10,11 +10,17 @@ using UnityEngine.UI;
 
 public class FlowTests
 {
+    static IEnumerator AwaitUi(GameApp app)
+    {
+        float deadline=Time.realtimeSinceStartup+20;
+        while(!app.UiReady.IsCompleted && Time.realtimeSinceStartup<deadline) yield return null;
+        Assert.IsTrue(app.UiReady.IsCompleted && !app.UiReady.IsFaulted, app.UiReady.Exception?.ToString());
+    }
     [UnityTest] public IEnumerator MenuToMapCombatAndDefeatUsesVisibleButtons()
     {
         ExcelLocalization.Initialize(); var previousLanguage=ExcelLocalization.Language;
         ExcelLocalization.Select("en");
-        var root=new GameObject("TestApp"); var app=root.AddComponent<GameApp>(); yield return null;
+        var root=new GameObject("TestApp"); var app=root.AddComponent<GameApp>(); yield return AwaitUi(app);
         try
         {
             root.GetComponentsInChildren<Button>().Single(b=>b.name=="Warrior").onClick.Invoke(); yield return null;
@@ -35,7 +41,7 @@ public class FlowTests
     {
         ExcelLocalization.Initialize(); var previousLanguage=ExcelLocalization.Language;
         ExcelLocalization.Select("en");
-        var root=new GameObject("LocalizedApp"); var app=root.AddComponent<GameApp>(); yield return null;
+        var root=new GameObject("LocalizedApp"); var app=root.AddComponent<GameApp>(); yield return AwaitUi(app);
         try
         {
             root.GetComponentsInChildren<Button>().Single(b=>b.name=="Language").onClick.Invoke(); yield return null;

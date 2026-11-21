@@ -1,4 +1,6 @@
 using System;
+using System.Threading.Tasks;
+using SpireUI;
 using System.Linq;
 using Spire;
 using SpireLocalization;
@@ -21,7 +23,14 @@ namespace SpirePresentation
         byte[] table;
         Font font;
         RectTransform page;
-        string address="127.0.0.1", status="Choose a class and begin the ascent.", resumeToken;
+        UiManager ui;
+        GameStartView startView;
+        GameplayView gameplayView;
+        public Task UiReady { get; private set; }
+        public UiManager UI=>ui;
+        public string HostAddress { get=>address; set=>address=value; }
+        public string MenuStatus=>network?.Status??status;
+        string address="127.0.0.1", status="", resumeToken;
         int lastRevision=-1;
         string lastNetworkStatus;
         readonly Color paper=new Color(.88f,.84f,.74f), accent=new Color(.67f,.39f,.24f), ink=new Color(.09f,.10f,.12f);
@@ -36,7 +45,7 @@ namespace SpirePresentation
         {
             Instance=this; Application.runInBackground=true;
             table=Resources.Load<TextAsset>("Tables/cards").bytes;
-            font=Font.CreateDynamicFontFromOSFont(new[]{"Microsoft YaHei","Noto Sans CJK SC","PingFang SC","Droid Sans Fallback","Arial"},24);
+            font=UiFonts.Body;
             ExcelLocalization.Initialize();
             LocalizationSettings.SelectedLocaleChanged+=OnLocaleChanged;
             if(FindObjectOfType<EventSystem>()==null) new GameObject("EventSystem",typeof(EventSystem),typeof(StandaloneInputModule));
@@ -45,7 +54,32 @@ namespace SpirePresentation
             var scaler=canvas.GetComponent<CanvasScaler>(); scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution=new Vector2(1280,720); scaler.matchWidthOrHeight=.5f;
             scaler.screenMatchMode=CanvasScaler.ScreenMatchMode.Expand;
-            page=canvas.GetComponent<RectTransform>(); Render();
+            ui=gameObject.AddComponent<UiManager>(); ui.Configure(canvas.transform);
+            UiReady=LoadViews();
+        }
+        async Task LoadViews()
+        {
+            try
+            {
+                gameplayView=await ui.OpenAsync<GameplayView>(GameplayView.Path);
+                if(this==null) return;
+                ui.Hide(GameplayView.Path); page=gameplayView.Content;
+                startView=await ui.OpenAsync<GameStartView>(GameStartView.Path);
+                if(this==null) return;
+                startView.Bind(this); Render();
+            }
+            catch(OperationCanceledException) { if(this!=null) throw; }
+            catch(Exception error) { Debug.LogException(error); throw; }
+        }
+        public void ReturnToMenu()
+        {
+            network?.Dispose(); network=null; solo=null; status=""; Render();
+        }
+        public void CycleLanguage()
+        {
+            var languages=ExcelLocalization.Languages;
+            int index=Array.IndexOf(languages.ToArray(),ExcelLocalization.Language);
+            ExcelLocalization.Select(languages[(index+1)%languages.Count]);
         }
         void Update()
         {
@@ -65,12 +99,12 @@ namespace SpirePresentation
             else if(solo!=null) { if(!solo.Apply(0,action,argument,out var error)) status=error; else status=""; }
             Render();
         }
-        void Host()
+        public void Host()
         {
             try { network?.Dispose(); network=new CoopSession(table); network.Host(7777,42); solo=null; Render(); }
             catch(Exception e) { status=e.Message; network?.Dispose(); network=null; Render(); }
         }
-        void Join(bool resume)
+        public void Join(bool resume)
         {
             try
             {
@@ -83,13 +117,15 @@ namespace SpirePresentation
         {
             var go=new GameObject(name,typeof(RectTransform),typeof(Image)); go.transform.SetParent(parent??page,false);
             var rt=go.GetComponent<RectTransform>(); rt.anchorMin=rt.anchorMax=new Vector2(0,1); rt.pivot=new Vector2(0,1); rt.anchoredPosition=new Vector2(x,-y); rt.sizeDelta=new Vector2(w,h);
-            go.GetComponent<Image>().color=color; return rt;
+            go.GetComponent<Image>().color=color;
+            var element=go.AddComponent<UiElement>(); gameplayView.Register(element); return rt;
         }
         Text Label(string value,float x,float y,float w,float h,int size=20,Transform parent=null)
         {
             var go=new GameObject("Label",typeof(RectTransform)); go.transform.SetParent(parent??page,false);
             var rt=go.GetComponent<RectTransform>(); rt.anchorMin=rt.anchorMax=new Vector2(0,1); rt.pivot=new Vector2(0,1);
             rt.anchoredPosition=new Vector2(x,-y); rt.sizeDelta=new Vector2(w,h);
+            gameplayView.Register(go.AddComponent<UiElement>());
             var t=rt.gameObject.AddComponent<Text>(); t.text=value; t.font=font; t.fontSize=size; t.color=paper; t.raycastTarget=false; t.verticalOverflow=VerticalWrapMode.Truncate;
             return t;
         }
@@ -102,6 +138,13 @@ namespace SpirePresentation
         }
         public void Render()
         {
+            if(startView==null || gameplayView==null) return;
+            lastRevision=State?.Revision??-1; lastNetworkStatus=network?.Status;
+            if(State==null)
+            {
+                ui.Hide(GameplayView.Path); ui.Show(GameStartView.Path); startView.Refresh(); return;
+            }
+            ui.Hide(GameStartView.Path); ui.Show(GameplayView.Path);
             foreach(Transform child in page) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
             var background=Box("Background",0,0,1280,720,ink);
             background.anchorMin=Vector2.zero; background.anchorMax=Vector2.one; background.offsetMin=background.offsetMax=Vector2.zero;
@@ -109,22 +152,8 @@ namespace SpirePresentation
             Label(L(LocIds.UiSubtitle),34,70,800,30,17);
             var run=State; lastRevision=run?.Revision??-1; lastNetworkStatus=network?.Status;
             Label(network?.Status??status,32,672,1040,40,18);
-            Button("Menu",L(LocIds.UiMenu),1140,25,108,42,()=>{ network?.Dispose(); network=null; solo=null; status="Choose a class."; Render(); });
-            Button("Language",ExcelLocalization.Language,990,25,135,42,()=>{ var languages=ExcelLocalization.Languages; int index=Array.IndexOf(languages.ToArray(),ExcelLocalization.Language); ExcelLocalization.Select(languages[(index+1)%languages.Count]); });
-            if(run==null)
-            {
-                Label(L(LocIds.UiChoose),80,150,600,50,30);
-                Button("Warrior",L(LocIds.UiWarrior),80,230,260,130,()=>StartSolo(HeroClass.Warrior));
-                Button("Hunter",L(LocIds.UiHunter),370,230,260,130,()=>StartSolo(HeroClass.Hunter));
-                Button("Host",L(LocIds.UiHost),80,410,260,90,Host);
-                Button("Join",L(LocIds.UiJoin),370,410,260,90,()=>Join(false));
-                var inputRoot=Box("HostAddress",80,535,550,48,new Color(.2f,.21f,.23f));
-                var input=inputRoot.gameObject.AddComponent<InputField>(); var t=Label(address,10,8,530,32,20,inputRoot);
-                input.textComponent=t; input.text=address; input.onValueChanged.AddListener(v=>address=v);
-                Label("Host address / TCP 7777",80,590,550,30,17);
-                Label("Eight floors. One shared route.\nBuild your deck, survive the Warden.\n\nCo-op: vote on rooms and play your\nown cards; enemies act after both\nplayers end their turn.",740,240,460,250,23);
-                return;
-            }
+            Button("Menu",L(LocIds.UiMenu),1140,25,108,42,ReturnToMenu);
+            Button("Language",ExcelLocalization.Language,990,25,135,42,CycleLanguage);
             for(int p=0;p<run.Heroes.Count;p++)
             {
                 var h=run.Heroes[p]; Label($"{(p==Player?"> ":"")}{h.Class}  HP {h.Hp}/{h.MaxHp}  Gold {h.Gold}  Deck {h.Deck.Count}",32+p*610,115,610,35,22);
