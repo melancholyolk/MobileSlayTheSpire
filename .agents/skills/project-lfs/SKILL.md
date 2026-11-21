@@ -38,7 +38,7 @@ git lfs ls-files
 - 已配置内网端点：`http://192.168.1.7:3000/liangy/MobileSlayTheSpire-lfs.git/info/lfs`。这是 2026-11-21 读取到的值，后续以现场为准。
 - Gitea Docker 项目及容器为 `gitea-lfs`；数据持久化到 NAS `共享文件夹/docker/gitea-lfs/data`。容器中的 SQLite、应用配置和 LFS 对象必须一起备份；详见 Gitea README。
 - 历史记录表明 2026-11-07 内网上传、无缓存下载及 SHA-256 校验通过。历史成功不能代替本次变更后的验证。
-- 2026-11-21 Tailscale 已提交部署，最近观察仍在拉取官方镜像；未确认容器启动、账号绑定、节点 IP 或外网传输。继续任务应先检查现有 `tailscale` 项目，避免重复创建。此状态须随实际验证更新。
+- 2026-11-21 已解决镜像拉取超时：从官方静态 ARM64 二进制和已校验的官方基础层构建离线镜像 `local/tailscale-lfs:1.104.7-arm64`，NAS 已导入，`tailscale` 项目及容器已启动并输出账号绑定入口。当前等待用户绑定；节点 IP、TCP 转发及外网 LFS 尚未验证。继续任务先检查现有项目和日志，避免重复创建；构建来源、脚本及恢复步骤见 Tailscale README。
 - 用户选择的 Tailscale 范围是**仅 Gitea/LFS**。现有设计为用户态网络加 TCP 3000 转发到 `192.168.1.7:3000`，容器名 `tailscale-lfs`、请求节点名 `ugreen-lfs`。不擅自扩展为主机网络、NET_ADMIN、TUN、子网路由、出口节点或公网 Funnel。
 - NAS 管理入口是 `https://dh4300plus-cb1a-htk3.cn34.ug.link/desktop/`；它不是 LFS API。浏览器登录可能过期，按当前工具的认证交接规则处理。
 

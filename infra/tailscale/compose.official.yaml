@@ -1,0 +1,25 @@
+services:
+  tailscale:
+    image: ghcr.io/tailscale/tailscale:v1.104.7
+    container_name: tailscale-lfs
+    hostname: ugreen-lfs
+    restart: unless-stopped
+    environment:
+      TS_HOSTNAME: ugreen-lfs
+      TS_STATE_DIR: /var/lib/tailscale
+      TS_USERSPACE: "true"
+      TS_AUTH_ONCE: "true"
+      TS_ACCEPT_DNS: "false"
+      TS_SERVE_CONFIG: /tmp/serve.json
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        printf '%s\n' '{"TCP":{"3000":{"TCPForward":"192.168.1.7:3000"}}}' > /tmp/serve.json
+        exec /usr/local/bin/containerboot
+    volumes:
+      - ./state:/var/lib/tailscale
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

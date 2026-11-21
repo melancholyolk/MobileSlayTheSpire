@@ -1,2 +1,7 @@
 /state/
 /.env
+/offline-cache/
+*.tar
+*.tar.gz
+*.tgz
+__pycache__/
