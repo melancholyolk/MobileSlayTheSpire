@@ -35,8 +35,8 @@ s.getRange('C2:C1000').dataValidation={rule:{type:'list',values:['Warrior','Hunt
 s.getRange('E2:E1000').dataValidation={rule:{type:'list',values:['Attack','Block','Strength','Poison','Draw','Heal','Energy']}};
 wb.recalculate();
 console.log((await wb.inspect({kind:'table',range:'Cards!A1:I17',tableMaxRows:18,tableMaxCols:9})).ndjson);
-await fs.mkdir('GameData',{recursive:true});
-await (await SpreadsheetFile.exportXlsx(wb)).save('GameData/Cards.xlsx');
+await fs.mkdir('GameData/Excel',{recursive:true});
+await (await SpreadsheetFile.exportXlsx(wb)).save('GameData/Excel/Cards.xlsx');
 await fs.mkdir('.uloop/table-preview',{recursive:true});
 const png=await wb.render({sheetName:'Cards',range:'A1:I17',scale:1,format:'png'});
 await fs.writeFile('.uloop/table-preview/cards.png',new Uint8Array(await png.arrayBuffer()));

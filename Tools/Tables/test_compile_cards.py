@@ -6,11 +6,11 @@ from compile_cards import compile_table
 
 class CompilerTests(unittest.TestCase):
     def test_reproducible(self):
-        self.assertEqual(compile_table('GameData/Cards.xlsx'), Path('Assets/Resources/Tables/cards.bytes').read_bytes())
+        self.assertEqual(compile_table('GameData/Excel/Cards.xlsx'), Path('Assets/Resources/Tables/cards.bytes').read_bytes())
 
     def test_bad_cost_and_hit_count_rejected(self):
         # Mutate XML in a temporary test copy; the source workbook is untouched.
-        with ZipFile('GameData/Cards.xlsx') as source:
+        with ZipFile('GameData/Excel/Cards.xlsx') as source:
             entries={n:source.read(n) for n in source.namelist()}
         sheet=entries['xl/worksheets/sheet1.xml'].decode()
         import re

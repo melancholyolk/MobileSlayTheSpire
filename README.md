@@ -10,7 +10,7 @@
 
 ## Excel → 二进制
 
-配置源为 `GameData/Cards.xlsx` 的 `Cards` 工作表。不要重新运行初始化脚本覆盖策划修改。安装 Python 3 和 `openpyxl` 后在根目录运行：
+配置源为 `GameData/Excel/Cards.xlsx` 的 `Cards` 工作表。不要重新运行初始化脚本覆盖策划修改。安装 Python 3 和 `openpyxl` 后在根目录运行：
 
 ```powershell
 python Tools/Tables/compile_cards.py

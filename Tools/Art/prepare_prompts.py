@@ -30,7 +30,7 @@ ANGLES = ['three-quarter view','low viewpoint','side profile','close framing','s
 LIGHTS = ['cold overcast light','soft amber sidelight','restrained rim light through smoke','diffuse light in a ruined hall']
 
 def main():
-    book=openpyxl.load_workbook('GameData/Cards.xlsx',read_only=True,data_only=True)
+    book=openpyxl.load_workbook('GameData/Excel/Cards.xlsx',read_only=True,data_only=True)
     ids=[row[0] for row in list(book['Cards'].values)[1:] if row[0]]; book.close()
     if set(ids)!=set(SUBJECTS): raise ValueError('Every configured card needs an art subject')
     jobs=[]

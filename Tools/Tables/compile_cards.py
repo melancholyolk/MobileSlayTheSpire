@@ -48,7 +48,7 @@ def compile_table(source):
         book.close()
 
 if __name__ == '__main__':
-    p=argparse.ArgumentParser(); p.add_argument('source',nargs='?',default='GameData/Cards.xlsx'); p.add_argument('--output',default='Assets/Resources/Tables/cards.bytes')
+    p=argparse.ArgumentParser(); p.add_argument('source',nargs='?',default='GameData/Excel/Cards.xlsx'); p.add_argument('--output',default='Assets/Resources/Tables/cards.bytes')
     args=p.parse_args(); data=compile_table(args.source)
     target=Path(args.output); target.parent.mkdir(parents=True,exist_ok=True)
     temp=target.with_suffix('.tmp'); temp.write_bytes(data); os.replace(temp,target)
