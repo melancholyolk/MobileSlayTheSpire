@@ -32,6 +32,8 @@ public static class ResourceCatalogBuilder
             else if(File.Exists(path)) estimate=Math.Max(estimate,new FileInfo(path).Length*2);
             entries.Add(new ResourceEntry {Id=id,CharacterId=character,Guid=guid,EstimatedBytes=estimate}); valid.Add(guid);
         }
+        if(File.Exists("Assets/GameResources/UI/Views/Map/4.prefab")) Add(4,-1,"Assets/GameResources/UI/Views/Map/4.prefab");
+        foreach(int theme in new[]{30,31}) if(File.Exists("Assets/GameResources/UI/Shared/Skins/"+theme+".asset")) Add(theme,-1,"Assets/GameResources/UI/Shared/Skins/"+theme+".asset");
         Add(1,-1,"Assets/GameResources/UI/Views/GameStart/GameStartView.prefab");
         Add(2,-1,"Assets/GameResources/UI/Views/Gameplay/GameplayView.prefab");
         if(File.Exists("Assets/GameResources/Animation/21.json")) Add(21,-1,"Assets/GameResources/Animation/21.json");

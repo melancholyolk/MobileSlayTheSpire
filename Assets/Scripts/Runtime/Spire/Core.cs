@@ -61,6 +61,7 @@ namespace Spire
     // All state changes pass through validated commands. No Unity dependency.
     public sealed class Run
     {
+        public readonly List<int> Route=new List<int>();
         public readonly List<MapNode> Map = new List<MapNode>();
         public readonly List<Hero> Heroes = new List<Hero>();
         public readonly List<Enemy> Enemies = new List<Enemy>();
@@ -128,6 +129,7 @@ namespace Spire
             if (Heroes.Where(h => h.Alive).Count() != Votes.Count) return true;
             // Majority vote; deterministic tie break by node id.
             Current = Votes.GroupBy(v => v.Value).OrderByDescending(g => g.Count()).ThenBy(g => g.Key).First().Key;
+            Route.Add(Current);
             Votes.Clear(); Resolved.Clear();
             switch (Map[Current].Kind)
             {

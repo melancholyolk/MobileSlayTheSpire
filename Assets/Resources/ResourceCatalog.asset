@@ -13,6 +13,18 @@ MonoBehaviour:
   m_Name: ResourceCatalog
   m_EditorClassIdentifier: 
   Entries:
+  - Id: 4
+    CharacterId: -1
+    Guid: 3707ebc5515c8bc4da02367393733087
+    EstimatedBytes: 1048576
+  - Id: 30
+    CharacterId: -1
+    Guid: befa40bf174ca9646b75013bb5911d9f
+    EstimatedBytes: 1048576
+  - Id: 31
+    CharacterId: -1
+    Guid: a1daf28ecb635a64890d2935674181d6
+    EstimatedBytes: 1048576
   - Id: 1
     CharacterId: -1
     Guid: 89f550e35d9f9be4786dcae18d569592

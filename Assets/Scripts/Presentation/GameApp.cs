@@ -74,6 +74,7 @@ namespace SpirePresentation
             return scope;
         }
 
+        MapUIView mapView; UiTheme uiTheme;
         GameStartView startView;
         GameplayView gameplayView;
         async Task LoadCharacterAudio(int seat,ResourceScope scope)
@@ -127,6 +128,9 @@ namespace SpirePresentation
                 audioManager=gameObject.AddComponent<FmodAudioManager>();
                 await audioManager.ConfigureAsync(appResources);
                 if(audioManager.TryInitialize()) appAudio=await audioManager.CreateScopeAsync(appResources);
+                uiTheme=await appResources.LoadAsync<UiTheme>(30);
+                var mapTheme=await appResources.LoadAsync<MapTheme>(31);
+                mapView=await ui.OpenAsync<MapUIView>(MapUIView.Path); mapView.Bind(this,mapTheme); ui.Hide(MapUIView.Path);
                 table=(await appResources.LoadAsync<TextAsset>(ResourceIds.Cards)).bytes;
                 Characters=CardTable.Read(table).GroupBy(c=>c.Class).Select(g=>g.First()).OrderBy(c=>(int)c.Class).ToArray();
                 gameplayView=await ui.OpenAsync<GameplayView>(GameplayView.Path);
@@ -200,10 +204,11 @@ namespace SpirePresentation
             var t=rt.gameObject.AddComponent<Text>(); t.text=value; t.font=font; t.fontSize=size; t.color=paper; t.raycastTarget=false; t.verticalOverflow=VerticalWrapMode.Truncate;
             return t;
         }
-        void Button(string name,string caption,float x,float y,float w,float h,Action action,bool enabled=true)
+        void Button(string name,string caption,float x,float y,float w,float h,Action action,bool enabled=true,ButtonIntent intent=ButtonIntent.Secondary)
         {
             var rt=Box(name,x,y,w,h,enabled?accent:new Color(.22f,.23f,.25f));
             var button=rt.gameObject.AddComponent<Button>(); button.interactable=enabled;
+            uiTheme.Apply(button,intent);
             button.onClick.AddListener(()=>action());
             var t=Label(caption,8,6,w-16,h-12,18,rt); t.alignment=TextAnchor.MiddleCenter;
         }
@@ -238,9 +243,15 @@ namespace SpirePresentation
             lastRevision=State?.Revision??-1; lastNetworkStatus=network?.Status;
             if(State==null)
             {
+                ui.Hide(MapUIView.Path);
                 ui.Hide(GameplayView.Path); ui.Show(GameStartView.Path); startView.Refresh(); return;
             }
-            ui.Hide(GameStartView.Path); ui.Show(GameplayView.Path);
+            ui.Hide(GameStartView.Path);
+            if(State.Phase==Phase.Map)
+            {
+                renderVersion++; ClearCards(); ui.Hide(GameplayView.Path); ui.Show(MapUIView.Path); mapView.Refresh(State); return;
+            }
+            ui.Hide(MapUIView.Path); ui.Show(GameplayView.Path);
             renderVersion++; ClearCards();
             foreach(Transform child in page) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
             var background=Box("Background",0,0,1280,720,ink);
@@ -249,7 +260,7 @@ namespace SpirePresentation
             Label(L(LocIds.UiSubtitle),34,70,800,30,17);
             var run=State; lastRevision=run?.Revision??-1; lastNetworkStatus=network?.Status;
             Label(network?.Status??status,32,672,1040,40,18);
-            Button("Menu",L(LocIds.UiMenu),1140,25,108,42,ReturnToMenu);
+            Button("Menu",L(LocIds.UiMenu),1140,25,108,42,ReturnToMenu,intent:ButtonIntent.Destructive);
             Button("Language",ExcelLocalization.Language,990,25,135,42,CycleLanguage);
             for(int p=0;p<run.Heroes.Count;p++)
             {
@@ -257,25 +268,17 @@ namespace SpirePresentation
             }
             Label($"{run.Phase}   /   Floor {(run.Current<0?0:run.Map[run.Current].Floor+1)} of {Run.Floors}",32,160,900,35,24);
             bool ready=network==null || network.Connected;
-            if(!ready && !network.IsHost) Button("Reconnect",L(LocIds.UiReconnect),1080,665,160,40,()=>Join(true));
+            if(!ready && !network.IsHost) Button("Reconnect",L(LocIds.UiReconnect),1080,665,160,40,()=>Join(true),intent:ButtonIntent.Primary);
             var hero=run.Heroes[Player];
             switch(run.Phase)
             {
-                case Phase.Map:
-                    foreach(var n in run.Map)
-                    {
-                        bool reachable=run.Choices.Contains(n.Id); int id=n.Id;
-                        string mark=run.Votes.Values.Contains(id)?" [VOTE]":"";
-                        Button("Node_"+id,$"{n.Floor+1}\n{n.Kind}{mark}",32+n.Floor*153,245+n.Lane*116,139,94,()=>Send("vote",id),reachable && ready && hero.Alive);
-                    }
-                    break;
                 case Phase.Combat:
                     var enemy=run.Enemies[0];
                     
                     Label($"{enemy.Name}    HP {enemy.Hp}\nIntent: attack all for {enemy.Damage+(run.Turn%3==0?3:0)}\nPoison {enemy.Poison}",840,195,380,70,17);
                     Label($"Turn {run.Turn}     Energy {hero.Energy}     Block {hero.Block}     Strength {hero.Strength}\nDraw {hero.Draw.Count}  /  Discard {hero.Discard.Count}  /  Exhaust {hero.Exhausted.Count}",32,410,1000,65,21);
                     CardsReady=RenderCards(hero.Hand.ToArray(),false,ready && hero.Alive && !hero.Ended,renderVersion);
-                    Button("EndTurn",hero.Ended?L(LocIds.UiWait):L(LocIds.UiEnd),1060,400,185,70,()=>Send("end"),ready && hero.Alive && !hero.Ended);
+                    Button("EndTurn",hero.Ended?L(LocIds.UiWait):L(LocIds.UiEnd),1060,400,185,70,()=>Send("end"),ready && hero.Alive && !hero.Ended,ButtonIntent.Primary);
                     break;
                 case Phase.Reward:
                     Label(L(LocIds.UiReward),60,240,1100,50,27);
