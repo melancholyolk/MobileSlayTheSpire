@@ -4,6 +4,8 @@
 
 普通游戏功能开发无需加载该技能。技能不扩大当前用户请求或执行授权的范围。
 
+卡牌美术设计、AI 出图、批量候选筛选和美术资源接入时，先读 [local-art-pipeline](.agents/skills/local-art-pipeline/SKILL.md)。该技能关联 `D:/AiDraw` 的本地 `card-game-art`、`comfyui-draw` 技能；美术生产环境留在外部目录，本游戏 Git 仅管理关联说明，不纳入管线、模型、环境或候选图片。
+
 # Unity 编辑器操作
 
 本项目已安装 Unity CLI Loop，使用 `.agents/skills/uloop-*` 中的对应技能操作当前编辑器。
