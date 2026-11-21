@@ -21,6 +21,10 @@ MonoBehaviour:
     CharacterId: -1
     Guid: 44bddebb5d7411d49a7b86ed68c9a79d
     EstimatedBytes: 1048576
+  - Id: 20
+    CharacterId: -1
+    Guid: 4a783108b0aa89845932c4edeec044e2
+    EstimatedBytes: 1048576
   - Id: 3
     CharacterId: -1
     Guid: d774cfb14aea6e44c816b14b90c5d932

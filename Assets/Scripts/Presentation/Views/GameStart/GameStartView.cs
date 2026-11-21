@@ -20,6 +20,14 @@ namespace SpirePresentation
         [SerializeField] InputField address;
         [SerializeField] Text title, status, players;
         GameApp app;
+        readonly List<CardUIView> previewViews=new List<CardUIView>();
+        void ClearPreviews()
+        {
+            foreach(var view in previewViews) if(view!=null) Unregister(view);
+            previewViews.Clear();
+            foreach(var scope in previews) scope.Dispose();
+            previews.Clear();
+        }
         readonly List<ResourceScope> previews=new List<ResourceScope>();
         int generation;
         StartPage shown=(StartPage)(-1);
@@ -72,7 +80,7 @@ namespace SpirePresentation
         async Task RebuildChoices()
         {
             int version=++generation;
-            foreach(var scope in previews) scope.Dispose(); previews.Clear();
+            ClearPreviews();
             if(app.MenuPage!=StartPage.Solo && app.MenuPage!=StartPage.Lobby) return;
             try
             {
@@ -86,7 +94,7 @@ namespace SpirePresentation
                     var rt=go.GetComponent<RectTransform>(); rt.anchorMin=rt.anchorMax=rt.pivot=new Vector2(0,1);
                     rt.anchoredPosition=new Vector2(index*244,0); rt.sizeDelta=new Vector2(224,330);
                     go.name="Character_"+(int)card.Class; go.SetActive(true);
-                    var view=go.GetComponent<CardUIView>(); Register(view);
+                    var view=go.GetComponent<CardUIView>(); Register(view); previewViews.Add(view);
                     await view.BindCharacter(card,scope,()=> {
                         if(app.MenuPage==StartPage.Solo) app.StartSolo(card.Class);
                         else app.Network.SelectCharacter((int)card.Class);
@@ -101,7 +109,7 @@ namespace SpirePresentation
         }
         protected override void OnHidden()
         {
-            generation++; foreach(var scope in previews) scope.Dispose(); previews.Clear(); shown=(StartPage)(-1);
+            generation++; ClearPreviews(); shown=(StartPage)(-1);
         }
         protected override void OnReleased() { OnHidden(); app=null; }
     }

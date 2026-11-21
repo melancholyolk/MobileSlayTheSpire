@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using SpireUI;
 using SpireResources;
+using SpireAudio;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -30,6 +31,13 @@ namespace SpirePresentation
         UiManager ui;
         public ResourceManager Resources { get; private set; }
         ResourceScope appResources;
+        FmodAudioManager audioManager;
+        FmodAudioScope appAudio;
+        readonly Dictionary<int,FmodAudioScope> characterAudio=new Dictionary<int,FmodAudioScope>();
+        bool destroying;
+        public string AudioStatus=>audioManager==null?"Not initialized":audioManager.Status;
+        void StopNetwork() { if(network==null) return; network.Changed-=Render; network.Dispose(); network=null; }
+
         readonly Dictionary<int,ResourceScope> characterResources=new Dictionary<int,ResourceScope>();
         readonly List<(GameObject go,ResourceScope scope)> visibleCards=new List<(GameObject,ResourceScope)>();
         int renderVersion;
@@ -38,13 +46,13 @@ namespace SpirePresentation
         public StartPage MenuPage { get; private set; }=StartPage.Home;
         public string LocalAddress { get; private set; }="127.0.0.1";
         public Task CardsReady { get; private set; }=Task.CompletedTask;
-        public void Navigate(StartPage page) { MenuPage=page; Render(); }
+        public void Navigate(StartPage page) { appAudio?.TryPlay(1); MenuPage=page; Render(); }
         void ReleaseCharacters()
         {
             renderVersion++;
             ClearCards();
             foreach(var scope in characterResources.Values) scope.Dispose();
-            characterResources.Clear();
+            characterResources.Clear(); characterAudio.Clear();
         }
         void ClearCards()
         {
@@ -57,12 +65,23 @@ namespace SpirePresentation
         ResourceScope CharacterScope(int seat)
         {
             if(!characterResources.TryGetValue(seat,out var scope))
+            {
                 characterResources[seat]=scope=Resources.CreateScope((int)State.Heroes[seat].Class);
+                _=LoadCharacterAudio(seat,scope);
+            }
             return scope;
         }
 
         GameStartView startView;
         GameplayView gameplayView;
+        async Task LoadCharacterAudio(int seat,ResourceScope scope)
+        {
+            if(audioManager==null || !audioManager.Available) return;
+            try { var audio=await audioManager.CreateScopeAsync(scope); if(!scope.IsDisposed) characterAudio[seat]=audio; }
+            catch(OperationCanceledException) { }
+            catch(ObjectDisposedException) { }
+            catch(Exception error) { Debug.LogWarning(error.Message); }
+        }
         public Task UiReady { get; private set; }
         public UiManager UI=>ui;
         public string HostAddress { get=>address; set=>address=value; }
@@ -100,6 +119,9 @@ namespace SpirePresentation
         {
             try
             {
+                audioManager=gameObject.AddComponent<FmodAudioManager>();
+                await audioManager.ConfigureAsync(appResources);
+                if(audioManager.TryInitialize()) appAudio=await audioManager.CreateScopeAsync(appResources);
                 table=(await appResources.LoadAsync<TextAsset>(ResourceIds.Cards)).bytes;
                 Characters=CardTable.Read(table).GroupBy(c=>c.Class).Select(g=>g.First()).OrderBy(c=>(int)c.Class).ToArray();
                 gameplayView=await ui.OpenAsync<GameplayView>(GameplayView.Path);
@@ -114,7 +136,7 @@ namespace SpirePresentation
         }
         public void ReturnToMenu()
         {
-            network?.Dispose(); network=null; solo=null; ReleaseCharacters(); MenuPage=StartPage.Home; status=""; Render();
+            StopNetwork(); solo=null; ReleaseCharacters(); MenuPage=StartPage.Home; status=""; Render();
         }
         public void CycleLanguage()
         {
@@ -129,30 +151,31 @@ namespace SpirePresentation
         }
         void OnLocaleChanged(Locale locale) { if(startView!=null) startView.RefreshLanguage(); if(page!=null) Render(); }
         static string L(int key) => ExcelLocalization.Text(key);
-        void OnDestroy() { LocalizationSettings.SelectedLocaleChanged-=OnLocaleChanged; network?.Dispose(); ReleaseCharacters(); appResources?.Dispose(); if(Instance==this) Instance=null; }
+        void OnDestroy() { destroying=true; LocalizationSettings.SelectedLocaleChanged-=OnLocaleChanged; StopNetwork(); ReleaseCharacters(); appResources?.Dispose(); if(Instance==this) Instance=null; }
         public void StartSolo(HeroClass cls,uint seed=42)
         {
-            network?.Dispose(); network=null; ReleaseCharacters(); solo=new Run(CardTable.Read(table),seed,cls); status="Choose a route."; Render();
+            StopNetwork(); ReleaseCharacters(); solo=new Run(CardTable.Read(table),seed,cls); status="Choose a route."; Render();
         }
         public void Send(string action,int argument=0)
         {
+            if(action=="play" && characterAudio.TryGetValue(Player,out var audio)) audio.TryPlay(2);
             if(network!=null) { network.Submit(action,argument); status=network.Status; }
             else if(solo!=null) { if(!solo.Apply(0,action,argument,out var error)) status=error; else status=""; }
             Render();
         }
-        public void Host()
+        public void Host(int port=7777)
         {
-            try { network?.Dispose(); network=new CoopSession(table); network.Host(7777,42); network.Changed+=Render; solo=null; MenuPage=StartPage.Lobby; Render(); }
-            catch(Exception e) { status=e.Message; network?.Dispose(); network=null; Render(); }
+            try { StopNetwork(); network=new CoopSession(table); network.Host(port,42); network.Changed+=Render; solo=null; MenuPage=StartPage.Lobby; Render(); }
+            catch(Exception e) { status=e.Message; StopNetwork(); Render(); }
         }
-        public void Join(bool resume)
+        public void Join(bool resume,int port=7777)
         {
             try
             {
                 if(resume && network!=null) resumeToken=network.ResumeToken;
-                network?.Dispose(); network=new CoopSession(table); network.Join(address,7777,resume?resumeToken:null); network.Changed+=Render; solo=null; MenuPage=StartPage.Lobby; Render();
+                StopNetwork(); network=new CoopSession(table); network.Join(address,port,resume?resumeToken:null); network.Changed+=Render; solo=null; MenuPage=StartPage.Lobby; Render();
             }
-            catch(Exception e) { status=e.Message; network?.Dispose(); network=null; Render(); }
+            catch(Exception e) { status=e.Message; StopNetwork(); Render(); }
         }
         RectTransform Box(string name,float x,float y,float w,float h,Color color,Transform parent=null)
         {
@@ -203,7 +226,7 @@ namespace SpirePresentation
         }
         public void Render()
         {
-            if(startView==null || gameplayView==null) return;
+            if(destroying || startView==null || gameplayView==null) return;
             lastRevision=State?.Revision??-1; lastNetworkStatus=network?.Status;
             if(State==null)
             {

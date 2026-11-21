@@ -1,0 +1,7 @@
+Managed bindings from https://github.com/fmod/fmod-for-unity
+Commit da38d508a55f50e9d002d69619ac0f92276dd991 (FMOD 2.02.35).
+Only fmod.cs, fmod_dsp.cs, fmod_errors.cs and fmod_studio.cs are included.
+Modification: FMOD namespace renamed to SpireFmod to avoid conflicts with FMODUnity.
+NativeLibraries.cs supplies platform library names.
+Native binaries are NOT included upstream and have NOT been installed.
+Obtain matching native libraries from the official FMOD Unity package or Engine SDK.

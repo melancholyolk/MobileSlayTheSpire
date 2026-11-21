@@ -104,6 +104,17 @@ namespace SpireResources
         readonly Dictionary<int,Task<Object>> leases=new Dictionary<int,Task<Object>>();
         readonly Dictionary<GameObject,int> instances=new Dictionary<GameObject,int>();
         readonly Dictionary<int,Stack<GameObject>> pools=new Dictionary<int,Stack<GameObject>>();
+        readonly List<IDisposable> owned=new List<IDisposable>();
+        public void Own(IDisposable resource)
+        {
+            if(disposed) { resource.Dispose(); throw new ObjectDisposedException(nameof(ResourceScope)); }
+            owned.Add(resource);
+        }
+        void ReleaseOwned()
+        {
+            foreach(var resource in owned.ToArray()) { try { resource.Dispose(); } catch(Exception e) { Debug.LogException(e); } }
+            owned.Clear();
+        }
         bool disposed;
         Task disposal;
         public int CharacterId { get; }
@@ -159,7 +170,7 @@ namespace SpireResources
         public Task DisposeAsync()
         {
             if(disposal!=null) return disposal;
-            disposed=true; disposal=DisposeCore(); return disposal;
+            disposed=true; ReleaseOwned(); disposal=DisposeCore(); return disposal;
         }
         async Task DisposeCore()
         {
@@ -174,7 +185,7 @@ namespace SpireResources
         public void Dispose() { _=DisposeAsync(); }
         internal void Shutdown()
         {
-            disposed=true;
+            disposed=true; ReleaseOwned();
             foreach(var go in instances.Keys.ToArray()) manager.DestroyInstance(go);
             instances.Clear(); pools.Clear(); leases.Clear();
         }

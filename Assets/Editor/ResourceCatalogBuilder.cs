@@ -34,6 +34,7 @@ public static class ResourceCatalogBuilder
         }
         Add(1,-1,"Assets/GameResources/UI/Views/GameStart/GameStartView.prefab");
         Add(2,-1,"Assets/GameResources/UI/Views/Gameplay/GameplayView.prefab");
+        Add(20,-1,"Assets/GameResources/Audio/20.json");
         Add(3,-1,"Assets/GameResources/UI/Views/Card/3.prefab");
         // Tables stay in Resources for the localization plugin and existing table tooling.
         // AssetDatabase moves them into the Addressables build input outside Resources.
@@ -42,6 +43,11 @@ public static class ResourceCatalogBuilder
         {
             var target="Assets/GameResources/Tables/"+item.Item1+".bytes";
             File.Copy(item.Item2,target,true); AssetDatabase.ImportAsset(target); Add(item.Item1,-1,target);
+        }
+        foreach(var bank in Directory.GetFiles("Assets/GameResources/Audio","*.bytes",SearchOption.AllDirectories))
+        {
+            if(!int.TryParse(Path.GetFileNameWithoutExtension(bank),out int bankId)) throw new InvalidDataException("Audio bank filename must be numeric");
+            Add(bankId,-1,bank.Replace((char)92,'/'));
         }
         foreach(var path in Directory.GetFiles("Assets/GameResources/Characters","*",SearchOption.AllDirectories).OrderBy(p=>p))
         {

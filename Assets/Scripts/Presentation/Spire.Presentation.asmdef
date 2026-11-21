@@ -6,6 +6,7 @@
     "Spire.Localization",
     "Unity.Localization",
     "Spire.UI",
-    "Spire.Resources"
+    "Spire.Resources",
+    "Spire.Audio"
   ]
 }
