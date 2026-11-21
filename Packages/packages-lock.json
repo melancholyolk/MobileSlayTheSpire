@@ -97,7 +97,7 @@
     },
     "com.unity.addressables": {
       "version": "1.22.4-t1",
-      "depth": 1,
+      "depth": 0,
       "source": "registry",
       "dependencies": {
         "com.unity.scriptablebuildpipeline": "1.21.25",
@@ -240,7 +240,7 @@
     },
     "com.unity.scriptablebuildpipeline": {
       "version": "1.21.25",
-      "depth": 2,
+      "depth": 1,
       "source": "registry",
       "dependencies": {},
       "url": "https://packages.tuanjie.cn"

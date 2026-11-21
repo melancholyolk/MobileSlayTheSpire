@@ -4,7 +4,7 @@ namespace SpirePresentation
 {
     public sealed class GameplayView : BaseUIView
     {
-        public const string Path="UI/Views/Gameplay/GameplayView";
+        public const int Path=2;
         [SerializeField] RectTransform content;
         public RectTransform Content=>content;
     }

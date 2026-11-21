@@ -12,7 +12,7 @@ namespace Spire
     [Serializable] public sealed class Card
     {
         public string Id;
-        public int NameId;
+        public int NameId, ArtId, CharacterNameId, CharacterMaxHp=80, PortraitId;
         public HeroClass Class;
         public int Cost, Amount, Hits = 1, StarterCopies;
         public Effect Effect;
@@ -81,7 +81,7 @@ namespace Spire
             Random = new RandomSource(seed);
             foreach (var cls in classes)
             {
-                var h = new Hero { Class = cls, MaxHp = cls == HeroClass.Warrior ? 80 : 70 };
+                var h = new Hero { Class = cls, MaxHp = Cards.Values.First(c=>c.Class==cls).CharacterMaxHp };
                 h.Hp = h.MaxHp;
                 foreach (var card in Cards.Values.Where(c => c.Class == cls).OrderBy(c => c.Id, StringComparer.Ordinal))
                     for (int n = 0; n < card.StarterCopies; n++) h.Deck.Add(card.Id);

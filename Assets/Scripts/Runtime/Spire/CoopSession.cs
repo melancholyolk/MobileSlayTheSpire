@@ -5,6 +5,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
+using System.Linq;
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace Spire
@@ -18,7 +20,10 @@ namespace Spire
     {
         public string kind, hash, token, error;
         public uint seed;
-        public int protocol = 1;
+        public int protocol = 2;
+        public int[] characters;
+        public bool ready, started;
+        public int character;
         public CommandRecord command;
         public List<CommandRecord> history;
     }
@@ -47,7 +52,7 @@ namespace Spire
                     if(buffer[i]==10)
                     {
                         var packet=JsonUtility.FromJson<Packet>(Encoding.UTF8.GetString(pending.ToArray())); pending.Clear();
-                        if(packet==null || packet.protocol!=1) throw new IOException("Invalid protocol");
+                        if(packet==null || packet.protocol!=2) throw new IOException("Invalid protocol");
                         yield return packet;
                     }
                     else { pending.Add(buffer[i]); if(pending.Count>1048576) throw new IOException("Packet too large"); }
@@ -66,6 +71,18 @@ namespace Spire
         Peer peer;
         string seatToken;
         uint seed;
+        TcpClient connecting;
+        Task connectTask;
+        int[] selections={-1,-1};
+        bool guestReady;
+        public int LobbyRevision { get; private set; }
+        public bool GuestReady=>guestReady;
+        public int SelectedCharacter(int seat)=>selections[seat];
+        public bool CanStart=>IsHost && Connected && Run==null && guestReady && selections.All(ValidCharacter);
+        bool ValidCharacter(int id)=>cards.Any(c=>(int)c.Class==id);
+        public event Action Changed;
+        void Notify() { LobbyRevision++; Changed?.Invoke(); }
+
         DateTime handshakeDeadline;
         public Run Run { get; private set; }
         public bool IsHost { get; private set; }
@@ -82,26 +99,34 @@ namespace Spire
         public void Host(int port,uint runSeed)
         {
             Dispose(); IsHost=true; seed=runSeed; seatToken=null; history.Clear();
-            Run=new Run(cards,seed,HeroClass.Warrior,HeroClass.Hunter);
-            listener=new TcpListener(IPAddress.Any,port); listener.Start(2); Status="Waiting for Hunter";
+            Run=null; selections=new[]{-1,-1}; guestReady=false;
+            listener=new TcpListener(IPAddress.Any,port); listener.Start(2); Status="Waiting for player"; Notify();
         }
         public void Join(string address,int port,string resumeToken=null)
         {
             Dispose(); IsHost=false; Run=null; seatToken=resumeToken;
-            var client=new TcpClient();
-            try
-            {
-                var connect=client.ConnectAsync(address,port);
-                if(!connect.Wait(3000)) throw new IOException("Connection timed out");
-                peer=new Peer(client); handshakeDeadline=DateTime.UtcNow.AddSeconds(5);
-                peer.Send(new Packet {kind="hello",hash=hash,token=seatToken}); Status="Connecting";
-            }
-            catch { client.Close(); throw; }
+            selections=new[]{-1,-1}; guestReady=false;
+            connecting=new TcpClient();
+            connectTask=connecting.ConnectAsync(address,port);
+            handshakeDeadline=DateTime.UtcNow.AddSeconds(5);
+            Status="Connecting"; Notify();
         }
         public void Pump()
         {
             try
             {
+                if(connectTask!=null)
+                {
+                    if(!connectTask.IsCompleted)
+                    {
+                        if(DateTime.UtcNow>handshakeDeadline) Disconnect("Connection timed out");
+                        return;
+                    }
+                    connectTask.GetAwaiter().GetResult(); connectTask=null;
+                    peer=new Peer(connecting); connecting=null;
+                    peer.Send(new Packet {kind="hello",hash=hash,token=seatToken});
+                    handshakeDeadline=DateTime.UtcNow.AddSeconds(5);
+                }
                 if(IsHost && listener!=null && listener.Pending())
                 {
                     var client=listener.AcceptTcpClient();
@@ -127,10 +152,18 @@ namespace Spire
                     if(packet.hash!=hash || (seatToken!=null && packet.token!=seatToken))
                     { peer.Send(new Packet {kind="error",error="Table mismatch or invalid reconnect token"}); Disconnect("Join rejected"); return; }
                     if(seatToken==null) seatToken=Guid.NewGuid().ToString("N");
-                    peer.Send(new Packet {kind="welcome",hash=hash,seed=seed,token=seatToken,history=history});
-                    Connected=true; Status="Co-op connected";
+                    peer.Send(Snapshot("welcome"));
+                    Connected=true; Status="Co-op connected"; Notify();
                 }
-                else if(packet.kind=="command" && Connected && packet.command!=null)
+                else if(packet.kind=="select" && Connected && Run==null)
+                {
+                    if(ValidCharacter(packet.character)) { selections[1]=packet.character; guestReady=false; BroadcastLobby(); }
+                }
+                else if(packet.kind=="ready" && Connected && Run==null)
+                {
+                    guestReady=packet.ready && ValidCharacter(selections[1]); BroadcastLobby();
+                }
+                else if(packet.kind=="command" && Connected && Run!=null && packet.command!=null)
                 {
                     // Bind ownership to the connection; never trust client-supplied player ids.
                     packet.command.player=1;
@@ -140,10 +173,13 @@ namespace Spire
             else if(packet.kind=="welcome" && !Connected)
             {
                 if(packet.hash!=hash || packet.history==null || packet.history.Count>10000) throw new IOException("Invalid session snapshot");
-                var restored=new Run(cards,packet.seed,HeroClass.Warrior,HeroClass.Hunter);
-                foreach(var c in packet.history)
-                    if(c.revision!=restored.Revision || !restored.Apply(c.player,c.action,c.argument,out _)) throw new IOException("Invalid session history");
-                Run=restored; seatToken=packet.token; Connected=true; Status="Co-op connected";
+                Restore(packet);
+                seatToken=packet.token; Connected=true; Status="Co-op connected"; Notify();
+            }
+            else if((packet.kind=="lobby" || packet.kind=="start") && Connected)
+            {
+                if(Run!=null) throw new IOException("Unexpected lobby packet after start");
+                Restore(packet); Notify();
             }
             else if(packet.kind=="accepted" && Connected)
             {
@@ -152,6 +188,40 @@ namespace Spire
                 Status="Co-op connected";
             }
             else if(packet.kind=="error") Status=packet.error;
+        }
+        Packet Snapshot(string kind)=>new Packet {kind=kind,hash=hash,seed=seed,token=seatToken,history=history,characters=selections,ready=guestReady,started=Run!=null};
+        void Restore(Packet packet)
+        {
+            if(packet.characters==null || packet.characters.Length!=2 ||
+                packet.characters.Any(c=>c!=-1 && !ValidCharacter(c))) throw new IOException("Invalid character selection");
+            selections=(int[])packet.characters.Clone(); guestReady=packet.ready;
+            if(packet.started)
+            {
+                if(!selections.All(ValidCharacter) || packet.history==null || packet.history.Count>10000) throw new IOException("Invalid start snapshot");
+                var restored=new Run(cards,packet.seed,selections.Select(c=>(HeroClass)c).ToArray());
+                foreach(var c in packet.history)
+                    if(c.revision!=restored.Revision || !restored.Apply(c.player,c.action,c.argument,out _)) throw new IOException("Invalid session history");
+                Run=restored;
+            }
+        }
+        void BroadcastLobby() { if(Connected) peer.Send(Snapshot("lobby")); Notify(); }
+        public bool SelectCharacter(int id)
+        {
+            if(Run!=null || !ValidCharacter(id) || (!IsHost && !Connected)) return false;
+            if(IsHost) { selections[0]=id; guestReady=false; BroadcastLobby(); }
+            else peer.Send(new Packet {kind="select",character=id});
+            return true;
+        }
+        public bool SetReady(bool ready)
+        {
+            if(IsHost || Run!=null || !Connected) return false;
+            peer.Send(new Packet {kind="ready",ready=ready}); return true;
+        }
+        public bool StartGame()
+        {
+            if(!CanStart) return false;
+            Run=new Run(cards,seed,selections.Select(c=>(HeroClass)c).ToArray());
+            peer.Send(Snapshot("start")); Status="Co-op connected"; Notify(); return true;
         }
         bool Accept(CommandRecord command)
         {
@@ -177,7 +247,13 @@ namespace Spire
             }
             catch(Exception e) when(e is IOException || e is SocketException) { Disconnect(e.Message); return false; }
         }
-        void Disconnect(string message) { peer?.Dispose(); peer=null; Connected=false; Status=message; }
+        void Disconnect(string message)
+        {
+            peer?.Dispose(); peer=null; connecting?.Close(); connecting=null; connectTask=null;
+            Connected=false; guestReady=false;
+            if(Run==null) { seatToken=null; selections[1]=-1; }
+            Status=message; Notify();
+        }
         public void Dispose() { Disconnect("Offline"); listener?.Stop(); listener=null; }
     }
 }

@@ -2,6 +2,7 @@ using System.Collections;
 using System.Linq;
 using NUnit.Framework;
 using SpireUI;
+using SpireResources;
 using SpirePresentation;
 using UnityEngine;
 using UnityEngine.TestTools;
@@ -11,7 +12,7 @@ public class UiFrameworkTests
     [UnityTest] public IEnumerator AsyncCacheHideCloseAndInvalidLoads()
     {
         var root=new GameObject("UiTest",typeof(RectTransform));
-        var manager=root.AddComponent<UiManager>(); manager.Configure(root.transform);
+        var manager=root.AddComponent<UiManager>(); var resources=ResourceManager.Create(root); var scope=resources.CreateScope(); manager.Configure(root.transform,scope);
         try
         {
             var first=manager.OpenAsync<GameplayView>(GameplayView.Path);
@@ -32,26 +33,26 @@ public class UiFrameworkTests
             var wrong=manager.OpenAsync<GameStartView>(GameplayView.Path); Assert.IsTrue(wrong.IsFaulted);
             manager.Close(GameplayView.Path); Assert.AreEqual(0,manager.Count);
             yield return null; Assert.IsTrue(view==null);
-            var missing=manager.OpenAsync<GameplayView>("UI/DoesNotExist");
+            var missing=manager.OpenAsync<GameplayView>(999999);
             deadline=Time.realtimeSinceStartup+20;
             while(!missing.IsCompleted && Time.realtimeSinceStartup<deadline) yield return null;
             Assert.IsTrue(missing.IsFaulted); Assert.AreEqual(0,manager.Count);
             var cancelled=manager.OpenAsync<GameplayView>(GameplayView.Path); manager.Close(GameplayView.Path);
             yield return null;
             Assert.IsTrue(cancelled.IsCanceled || cancelled.IsCompletedSuccessfully);
-            Assert.AreEqual(0,manager.Count); Assert.AreEqual(0,root.transform.childCount);
+            Assert.AreEqual(0,manager.Count); Assert.AreEqual(0,scope.InstanceCount);
         }
         finally { Object.Destroy(root); }
         yield return null;
     }
     [Test] public void StartPrefabOwnsAllGraphicsAndSelectables()
     {
-        var prefab=Resources.Load<GameObject>(GameStartView.Path);
+        var prefab=UnityEditor.AssetDatabase.LoadAssetAtPath<GameObject>("Assets/GameResources/UI/Views/GameStart/GameStartView.prefab");
         Assert.IsNotNull(prefab); Assert.IsNotNull(prefab.GetComponent<GameStartView>());
         foreach(var graphic in prefab.GetComponentsInChildren<Graphic>(true))
             Assert.IsTrue(graphic.GetComponents<MonoBehaviour>().Any(c=>c is IUiElement),graphic.name);
         foreach(var selectable in prefab.GetComponentsInChildren<Selectable>(true))
             Assert.IsTrue(selectable.GetComponents<MonoBehaviour>().Any(c=>c is IUiElement),selectable.name);
-        Assert.AreEqual(5,prefab.GetComponentsInChildren<Button>(true).Length);
+        Assert.AreEqual(8,prefab.GetComponentsInChildren<Button>(true).Length);
     }
 }

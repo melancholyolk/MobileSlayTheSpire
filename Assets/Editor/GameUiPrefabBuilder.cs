@@ -43,56 +43,79 @@ public static class GameUiPrefabBuilder
     [MenuItem("Tools/Spire/Rebuild UI Prefabs")]
     public static void Build()
     {
-        var bg=Sprite("Assets/Resources/UI/Views/GameStart/Art/Background.png");
-        var warrior=Sprite("Assets/UI/Shared/Portraits/Warrior.png");
-        var hunter=Sprite("Assets/UI/Shared/Portraits/Hunter.png");
+
+        var bg=Sprite("Assets/GameResources/UI/Views/GameStart/Art/101.png");
+        foreach(var path in System.IO.Directory.GetFiles("Assets/GameResources/Characters","*.png",System.IO.SearchOption.AllDirectories)) Sprite(path.Replace('\\','/'));
         var go=new GameObject("GameStartView",typeof(RectTransform),typeof(GameStartView)); go.SetActive(false);
         try
         {
             Stretch(go.GetComponent<RectTransform>());
             var image=Panel("Background",go.transform,0,0,1280,720,Color.white,bg); Stretch(image.rectTransform);
-            var shade=Panel("Shade",go.transform,0,0,1280,720,new Color(.025f,.035f,.045f,.50f)); Stretch(shade.rectTransform);
-            // Centered reference layout stays legible on landscape phones and tablets.
-            var layout=Rect("Layout",go.transform,0,0,1280,720); layout.anchorMin=layout.anchorMax=layout.pivot=new Vector2(.5f,.5f); layout.anchoredPosition=Vector2.zero;
+            Stretch(Panel("Shade",go.transform,0,0,1280,720,new Color(.025f,.035f,.045f,.65f)).rectTransform);
+            var layout=Rect("Layout",go.transform,0,0,1280,720);
+            layout.anchorMin=layout.anchorMax=layout.pivot=new Vector2(.5f,.5f); layout.anchoredPosition=Vector2.zero;
             var s=new SerializedObject(go.GetComponent<GameStartView>());
-            Label("Edition",layout,58,42,500,26,15,"A S H E N   S P I R E   /   0 1");
-            Set(s,"title",Label("Title",layout,54,85,530,90,58));
-            Set(s,"subtitle",Label("Subtitle",layout,58,182,480,60,19));
-            Panel("Accent",layout,58,264,70,3,new Color(.72f,.46f,.29f));
-            Set(s,"choose",Label("Choose",layout,58,284,480,45,24));
-            var w=Button("Warrior",layout,600,105,280,490,Color.white);
-            w.GetComponent<Image>().sprite=warrior;
-            var h=Button("Hunter",layout,904,105,280,490,Color.white);
-            h.GetComponent<Image>().sprite=hunter;
-            Set(s,"warrior",w); Set(s,"hunter",h);
-            foreach(var b in new[]{w,h}) Panel("CaptionShade",b.transform,0,394,280,96,new Color(.025f,.03f,.04f,.87f));
-            Set(s,"warriorCaption",Label("Caption",w.transform,22,414,240,65,23));
-            Set(s,"hunterCaption",Label("Caption",h.transform,22,414,240,65,23));
-            Set(s,"addressCaption",Label("AddressCaption",layout,58,370,480,32,16));
-            var addressPanel=Panel("HostAddress",layout,58,408,470,48,new Color(.06f,.07f,.08f,.92f)); addressPanel.raycastTarget=true;
-            var input=addressPanel.gameObject.AddComponent<InputField>(); input.targetGraphic=addressPanel;
-            input.textComponent=Label("Value",addressPanel.transform,14,0,442,48,21); input.characterLimit=253;
-            input.contentType=InputField.ContentType.Standard; Set(s,"hostAddress",input);
-            var host=Button("Host",layout,58,476,226,58,new Color(.40f,.25f,.18f));
-            var join=Button("Join",layout,302,476,226,58,new Color(.16f,.28f,.28f));
-            Set(s,"host",host); Set(s,"join",join);
-            var ht=Label("Caption",host.transform,8,0,210,58,18); ht.alignment=TextAnchor.MiddleCenter; Set(s,"hostCaption",ht);
-            var jt=Label("Caption",join.transform,8,0,210,58,18); jt.alignment=TextAnchor.MiddleCenter; Set(s,"joinCaption",jt);
-            Set(s,"status",Label("Status",layout,58,550,480,95,16));
-            var lang=Button("Language",layout,1034,36,150,40,new Color(.07f,.09f,.1f,.85f)); Set(s,"language",lang);
-            var lt=Label("Caption",lang.transform,0,0,150,40,16); lt.alignment=TextAnchor.MiddleCenter; Set(s,"languageCaption",lt);
-            Label("Footer",layout,600,628,584,30,13,"I   /   W A R R I O R                      II   /   H U N T E R");
+            Set(s,"title",Label("Title",layout,64,35,700,90,52));
+            var home=Rect("Home",layout,0,0,1280,720);
+            var selection=Rect("Selection",layout,0,0,1280,720);
+            var connection=Rect("Connection",layout,0,0,1280,720);
+            var lobby=Rect("Lobby",layout,0,0,1280,720);
+            Set(s,"home",home.gameObject); Set(s,"selection",selection.gameObject); Set(s,"connection",connection.gameObject); Set(s,"lobby",lobby.gameObject);
+            Set(s,"single",CaptionButton("SinglePlayer",home,80,245,420,80,"Single Player"));
+            Set(s,"multiplayer",CaptionButton("Multiplayer",home,80,350,420,80,"Multiplayer"));
+            Set(s,"back",CaptionButton("Back",layout,1010,40,180,48,"Back"));
+            Set(s,"language",CaptionButton("Language",layout,1010,104,180,38,"EN / 中文"));
+            Set(s,"host",CaptionButton("Host",connection,80,300,420,70,"Create Room"));
+            Set(s,"join",CaptionButton("Join",connection,80,480,420,70,"Join Room"));
+            var inputImage=Panel("HostAddress",connection,80,395,420,58,new Color(.08f,.10f,.12f)); inputImage.raycastTarget=true;
+            var input=inputImage.gameObject.AddComponent<InputField>(); input.targetGraphic=inputImage;
+            input.textComponent=Label("Value",input.transform,16,0,388,58,23); input.text="127.0.0.1"; input.characterLimit=253; Set(s,"address",input);
+            // Horizontal scrolling supports additional table-defined characters without layout code.
+            var viewport=Panel("Viewport",selection,64,200,1152,330,new Color(0,0,0,.15f)); viewport.gameObject.AddComponent<RectMask2D>();
+            var scroll=viewport.gameObject.AddComponent<ScrollRect>(); scroll.horizontal=true; scroll.vertical=false; scroll.viewport=viewport.rectTransform;
+            var choices=Rect("Choices",viewport.transform,0,0,1152,330); scroll.content=choices; Set(s,"choices",choices);
+            Set(s,"ready",CaptionButton("Ready",lobby,940,560,250,64,"Ready"));
+            Set(s,"start",CaptionButton("StartGame",lobby,940,560,250,64,"Start Game"));
+            Set(s,"players",Label("Players",lobby,64,545,850,120,21));
+            Set(s,"status",Label("Status",layout,64,150,1130,45,18));
             s.ApplyModifiedPropertiesWithoutUndo();
-            PrefabUtility.SaveAsPrefabAsset(go,"Assets/Resources/UI/Views/GameStart/GameStartView.prefab");
+            PrefabUtility.SaveAsPrefabAsset(go,"Assets/GameResources/UI/Views/GameStart/GameStartView.prefab");
         }
         finally { Object.DestroyImmediate(go); }
         var game=new GameObject("GameplayView",typeof(RectTransform),typeof(GameplayView)); game.SetActive(false);
         try {
-            Stretch(game.GetComponent<RectTransform>());
-            var content=Rect("Content",game.transform,0,0,1280,720); Stretch(content);
+            Stretch(game.GetComponent<RectTransform>()); var content=Rect("Content",game.transform,0,0,1280,720); Stretch(content);
             var s=new SerializedObject(game.GetComponent<GameplayView>()); Set(s,"content",content); s.ApplyModifiedPropertiesWithoutUndo();
-            PrefabUtility.SaveAsPrefabAsset(game,"Assets/Resources/UI/Views/Gameplay/GameplayView.prefab");
+            PrefabUtility.SaveAsPrefabAsset(game,"Assets/GameResources/UI/Views/Gameplay/GameplayView.prefab");
         } finally { Object.DestroyImmediate(game); }
-        AssetDatabase.SaveAssets();
+        System.IO.Directory.CreateDirectory("Assets/GameResources/UI/Views/Card");
+        AssetDatabase.Refresh();
+        var card=new GameObject("CardView",typeof(RectTransform),typeof(Image),typeof(Button),typeof(CardUIView)); card.SetActive(false);
+        try
+        {
+            var r=card.GetComponent<RectTransform>(); r.sizeDelta=new Vector2(224,330);
+            var frame=card.GetComponent<Image>(); frame.color=new Color(.15f,.18f,.18f);
+            var b=card.GetComponent<Button>(); b.targetGraphic=frame;
+            var art=Panel("Art",r,0,0,224,330,Color.white); Stretch(art.rectTransform);
+            var shade=Panel("Shade",r,0,0,0,0,new Color(.025f,.03f,.04f,.90f)); 
+            shade.rectTransform.anchorMin=Vector2.zero; shade.rectTransform.anchorMax=new Vector2(1,.37f); shade.rectTransform.offsetMin=shade.rectTransform.offsetMax=Vector2.zero;
+            var title=Label("Title",r,0,0,0,0,18);
+            Anchors(title.rectTransform,new Vector2(.06f,.20f),new Vector2(.94f,.36f));
+            var description=Label("Description",r,0,0,0,0,14);
+            Anchors(description.rectTransform,new Vector2(.06f,.02f),new Vector2(.94f,.21f));
+            var cost=Label("Cost",r,0,0,0,0,24); cost.alignment=TextAnchor.MiddleCenter;
+            Anchors(cost.rectTransform,new Vector2(.02f,.79f),new Vector2(.23f,.98f));
+            var s=new SerializedObject(card.GetComponent<CardUIView>());
+            Set(s,"artwork",art); Set(s,"title",title); Set(s,"description",description); Set(s,"cost",cost); Set(s,"button",b);
+            s.ApplyModifiedPropertiesWithoutUndo();
+            PrefabUtility.SaveAsPrefabAsset(card,"Assets/GameResources/UI/Views/Card/3.prefab");
+        } finally { Object.DestroyImmediate(card); }
+        AssetDatabase.SaveAssets(); ResourceCatalogBuilder.Build();
+    }
+    static void Anchors(RectTransform r,Vector2 min,Vector2 max) { r.anchorMin=min; r.anchorMax=max; r.offsetMin=r.offsetMax=Vector2.zero; }
+    static Button CaptionButton(string name,Transform parent,float x,float y,float w,float h,string caption)
+    {
+        var b=Button(name,parent,x,y,w,h,new Color(.35f,.25f,.18f));
+        var t=Label("Caption",b.transform,8,0,w-16,h,24,caption); t.alignment=TextAnchor.MiddleCenter; return b;
     }
 }

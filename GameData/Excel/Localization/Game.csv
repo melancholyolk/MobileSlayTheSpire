@@ -29,3 +29,15 @@ Play as Hunter","加入联机
 16,Reconnect,Network button,UiReconnect,Reconnect,重新连接
 37,WRITE YOUR FATE IN THE ASHES,Start screen,UiStartTagline,WRITE YOUR FATE IN THE ASHES,在灰烬之上，书写你的命运。
 38,PARTNER'S HOST ADDRESS,Start screen,UiHostAddress,PARTNER'S HOST ADDRESS,伙伴的主机地址
+41,Single Player,Lobby/card UI,UiSingle,Single Player,单人游戏
+42,Multiplayer,Lobby/card UI,UiMultiplayer,Multiplayer,多人游戏
+43,Back,Lobby/card UI,UiBack,Back,返回
+44,Create Room,Lobby/card UI,UiCreateRoom,Create Room,创建房间
+45,Join Room,Lobby/card UI,UiJoinRoom,Join Room,加入房间
+46,Start Game,Lobby/card UI,UiStartGame,Start Game,开始游戏
+47,Ready,Lobby/card UI,UiReady,Ready,已准备
+48,Not Ready,Lobby/card UI,UiUnready,Not Ready,未准备
+49,Local IP,Lobby/card UI,UiLocalIp,Local IP,本机 IP
+50,Host,Lobby/card UI,UiHostSeat,Host,主机
+51,Guest,Lobby/card UI,UiGuestSeat,Guest,玩家
+52,Exhaust,Lobby/card UI,UiExhaust,Exhaust,消耗

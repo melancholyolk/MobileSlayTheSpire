@@ -3,7 +3,9 @@
     {
       "name": "OpenUPM",
       "url": "https://package.openupm.com",
-      "scopes": ["io.github.hatayama.uloopmcp"]
+      "scopes": [
+        "io.github.hatayama.uloopmcp"
+      ]
     }
   ],
   "dependencies": {
@@ -50,6 +52,7 @@
     "com.unity.modules.video": "1.0.0",
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
-    "com.unity.modules.xr": "1.0.0"
+    "com.unity.modules.xr": "1.0.0",
+    "com.unity.addressables": "1.22.4-t1"
   }
 }

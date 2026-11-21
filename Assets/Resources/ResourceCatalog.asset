@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:yousandi.cn,2023:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 044ee41b1ce5c93448ebe685fdfce271, type: 3}
+  m_Name: ResourceCatalog
+  m_EditorClassIdentifier: 
+  Entries:
+  - Id: 1
+    CharacterId: -1
+    Guid: 89f550e35d9f9be4786dcae18d569592
+    EstimatedBytes: 1048576
+  - Id: 2
+    CharacterId: -1
+    Guid: 44bddebb5d7411d49a7b86ed68c9a79d
+    EstimatedBytes: 1048576
+  - Id: 3
+    CharacterId: -1
+    Guid: d774cfb14aea6e44c816b14b90c5d932
+    EstimatedBytes: 1048576
+  - Id: 10
+    CharacterId: -1
+    Guid: 7c5554e52a06a104a9d89be0ece8240c
+    EstimatedBytes: 1048576
+  - Id: 11
+    CharacterId: -1
+    Guid: d247eea2382ed80409fe190021b897ea
+    EstimatedBytes: 1048576
+  - Id: 1001
+    CharacterId: 0
+    Guid: 459753b47e6571e48ac30f3d0dc509bb
+    EstimatedBytes: 3145728
+  - Id: 2001
+    CharacterId: 1
+    Guid: 5b5d4f9ff84b851458f5e84a6e1c9e9d
+    EstimatedBytes: 3145728

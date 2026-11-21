@@ -12,7 +12,7 @@ namespace Spire.Tests
             byte[] table=Resources.Load<TextAsset>("Tables/cards").bytes;
             using(var host=new CoopSession(table)) using(var client=new CoopSession(table))
             {
-                host.Host(0,42); client.Join("127.0.0.1",host.Port); Wait(host,client,()=>client.Connected);
+                host.Host(0,42); client.Join("127.0.0.1",host.Port); Wait(host,client,()=>client.Connected); StartLobby(host,client);
                 for(int step=0;step<3000 && host.Run.Phase!=Phase.Won && host.Run.Phase!=Phase.Lost;step++)
                 {
                     for(int p=0;p<2;p++)
@@ -30,6 +30,33 @@ namespace Spire.Tests
                 Assert.AreEqual(host.Run.Heroes.Select(h=>h.Hp),client.Run.Heroes.Select(h=>h.Hp));
             }
         }
+        static void StartLobby(CoopSession host,CoopSession client)
+        {
+            Assert.IsNull(host.Run); Assert.IsFalse(host.StartGame()); Assert.IsFalse(client.StartGame());
+            host.SelectCharacter(0); client.SelectCharacter(1);
+            Wait(host,client,()=>host.SelectedCharacter(1)==1 && client.SelectedCharacter(0)==0);
+            client.SetReady(true); Wait(host,client,()=>host.CanStart);
+            Assert.IsTrue(host.StartGame()); Wait(host,client,()=>client.Run!=null);
+        }
+        [Test] public void SameCharacterAndReadyResetAreAuthoritative()
+        {
+            var table=Resources.Load<TextAsset>("Tables/cards").bytes;
+            using(var host=new CoopSession(table)) using(var client=new CoopSession(table))
+            {
+                host.Host(0,42); client.Join("127.0.0.1",host.Port); Wait(host,client,()=>client.Connected);
+                Assert.IsFalse(host.StartGame()); Assert.IsFalse(client.StartGame());
+                host.SelectCharacter(1); client.SelectCharacter(1);
+                Wait(host,client,()=>host.SelectedCharacter(1)==1 && client.SelectedCharacter(0)==1);
+                client.SetReady(true); Wait(host,client,()=>host.CanStart);
+                client.SelectCharacter(0); Wait(host,client,()=>!host.GuestReady);
+                Assert.IsFalse(host.StartGame());
+                client.SelectCharacter(1); client.SetReady(true); Wait(host,client,()=>host.CanStart);
+                host.StartGame(); Wait(host,client,()=>client.Run!=null);
+                Assert.AreEqual(HeroClass.Hunter,host.Run.Heroes[0].Class);
+                Assert.AreEqual(HeroClass.Hunter,host.Run.Heroes[1].Class);
+                Assert.AreEqual(host.Run.Heroes[0].Deck,client.Run.Heroes[0].Deck);
+            }
+        }
         static void Wait(CoopSession host,CoopSession client,Func<bool> done)
         {
             var until=DateTime.UtcNow.AddSeconds(5);
@@ -42,7 +69,7 @@ namespace Spire.Tests
             using(var host=new CoopSession(table)) using(var client=new CoopSession(table))
             {
                 host.Host(0,42); client.Join("127.0.0.1",host.Port);
-                Wait(host,client,()=>host.Connected && client.Connected);
+                Wait(host,client,()=>host.Connected && client.Connected); StartLobby(host,client);
                 Assert.IsTrue(host.Submit("vote",0)); Wait(host,client,()=>client.Run.Revision==1);
                 client.Submit("vote",0); Wait(host,client,()=>client.Run.Phase==Phase.Combat);
                 Assert.AreEqual(host.Run.Heroes[1].Hand,client.Run.Heroes[1].Hand);
@@ -64,7 +91,7 @@ namespace Spire.Tests
             byte[] table=Resources.Load<TextAsset>("Tables/cards").bytes;
             using(var host=new CoopSession(table)) using(var client=new CoopSession(table))
             {
-                host.Host(0,9); client.Join("127.0.0.1",host.Port); Wait(host,client,()=>client.Connected);
+                host.Host(0,9); client.Join("127.0.0.1",host.Port); Wait(host,client,()=>client.Connected); StartLobby(host,client);
                 host.Submit("vote",0); Wait(host,client,()=>client.Run.Revision==host.Run.Revision);
                 client.Submit("vote",0); Wait(host,client,()=>client.Run.Phase==Phase.Combat);
                 for(int i=0;i<40 && host.Run.Phase==Phase.Combat;i++)

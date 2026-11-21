@@ -1,1 +1,14 @@
-{"name":"Spire.PlayTests","references":["AssemblyRuntime","Spire.Presentation","Spire.UI","Unity.ugui","Spire.Localization"],"optionalUnityReferences":["TestAssemblies"]}
+{
+  "name": "Spire.PlayTests",
+  "references": [
+    "AssemblyRuntime",
+    "Spire.Presentation",
+    "Spire.UI",
+    "Unity.ugui",
+    "Spire.Localization",
+    "Spire.Resources"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

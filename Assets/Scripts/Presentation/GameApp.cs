@@ -1,6 +1,10 @@
 using System;
 using System.Threading.Tasks;
 using SpireUI;
+using SpireResources;
+using System.Collections.Generic;
+using System.Net;
+using System.Net.Sockets;
 using System.Linq;
 using Spire;
 using SpireLocalization;
@@ -24,6 +28,39 @@ namespace SpirePresentation
         Font font;
         RectTransform page;
         UiManager ui;
+        public ResourceManager Resources { get; private set; }
+        ResourceScope appResources;
+        readonly Dictionary<int,ResourceScope> characterResources=new Dictionary<int,ResourceScope>();
+        readonly List<(GameObject go,ResourceScope scope)> visibleCards=new List<(GameObject,ResourceScope)>();
+        int renderVersion;
+        public Card[] Characters { get; private set; }
+        public CoopSession Network=>network;
+        public StartPage MenuPage { get; private set; }=StartPage.Home;
+        public string LocalAddress { get; private set; }="127.0.0.1";
+        public Task CardsReady { get; private set; }=Task.CompletedTask;
+        public void Navigate(StartPage page) { MenuPage=page; Render(); }
+        void ReleaseCharacters()
+        {
+            renderVersion++;
+            ClearCards();
+            foreach(var scope in characterResources.Values) scope.Dispose();
+            characterResources.Clear();
+        }
+        void ClearCards()
+        {
+            foreach(var item in visibleCards)
+            {
+                if(item.go!=null) { item.go.GetComponent<CardUIView>().Clear(); gameplayView.Unregister(item.go.GetComponent<CardUIView>()); item.scope.Return(item.go); }
+            }
+            visibleCards.Clear();
+        }
+        ResourceScope CharacterScope(int seat)
+        {
+            if(!characterResources.TryGetValue(seat,out var scope))
+                characterResources[seat]=scope=Resources.CreateScope((int)State.Heroes[seat].Class);
+            return scope;
+        }
+
         GameStartView startView;
         GameplayView gameplayView;
         public Task UiReady { get; private set; }
@@ -44,7 +81,9 @@ namespace SpirePresentation
         void Awake()
         {
             Instance=this; Application.runInBackground=true;
-            table=Resources.Load<TextAsset>("Tables/cards").bytes;
+            Resources=ResourceManager.Create(gameObject); appResources=Resources.CreateScope();
+            try { LocalAddress=Dns.GetHostAddresses(Dns.GetHostName()).First(a=>a.AddressFamily==AddressFamily.InterNetwork).ToString(); } catch { }
+
             font=UiFonts.Body;
             ExcelLocalization.Initialize();
             LocalizationSettings.SelectedLocaleChanged+=OnLocaleChanged;
@@ -54,13 +93,15 @@ namespace SpirePresentation
             var scaler=canvas.GetComponent<CanvasScaler>(); scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution=new Vector2(1280,720); scaler.matchWidthOrHeight=.5f;
             scaler.screenMatchMode=CanvasScaler.ScreenMatchMode.Expand;
-            ui=gameObject.AddComponent<UiManager>(); ui.Configure(canvas.transform);
+            ui=gameObject.AddComponent<UiManager>(); ui.Configure(canvas.transform,appResources);
             UiReady=LoadViews();
         }
         async Task LoadViews()
         {
             try
             {
+                table=(await appResources.LoadAsync<TextAsset>(ResourceIds.Cards)).bytes;
+                Characters=CardTable.Read(table).GroupBy(c=>c.Class).Select(g=>g.First()).OrderBy(c=>(int)c.Class).ToArray();
                 gameplayView=await ui.OpenAsync<GameplayView>(GameplayView.Path);
                 if(this==null) return;
                 ui.Hide(GameplayView.Path); page=gameplayView.Content;
@@ -73,7 +114,7 @@ namespace SpirePresentation
         }
         public void ReturnToMenu()
         {
-            network?.Dispose(); network=null; solo=null; status=""; Render();
+            network?.Dispose(); network=null; solo=null; ReleaseCharacters(); MenuPage=StartPage.Home; status=""; Render();
         }
         public void CycleLanguage()
         {
@@ -86,12 +127,12 @@ namespace SpirePresentation
             network?.Pump();
             if(network!=null && (lastRevision!=(State?.Revision ?? -1) || lastNetworkStatus!=network.Status)) Render();
         }
-        void OnLocaleChanged(Locale locale) { if(page!=null) Render(); }
+        void OnLocaleChanged(Locale locale) { if(startView!=null) startView.RefreshLanguage(); if(page!=null) Render(); }
         static string L(int key) => ExcelLocalization.Text(key);
-        void OnDestroy() { LocalizationSettings.SelectedLocaleChanged-=OnLocaleChanged; network?.Dispose(); if(Instance==this) Instance=null; }
+        void OnDestroy() { LocalizationSettings.SelectedLocaleChanged-=OnLocaleChanged; network?.Dispose(); ReleaseCharacters(); appResources?.Dispose(); if(Instance==this) Instance=null; }
         public void StartSolo(HeroClass cls,uint seed=42)
         {
-            network?.Dispose(); network=null; solo=new Run(CardTable.Read(table),seed,cls); status="Choose a route."; Render();
+            network?.Dispose(); network=null; ReleaseCharacters(); solo=new Run(CardTable.Read(table),seed,cls); status="Choose a route."; Render();
         }
         public void Send(string action,int argument=0)
         {
@@ -101,7 +142,7 @@ namespace SpirePresentation
         }
         public void Host()
         {
-            try { network?.Dispose(); network=new CoopSession(table); network.Host(7777,42); solo=null; Render(); }
+            try { network?.Dispose(); network=new CoopSession(table); network.Host(7777,42); network.Changed+=Render; solo=null; MenuPage=StartPage.Lobby; Render(); }
             catch(Exception e) { status=e.Message; network?.Dispose(); network=null; Render(); }
         }
         public void Join(bool resume)
@@ -109,7 +150,7 @@ namespace SpirePresentation
             try
             {
                 if(resume && network!=null) resumeToken=network.ResumeToken;
-                network?.Dispose(); network=new CoopSession(table); network.Join(address,7777,resume?resumeToken:null); solo=null; Render();
+                network?.Dispose(); network=new CoopSession(table); network.Join(address,7777,resume?resumeToken:null); network.Changed+=Render; solo=null; MenuPage=StartPage.Lobby; Render();
             }
             catch(Exception e) { status=e.Message; network?.Dispose(); network=null; Render(); }
         }
@@ -136,6 +177,30 @@ namespace SpirePresentation
             button.onClick.AddListener(()=>action());
             var t=Label(caption,8,6,w-16,h-12,18,rt); t.alignment=TextAnchor.MiddleCenter;
         }
+        async Task RenderCards(string[] cards,bool reward,bool enabled,int version)
+        {
+            if(cards.Length==0) return;
+            var run=State; var scope=CharacterScope(Player);
+            float width=Math.Min(reward?250:180,1160f/cards.Length);
+            try
+            {
+                for(int i=0;i<cards.Length;i++)
+                {
+                    if(version!=renderVersion || scope.IsDisposed) return;
+                    int index=i; var card=run.Cards[cards[i]];
+                    var go=await scope.InstantiateAsync(ResourceIds.CardView,page);
+                    if(version!=renderVersion || this==null) { scope.Return(go); return; }
+                    var rt=go.GetComponent<RectTransform>(); rt.anchorMin=rt.anchorMax=rt.pivot=new Vector2(0,1);
+                    rt.anchoredPosition=new Vector2(40+i*(width+4),reward?-310:-475); rt.sizeDelta=new Vector2(width-4,reward?220:180);
+                    go.name=(reward?"Reward_":"Card_")+i; go.SetActive(true);
+                    var view=go.GetComponent<CardUIView>(); gameplayView.Register(view); visibleCards.Add((go,scope));
+                    await view.Bind(card,scope,()=>Send(reward?"reward":"play",index),enabled && (reward || run.Heroes[Player].Energy>=card.Cost));
+                }
+            }
+            catch(OperationCanceledException) { }
+            catch(ObjectDisposedException) { }
+            catch(Exception e) { Debug.LogException(e); }
+        }
         public void Render()
         {
             if(startView==null || gameplayView==null) return;
@@ -145,6 +210,7 @@ namespace SpirePresentation
                 ui.Hide(GameplayView.Path); ui.Show(GameStartView.Path); startView.Refresh(); return;
             }
             ui.Hide(GameStartView.Path); ui.Show(GameplayView.Path);
+            renderVersion++; ClearCards();
             foreach(Transform child in page) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
             var background=Box("Background",0,0,1280,720,ink);
             background.anchorMin=Vector2.zero; background.anchorMax=Vector2.one; background.offsetMin=background.offsetMax=Vector2.zero;
@@ -156,7 +222,7 @@ namespace SpirePresentation
             Button("Language",ExcelLocalization.Language,990,25,135,42,CycleLanguage);
             for(int p=0;p<run.Heroes.Count;p++)
             {
-                var h=run.Heroes[p]; Label($"{(p==Player?"> ":"")}{h.Class}  HP {h.Hp}/{h.MaxHp}  Gold {h.Gold}  Deck {h.Deck.Count}",32+p*610,115,610,35,22);
+                var h=run.Heroes[p]; Label($"{(p==Player?"> ":"")}{ExcelLocalization.Text(Characters.First(c=>c.Class==h.Class).CharacterNameId)}  HP {h.Hp}/{h.MaxHp}  Gold {h.Gold}  Deck {h.Deck.Count}",32+p*610,115,610,35,22);
             }
             Label($"{run.Phase}   /   Floor {(run.Current<0?0:run.Map[run.Current].Floor+1)} of {Run.Floors}",32,160,900,35,24);
             bool ready=network==null || network.Connected;
@@ -177,21 +243,12 @@ namespace SpirePresentation
                     Box("EnemyPanel",340,225,600,170,new Color(.22f,.15f,.17f));
                     Label($"{enemy.Name}    HP {enemy.Hp}\nIntent: attack all for {enemy.Damage+(run.Turn%3==0?3:0)}\nPoison {enemy.Poison}",370,245,550,130,26);
                     Label($"Turn {run.Turn}     Energy {hero.Energy}     Block {hero.Block}     Strength {hero.Strength}\nDraw {hero.Draw.Count}  /  Discard {hero.Discard.Count}  /  Exhaust {hero.Exhausted.Count}",32,410,1000,65,21);
-                    float width=Math.Min(190,1180f/Math.Max(1,hero.Hand.Count));
-                    for(int i=0;i<hero.Hand.Count;i++)
-                    {
-                        int index=i; var c=run.Cards[hero.Hand[i]];
-                        Button("Card_"+i,$"{ExcelLocalization.Text(c.NameId)}\nCost {c.Cost}\n{c.Effect} {c.Amount}{(c.Hits>1?" x"+c.Hits:"")}\n{(c.Exhaust?"Exhaust":"")}",32+i*(width+4),495,width-4,155,()=>Send("play",index),ready && hero.Alive && !hero.Ended && hero.Energy>=c.Cost);
-                    }
+                    CardsReady=RenderCards(hero.Hand.ToArray(),false,ready && hero.Alive && !hero.Ended,renderVersion);
                     Button("EndTurn",hero.Ended?L(LocIds.UiWait):L(LocIds.UiEnd),1060,400,185,70,()=>Send("end"),ready && hero.Alive && !hero.Ended);
                     break;
                 case Phase.Reward:
                     Label(L(LocIds.UiReward),60,240,1100,50,27);
-                    for(int i=0;i<run.Rewards[Player].Count;i++)
-                    {
-                        int index=i; var c=run.Cards[run.Rewards[Player][i]];
-                        Button("Reward_"+i,$"{ExcelLocalization.Text(c.NameId)}\nCost {c.Cost} / {c.Effect} {c.Amount}",60+i*380,330,350,150,()=>Send("reward",index),ready && !run.Resolved.Contains(Player) && hero.Alive);
-                    }
+                    CardsReady=RenderCards(run.Rewards[Player].ToArray(),true,ready && !run.Resolved.Contains(Player) && hero.Alive,renderVersion);
                     Button("SkipReward",L(LocIds.UiSkip),500,540,280,60,()=>Send("reward",-1),ready && !run.Resolved.Contains(Player) && hero.Alive); break;
                 case Phase.Camp: Room("Rest: heal 33%","Train: +5 max HP"); break;
                 case Phase.Shop: Room("Heal 25 HP: 30 gold","Leave shop"); break;

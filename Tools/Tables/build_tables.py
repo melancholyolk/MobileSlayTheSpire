@@ -52,7 +52,7 @@ def build(root=ROOT):
         before=snapshot(root)
         tables=discover(root/'GameData/Excel')
         if 'Cards' not in tables: raise ValueError('Cards table is required')
-        validate(tables['Cards'])
+        validate(tables['Cards'],tables.get('Characters'))
         directory=root/'GameData/Excel/Localization'
         registry=Registry(directory)
         registry.synchronize(ref for table in tables.values() for ref in table.references())
@@ -63,9 +63,11 @@ def build(root=ROOT):
         changed=publish(sources)
         synced=snapshot(root)
         registry=Registry(directory)
-        outputs={root/'Assets/Resources/Tables/cards.bytes':encode(tables['Cards'],registry),
+        outputs={root/'Assets/Resources/Tables/cards.bytes':encode(tables['Cards'],registry,tables.get('Characters')),
                  root/'Assets/Resources/Localization/catalog.bytes':registry.binary(),
                  root/'Assets/Scripts/Localization/LocIds.cs':registry.constants()}
+        outputs[root/'Assets/GameResources/Tables/10.bytes']=outputs[root/'Assets/Resources/Tables/cards.bytes']
+        outputs[root/'Assets/GameResources/Tables/11.bytes']=outputs[root/'Assets/Resources/Localization/catalog.bytes']
         for name,table in tables.items():
             if name!='Cards': outputs[root/f'Assets/Resources/BusinessTables/{name}.bytes']=table.binary(registry)
         if snapshot(root)!=synced: raise RuntimeError('CSV changed during encoding; retry build')

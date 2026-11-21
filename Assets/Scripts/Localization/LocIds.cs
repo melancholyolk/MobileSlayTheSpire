@@ -3,21 +3,33 @@ namespace SpireLocalization
 {
     public static class LocIds
     {
+        public const int @UiBack = 43;
         public const int @UiChoose = 4;
+        public const int @UiCreateRoom = 44;
         public const int @UiEnd = 9;
+        public const int @UiExhaust = 52;
+        public const int @UiGuestSeat = 51;
         public const int @UiHost = 7;
         public const int @UiHostAddress = 38;
+        public const int @UiHostSeat = 50;
         public const int @UiHunter = 6;
         public const int @UiJoin = 8;
+        public const int @UiJoinRoom = 45;
+        public const int @UiLocalIp = 49;
         public const int @UiLose = 14;
         public const int @UiMenu = 3;
+        public const int @UiMultiplayer = 42;
+        public const int @UiReady = 47;
         public const int @UiReconnect = 16;
         public const int @UiRestart = 15;
         public const int @UiReward = 12;
+        public const int @UiSingle = 41;
         public const int @UiSkip = 11;
+        public const int @UiStartGame = 46;
         public const int @UiStartTagline = 37;
         public const int @UiSubtitle = 2;
         public const int @UiTitle = 1;
+        public const int @UiUnready = 48;
         public const int @UiWait = 10;
         public const int @UiWarrior = 5;
         public const int @UiWin = 13;
