@@ -39,6 +39,7 @@ namespace SpirePresentation
             canvas.transform.SetParent(transform,false); canvas.GetComponent<Canvas>().renderMode=RenderMode.ScreenSpaceOverlay;
             var scaler=canvas.GetComponent<CanvasScaler>(); scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution=new Vector2(1280,720); scaler.matchWidthOrHeight=.5f;
+            scaler.screenMatchMode=CanvasScaler.ScreenMatchMode.Expand;
             page=canvas.GetComponent<RectTransform>(); Render();
         }
         void Update()
@@ -95,7 +96,8 @@ namespace SpirePresentation
         public void Render()
         {
             foreach(Transform child in page) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
-            Box("Background",0,0,1280,720,ink);
+            var background=Box("Background",0,0,1280,720,ink);
+            background.anchorMin=Vector2.zero; background.anchorMax=Vector2.one; background.offsetMin=background.offsetMax=Vector2.zero;
             Label("ASHEN ASCENT",32,20,780,55,36);
             Label("A cooperative deckbuilding prototype",34,70,800,30,17);
             var run=State; lastRevision=run?.Revision??-1; lastNetworkStatus=network?.Status;
