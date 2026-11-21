@@ -1,0 +1,1552 @@
+{
+  "Items": [
+    {
+      "Name": "warrior",
+      "Index": 0,
+      "ResourceId": 10000,
+      "Folder": "Assets/GameResources/Characters/0/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 391.68,
+          "Y": 501.76,
+          "Left": 345,
+          "Top": 496,
+          "Width": 95,
+          "Height": 57,
+          "Image": 10020
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 391.68,
+          "Y": 501.76,
+          "Left": 274,
+          "Top": 169,
+          "Width": 232,
+          "Height": 339,
+          "Image": 10021
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 391.68,
+          "Y": 174.08,
+          "Left": 293,
+          "Top": 26,
+          "Width": 194,
+          "Height": 155,
+          "Image": 10022
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 276.48,
+          "Y": 235.52,
+          "Left": 197,
+          "Top": 186,
+          "Width": 120,
+          "Height": 223,
+          "Image": 10023
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 245.76,
+          "Y": 378.88,
+          "Left": 199,
+          "Top": 374,
+          "Width": 79,
+          "Height": 211,
+          "Image": 10024
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 499.20000000000005,
+          "Y": 235.52,
+          "Left": 462,
+          "Top": 187,
+          "Width": 117,
+          "Height": 222,
+          "Image": 10025
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 529.92,
+          "Y": 378.88,
+          "Left": 494,
+          "Top": 373,
+          "Width": 94,
+          "Height": 207,
+          "Image": 10026
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 330.24,
+          "Y": 501.76,
+          "Left": 240,
+          "Top": 463,
+          "Width": 159,
+          "Height": 289,
+          "Image": 10027
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 307.20000000000005,
+          "Y": 716.8,
+          "Left": 240,
+          "Top": 711,
+          "Width": 106,
+          "Height": 292,
+          "Image": 10028
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 453.12,
+          "Y": 501.76,
+          "Left": 387,
+          "Top": 463,
+          "Width": 158,
+          "Height": 285,
+          "Image": 10029
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 483.84000000000003,
+          "Y": 716.8,
+          "Left": 449,
+          "Top": 711,
+          "Width": 142,
+          "Height": 281,
+          "Image": 10030
+        }
+      ]
+    },
+    {
+      "Name": "hunter",
+      "Index": 1,
+      "ResourceId": 10100,
+      "Folder": "Assets/GameResources/Characters/1/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 384.0,
+          "Y": 522.24,
+          "Left": 348,
+          "Top": 517,
+          "Width": 73,
+          "Height": 57,
+          "Image": 10120
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 384.0,
+          "Y": 522.24,
+          "Left": 290,
+          "Top": 179,
+          "Width": 198,
+          "Height": 350,
+          "Image": 10121
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 376.32,
+          "Y": 184.32,
+          "Left": 307,
+          "Top": 25,
+          "Width": 145,
+          "Height": 166,
+          "Image": 10122
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 299.52,
+          "Y": 235.52,
+          "Left": 255,
+          "Top": 201,
+          "Width": 74,
+          "Height": 203,
+          "Image": 10123
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 276.48,
+          "Y": 378.88,
+          "Left": 235,
+          "Top": 374,
+          "Width": 75,
+          "Height": 244,
+          "Image": 10124
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 453.12,
+          "Y": 235.52,
+          "Left": 425,
+          "Top": 195,
+          "Width": 97,
+          "Height": 208,
+          "Image": 10125
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 483.84000000000003,
+          "Y": 378.88,
+          "Left": 452,
+          "Top": 373,
+          "Width": 103,
+          "Height": 253,
+          "Image": 10126
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 337.92,
+          "Y": 522.24,
+          "Left": 197,
+          "Top": 492,
+          "Width": 193,
+          "Height": 270,
+          "Image": 10127
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 345.6,
+          "Y": 737.28,
+          "Left": 315,
+          "Top": 732,
+          "Width": 71,
+          "Height": 253,
+          "Image": 10128
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 430.08000000000004,
+          "Y": 522.24,
+          "Left": 375,
+          "Top": 492,
+          "Width": 193,
+          "Height": 287,
+          "Image": 10129
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 414.72,
+          "Y": 737.28,
+          "Left": 364,
+          "Top": 732,
+          "Width": 100,
+          "Height": 271,
+          "Image": 10130
+        }
+      ]
+    },
+    {
+      "Name": "hollow",
+      "Index": 2,
+      "ResourceId": 10200,
+      "Folder": "Assets/GameResources/Monsters/0/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 410.88,
+          "Y": 491.52,
+          "Left": 279,
+          "Top": 486,
+          "Width": 233,
+          "Height": 57,
+          "Image": 10220
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 410.88,
+          "Y": 491.52,
+          "Left": 263,
+          "Top": 169,
+          "Width": 274,
+          "Height": 329,
+          "Image": 10221
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 407.04,
+          "Y": 174.08,
+          "Left": 281,
+          "Top": 21,
+          "Width": 247,
+          "Height": 160,
+          "Image": 10222
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 307.20000000000005,
+          "Y": 235.52,
+          "Left": 207,
+          "Top": 184,
+          "Width": 136,
+          "Height": 234,
+          "Image": 10223
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 253.44,
+          "Y": 378.88,
+          "Left": 176,
+          "Top": 373,
+          "Width": 120,
+          "Height": 205,
+          "Image": 10224
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 499.20000000000005,
+          "Y": 235.52,
+          "Left": 467,
+          "Top": 187,
+          "Width": 154,
+          "Height": 226,
+          "Image": 10225
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 552.96,
+          "Y": 378.88,
+          "Left": 524,
+          "Top": 373,
+          "Width": 120,
+          "Height": 262,
+          "Image": 10226
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 360.96,
+          "Y": 491.52,
+          "Left": 243,
+          "Top": 459,
+          "Width": 176,
+          "Height": 265,
+          "Image": 10227
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 314.88,
+          "Y": 675.84,
+          "Left": 176,
+          "Top": 670,
+          "Width": 257,
+          "Height": 261,
+          "Image": 10228
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 460.79999999999995,
+          "Y": 491.52,
+          "Left": 406,
+          "Top": 459,
+          "Width": 204,
+          "Height": 291,
+          "Image": 10229
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 522.24,
+          "Y": 696.32,
+          "Left": 418,
+          "Top": 691,
+          "Width": 234,
+          "Height": 240,
+          "Image": 10230
+        }
+      ]
+    },
+    {
+      "Name": "revenant",
+      "Index": 3,
+      "ResourceId": 10300,
+      "Folder": "Assets/GameResources/Monsters/1/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 414.72,
+          "Y": 491.52,
+          "Left": 244,
+          "Top": 486,
+          "Width": 220,
+          "Height": 57,
+          "Image": 10320
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 414.72,
+          "Y": 491.52,
+          "Left": 175,
+          "Top": 179,
+          "Width": 402,
+          "Height": 319,
+          "Image": 10321
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 407.04,
+          "Y": 184.32,
+          "Left": 186,
+          "Top": 30,
+          "Width": 379,
+          "Height": 161,
+          "Image": 10322
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 284.15999999999997,
+          "Y": 266.24,
+          "Left": 115,
+          "Top": 203,
+          "Width": 213,
+          "Height": 193,
+          "Image": 10323
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 207.36,
+          "Y": 378.88,
+          "Left": 115,
+          "Top": 373,
+          "Width": 101,
+          "Height": 198,
+          "Image": 10324
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 522.24,
+          "Y": 256.0,
+          "Left": 483,
+          "Top": 197,
+          "Width": 172,
+          "Height": 212,
+          "Image": 10325
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 591.36,
+          "Y": 378.88,
+          "Left": 568,
+          "Top": 373,
+          "Width": 112,
+          "Height": 171,
+          "Image": 10326
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 353.28000000000003,
+          "Y": 491.52,
+          "Left": 199,
+          "Top": 453,
+          "Width": 222,
+          "Height": 280,
+          "Image": 10327
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 291.84000000000003,
+          "Y": 706.56,
+          "Left": 177,
+          "Top": 701,
+          "Width": 129,
+          "Height": 277,
+          "Image": 10328
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 476.15999999999997,
+          "Y": 491.52,
+          "Left": 409,
+          "Top": 453,
+          "Width": 141,
+          "Height": 318,
+          "Image": 10329
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 537.5999999999999,
+          "Y": 706.56,
+          "Left": 441,
+          "Top": 701,
+          "Width": 173,
+          "Height": 282,
+          "Image": 10330
+        }
+      ]
+    },
+    {
+      "Name": "warden",
+      "Index": 4,
+      "ResourceId": 10400,
+      "Folder": "Assets/GameResources/Monsters/2/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 399.36,
+          "Y": 542.72,
+          "Left": 342,
+          "Top": 537,
+          "Width": 116,
+          "Height": 57,
+          "Image": 10420
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 399.36,
+          "Y": 542.72,
+          "Left": 142,
+          "Top": 220,
+          "Width": 465,
+          "Height": 329,
+          "Image": 10421
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 391.68,
+          "Y": 225.28,
+          "Left": 142,
+          "Top": 20,
+          "Width": 462,
+          "Height": 212,
+          "Image": 10422
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 261.12,
+          "Y": 307.2,
+          "Left": 122,
+          "Top": 241,
+          "Width": 185,
+          "Height": 236,
+          "Image": 10423
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 207.36,
+          "Y": 440.32,
+          "Left": 122,
+          "Top": 435,
+          "Width": 137,
+          "Height": 247,
+          "Image": 10424
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 522.24,
+          "Y": 307.2,
+          "Left": 479,
+          "Top": 241,
+          "Width": 137,
+          "Height": 252,
+          "Image": 10425
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 576.0,
+          "Y": 450.56,
+          "Left": 527,
+          "Top": 445,
+          "Width": 109,
+          "Height": 233,
+          "Image": 10426
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 322.56,
+          "Y": 542.72,
+          "Left": 175,
+          "Top": 496,
+          "Width": 231,
+          "Height": 334,
+          "Image": 10427
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 284.15999999999997,
+          "Y": 737.28,
+          "Left": 178,
+          "Top": 732,
+          "Width": 226,
+          "Height": 220,
+          "Image": 10428
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 476.15999999999997,
+          "Y": 542.72,
+          "Left": 390,
+          "Top": 495,
+          "Width": 211,
+          "Height": 346,
+          "Image": 10429
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 514.5600000000001,
+          "Y": 747.52,
+          "Left": 392,
+          "Top": 742,
+          "Width": 226,
+          "Height": 207,
+          "Image": 10430
+        }
+      ]
+    },
+    {
+      "Name": "cultist",
+      "Index": 5,
+      "ResourceId": 10500,
+      "Folder": "Assets/GameResources/Monsters/3/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 391.68,
+          "Y": 573.44,
+          "Left": 182,
+          "Top": 568,
+          "Width": 367,
+          "Height": 57,
+          "Image": 10520
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 391.68,
+          "Y": 573.44,
+          "Left": 126,
+          "Top": 199,
+          "Width": 539,
+          "Height": 381,
+          "Image": 10521
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 384.0,
+          "Y": 204.8,
+          "Left": 300,
+          "Top": 28,
+          "Width": 224,
+          "Height": 183,
+          "Image": 10522
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 291.84000000000003,
+          "Y": 266.24,
+          "Left": 127,
+          "Top": 220,
+          "Width": 199,
+          "Height": 219,
+          "Image": 10523
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 184.32,
+          "Y": 337.92,
+          "Left": 47,
+          "Top": 275,
+          "Width": 144,
+          "Height": 165,
+          "Image": 10524
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 483.84000000000003,
+          "Y": 266.24,
+          "Left": 449,
+          "Top": 215,
+          "Width": 191,
+          "Height": 220,
+          "Image": 10525
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 583.6800000000001,
+          "Y": 337.92,
+          "Left": 578,
+          "Top": 289,
+          "Width": 159,
+          "Height": 156,
+          "Image": 10526
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 330.24,
+          "Y": 573.44,
+          "Left": 82,
+          "Top": 535,
+          "Width": 316,
+          "Height": 293,
+          "Image": 10527
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 307.20000000000005,
+          "Y": 757.76,
+          "Left": 45,
+          "Top": 752,
+          "Width": 353,
+          "Height": 207,
+          "Image": 10528
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 453.12,
+          "Y": 573.44,
+          "Left": 386,
+          "Top": 535,
+          "Width": 208,
+          "Height": 296,
+          "Image": 10529
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 476.15999999999997,
+          "Y": 757.76,
+          "Left": 386,
+          "Top": 752,
+          "Width": 220,
+          "Height": 203,
+          "Image": 10530
+        }
+      ]
+    },
+    {
+      "Name": "goblin",
+      "Index": 6,
+      "ResourceId": 10600,
+      "Folder": "Assets/GameResources/Monsters/4/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 391.68,
+          "Y": 583.68,
+          "Left": 342,
+          "Top": 578,
+          "Width": 198,
+          "Height": 57,
+          "Image": 10620
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 391.68,
+          "Y": 583.68,
+          "Left": 228,
+          "Top": 281,
+          "Width": 313,
+          "Height": 309,
+          "Image": 10621
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 384.0,
+          "Y": 286.72,
+          "Left": 201,
+          "Top": 17,
+          "Width": 415,
+          "Height": 276,
+          "Image": 10622
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 253.44,
+          "Y": 348.16,
+          "Left": 50,
+          "Top": 289,
+          "Width": 249,
+          "Height": 241,
+          "Image": 10623
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 176.64000000000001,
+          "Y": 501.76,
+          "Left": 33,
+          "Top": 496,
+          "Width": 158,
+          "Height": 321,
+          "Image": 10624
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 483.84000000000003,
+          "Y": 348.16,
+          "Left": 449,
+          "Top": 300,
+          "Width": 156,
+          "Height": 229,
+          "Image": 10625
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 552.96,
+          "Y": 481.28,
+          "Left": 513,
+          "Top": 476,
+          "Width": 214,
+          "Height": 318,
+          "Image": 10626
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 330.24,
+          "Y": 583.68,
+          "Left": 115,
+          "Top": 546,
+          "Width": 289,
+          "Height": 284,
+          "Image": 10627
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 261.12,
+          "Y": 778.24,
+          "Left": 214,
+          "Top": 773,
+          "Width": 132,
+          "Height": 229,
+          "Image": 10628
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 453.12,
+          "Y": 583.68,
+          "Left": 387,
+          "Top": 545,
+          "Width": 235,
+          "Height": 286,
+          "Image": 10629
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 529.92,
+          "Y": 747.52,
+          "Left": 433,
+          "Top": 742,
+          "Width": 187,
+          "Height": 261,
+          "Image": 10630
+        }
+      ]
+    },
+    {
+      "Name": "bandit",
+      "Index": 7,
+      "ResourceId": 10700,
+      "Folder": "Assets/GameResources/Monsters/5/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 391.68,
+          "Y": 522.24,
+          "Left": 259,
+          "Top": 517,
+          "Width": 246,
+          "Height": 57,
+          "Image": 10720
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 391.68,
+          "Y": 522.24,
+          "Left": 229,
+          "Top": 189,
+          "Width": 274,
+          "Height": 340,
+          "Image": 10721
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 391.68,
+          "Y": 194.56,
+          "Left": 250,
+          "Top": 15,
+          "Width": 223,
+          "Height": 186,
+          "Image": 10722
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 299.52,
+          "Y": 256.0,
+          "Left": 182,
+          "Top": 208,
+          "Width": 151,
+          "Height": 228,
+          "Image": 10723
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 245.76,
+          "Y": 399.36,
+          "Left": 179,
+          "Top": 394,
+          "Width": 108,
+          "Height": 236,
+          "Image": 10724
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 460.79999999999995,
+          "Y": 256.0,
+          "Left": 435,
+          "Top": 218,
+          "Width": 121,
+          "Height": 212,
+          "Image": 10725
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 506.88,
+          "Y": 399.36,
+          "Left": 474,
+          "Top": 394,
+          "Width": 112,
+          "Height": 199,
+          "Image": 10726
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 345.6,
+          "Y": 522.24,
+          "Left": 252,
+          "Top": 492,
+          "Width": 153,
+          "Height": 301,
+          "Image": 10727
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 322.56,
+          "Y": 747.52,
+          "Left": 92,
+          "Top": 742,
+          "Width": 325,
+          "Height": 241,
+          "Image": 10728
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 437.76,
+          "Y": 522.24,
+          "Left": 387,
+          "Top": 492,
+          "Width": 129,
+          "Height": 300,
+          "Image": 10729
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 468.48,
+          "Y": 737.28,
+          "Left": 393,
+          "Top": 732,
+          "Width": 213,
+          "Height": 251,
+          "Image": 10730
+        }
+      ]
+    },
+    {
+      "Name": "plague",
+      "Index": 8,
+      "ResourceId": 10800,
+      "Folder": "Assets/GameResources/Monsters/6/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 391.68,
+          "Y": 593.92,
+          "Left": 207,
+          "Top": 588,
+          "Width": 359,
+          "Height": 57,
+          "Image": 10820
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 391.68,
+          "Y": 593.92,
+          "Left": 214,
+          "Top": 220,
+          "Width": 345,
+          "Height": 380,
+          "Image": 10821
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 384.0,
+          "Y": 225.28,
+          "Left": 311,
+          "Top": 81,
+          "Width": 135,
+          "Height": 151,
+          "Image": 10822
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 299.52,
+          "Y": 286.72,
+          "Left": 235,
+          "Top": 248,
+          "Width": 96,
+          "Height": 221,
+          "Image": 10823
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 245.76,
+          "Y": 419.84,
+          "Left": 137,
+          "Top": 414,
+          "Width": 140,
+          "Height": 236,
+          "Image": 10824
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 468.48,
+          "Y": 286.72,
+          "Left": 438,
+          "Top": 244,
+          "Width": 99,
+          "Height": 224,
+          "Image": 10825
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 522.24,
+          "Y": 419.84,
+          "Left": 496,
+          "Top": 413,
+          "Width": 116,
+          "Height": 178,
+          "Image": 10826
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 345.6,
+          "Y": 593.92,
+          "Left": 169,
+          "Top": 564,
+          "Width": 229,
+          "Height": 282,
+          "Image": 10827
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 345.6,
+          "Y": 778.24,
+          "Left": 169,
+          "Top": 773,
+          "Width": 231,
+          "Height": 175,
+          "Image": 10828
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 437.76,
+          "Y": 593.92,
+          "Left": 386,
+          "Top": 563,
+          "Width": 216,
+          "Height": 272,
+          "Image": 10829
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 437.76,
+          "Y": 778.24,
+          "Left": 388,
+          "Top": 773,
+          "Width": 218,
+          "Height": 195,
+          "Image": 10830
+        }
+      ]
+    },
+    {
+      "Name": "frost",
+      "Index": 9,
+      "ResourceId": 10900,
+      "Folder": "Assets/GameResources/Monsters/7/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 399.36,
+          "Y": 542.72,
+          "Left": 254,
+          "Top": 537,
+          "Width": 193,
+          "Height": 57,
+          "Image": 10920
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 399.36,
+          "Y": 542.72,
+          "Left": 207,
+          "Top": 220,
+          "Width": 364,
+          "Height": 329,
+          "Image": 10921
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 391.68,
+          "Y": 225.28,
+          "Left": 218,
+          "Top": 61,
+          "Width": 342,
+          "Height": 171,
+          "Image": 10922
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 268.79999999999995,
+          "Y": 286.72,
+          "Left": 124,
+          "Top": 224,
+          "Width": 188,
+          "Height": 229,
+          "Image": 10923
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 184.32,
+          "Y": 430.08,
+          "Left": 101,
+          "Top": 425,
+          "Width": 106,
+          "Height": 193,
+          "Image": 10924
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 514.5600000000001,
+          "Y": 286.72,
+          "Left": 473,
+          "Top": 224,
+          "Width": 169,
+          "Height": 233,
+          "Image": 10925
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 599.04,
+          "Y": 430.08,
+          "Left": 568,
+          "Top": 425,
+          "Width": 95,
+          "Height": 177,
+          "Image": 10926
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 337.92,
+          "Y": 542.72,
+          "Left": 221,
+          "Top": 505,
+          "Width": 184,
+          "Height": 279,
+          "Image": 10927
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 322.56,
+          "Y": 737.28,
+          "Left": 240,
+          "Top": 732,
+          "Width": 155,
+          "Height": 225,
+          "Image": 10928
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 460.79999999999995,
+          "Y": 542.72,
+          "Left": 390,
+          "Top": 504,
+          "Width": 172,
+          "Height": 277,
+          "Image": 10929
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 468.48,
+          "Y": 737.28,
+          "Left": 397,
+          "Top": 732,
+          "Width": 132,
+          "Height": 226,
+          "Image": 10930
+        }
+      ]
+    },
+    {
+      "Name": "fungus",
+      "Index": 10,
+      "ResourceId": 11000,
+      "Folder": "Assets/GameResources/Monsters/8/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 384.0,
+          "Y": 593.92,
+          "Left": 353,
+          "Top": 588,
+          "Width": 127,
+          "Height": 57,
+          "Image": 11020
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 384.0,
+          "Y": 593.92,
+          "Left": 296,
+          "Top": 332,
+          "Width": 183,
+          "Height": 268,
+          "Image": 11021
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 384.0,
+          "Y": 337.92,
+          "Left": 76,
+          "Top": 29,
+          "Width": 585,
+          "Height": 315,
+          "Image": 11022
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 330.24,
+          "Y": 409.6,
+          "Left": 272,
+          "Top": 379,
+          "Width": 81,
+          "Height": 160,
+          "Image": 11023
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 276.48,
+          "Y": 512.0,
+          "Left": 245,
+          "Top": 507,
+          "Width": 60,
+          "Height": 154,
+          "Image": 11024
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 445.43999999999994,
+          "Y": 409.6,
+          "Left": 422,
+          "Top": 376,
+          "Width": 82,
+          "Height": 164,
+          "Image": 11025
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 491.52,
+          "Y": 512.0,
+          "Left": 460,
+          "Top": 507,
+          "Width": 71,
+          "Height": 149,
+          "Image": 11026
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 345.6,
+          "Y": 593.92,
+          "Left": 310,
+          "Top": 568,
+          "Width": 69,
+          "Height": 217,
+          "Image": 11027
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 330.24,
+          "Y": 757.76,
+          "Left": 290,
+          "Top": 752,
+          "Width": 62,
+          "Height": 194,
+          "Image": 11028
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 422.40000000000003,
+          "Y": 593.92,
+          "Left": 399,
+          "Top": 568,
+          "Width": 81,
+          "Height": 214,
+          "Image": 11029
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 453.12,
+          "Y": 757.76,
+          "Left": 433,
+          "Top": 752,
+          "Width": 68,
+          "Height": 182,
+          "Image": 11030
+        }
+      ]
+    },
+    {
+      "Name": "sentinel",
+      "Index": 11,
+      "ResourceId": 11100,
+      "Folder": "Assets/GameResources/Monsters/9/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 403.2,
+          "Y": 552.96,
+          "Left": 358,
+          "Top": 547,
+          "Width": 91,
+          "Height": 57,
+          "Image": 11120
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 403.2,
+          "Y": 552.96,
+          "Left": 248,
+          "Top": 210,
+          "Width": 305,
+          "Height": 349,
+          "Image": 11121
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 384.0,
+          "Y": 215.04,
+          "Left": 308,
+          "Top": 43,
+          "Width": 195,
+          "Height": 179,
+          "Image": 11122
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 299.52,
+          "Y": 286.72,
+          "Left": 230,
+          "Top": 241,
+          "Width": 102,
+          "Height": 237,
+          "Image": 11123
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 238.07999999999998,
+          "Y": 430.08,
+          "Left": 170,
+          "Top": 425,
+          "Width": 108,
+          "Height": 246,
+          "Image": 11124
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 476.15999999999997,
+          "Y": 286.72,
+          "Left": 445,
+          "Top": 239,
+          "Width": 151,
+          "Height": 220,
+          "Image": 11125
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 568.3199999999999,
+          "Y": 430.08,
+          "Left": 530,
+          "Top": 425,
+          "Width": 81,
+          "Height": 253,
+          "Image": 11126
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 345.6,
+          "Y": 552.96,
+          "Left": 185,
+          "Top": 517,
+          "Width": 184,
+          "Height": 246,
+          "Image": 11127
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 307.20000000000005,
+          "Y": 737.28,
+          "Left": 229,
+          "Top": 732,
+          "Width": 154,
+          "Height": 227,
+          "Image": 11128
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 460.79999999999995,
+          "Y": 552.96,
+          "Left": 439,
+          "Top": 516,
+          "Width": 152,
+          "Height": 256,
+          "Image": 11129
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 499.20000000000005,
+          "Y": 737.28,
+          "Left": 455,
+          "Top": 732,
+          "Width": 88,
+          "Height": 255,
+          "Image": 11130
+        }
+      ]
+    }
+  ]
+}

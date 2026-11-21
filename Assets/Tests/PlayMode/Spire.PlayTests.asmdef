@@ -6,9 +6,10 @@
     "Spire.UI",
     "Unity.ugui",
     "Spire.Localization",
-    "Spire.Resources"
+    "Spire.Resources","Spire.Animation"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"
   ]
 }
+

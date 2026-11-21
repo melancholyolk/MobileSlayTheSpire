@@ -17,6 +17,11 @@ MonoBehaviour:
     m_SerializedData: []
   m_GUID: 1e656acbe889ec64fb3e58872a5f8358
   m_SerializeEntries:
+  - m_GUID: 02eaaf964ef971d40b27e0afb8d8fcdc
+    m_Address: 21
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 44bddebb5d7411d49a7b86ed68c9a79d
     m_Address: 2
     m_ReadOnly: 0
@@ -34,6 +39,11 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 89f550e35d9f9be4786dcae18d569592
     m_Address: 1
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: a01e87f90cbe67c449536ab54a5763e1
+    m_Address: 22
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

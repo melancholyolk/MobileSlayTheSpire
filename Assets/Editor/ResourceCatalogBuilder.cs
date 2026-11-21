@@ -34,6 +34,8 @@ public static class ResourceCatalogBuilder
         }
         Add(1,-1,"Assets/GameResources/UI/Views/GameStart/GameStartView.prefab");
         Add(2,-1,"Assets/GameResources/UI/Views/Gameplay/GameplayView.prefab");
+        if(File.Exists("Assets/GameResources/Animation/21.json")) Add(21,-1,"Assets/GameResources/Animation/21.json");
+        if(File.Exists("Assets/GameResources/UI/Shared/Effects/22.prefab")) Add(22,-1,"Assets/GameResources/UI/Shared/Effects/22.prefab");
         Add(20,-1,"Assets/GameResources/Audio/20.json");
         Add(3,-1,"Assets/GameResources/UI/Views/Card/3.prefab");
         // Tables stay in Resources for the localization plugin and existing table tooling.
@@ -49,13 +51,14 @@ public static class ResourceCatalogBuilder
             if(!int.TryParse(Path.GetFileNameWithoutExtension(bank),out int bankId)) throw new InvalidDataException("Audio bank filename must be numeric");
             Add(bankId,-1,bank.Replace((char)92,'/'));
         }
-        foreach(var path in Directory.GetFiles("Assets/GameResources/Characters","*",SearchOption.AllDirectories).OrderBy(p=>p))
+        foreach(var resourceRoot in new[]{"Characters","Monsters"})
+        foreach(var path in Directory.Exists("Assets/GameResources/"+resourceRoot)?Directory.GetFiles("Assets/GameResources/"+resourceRoot,"*",SearchOption.AllDirectories).OrderBy(p=>p):Enumerable.Empty<string>())
         {
             if(path.EndsWith(".meta") || Directory.Exists(path)) continue;
             var normalized=path.Replace((char)92,'/'); var parts=normalized.Split('/');
             if(!int.TryParse(parts[3],out int character) || !int.TryParse(Path.GetFileNameWithoutExtension(path),out int id))
                 throw new InvalidDataException("Character resources require integer filenames: "+path);
-            Add(id,character,normalized);
+            Add(id,resourceRoot=="Monsters"?1000+character:character,normalized);
         }
         foreach(var group in settings.groups.Where(g=>g!=null && g.Name.StartsWith("Spire_")))
             foreach(var stale in group.entries.Where(e=>!valid.Contains(e.guid)).ToArray()) settings.RemoveAssetEntry(stale.guid);

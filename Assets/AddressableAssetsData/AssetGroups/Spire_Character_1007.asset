@@ -1,0 +1,110 @@
+%YAML 1.1
+%TAG !u! tag:yousandi.cn,2023:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Spire_Character_1007
+  m_EditorClassIdentifier: 
+  m_GroupName: Spire_Character_1007
+  m_Data:
+    m_SerializedData: []
+  m_GUID: 98c7499a91829974e8d126e4876137f2
+  m_SerializeEntries:
+  - m_GUID: 1a9ce15aaa887924384c225b9bad0925
+    m_Address: 10926
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1bca48b10f16d19439dd64a233e53ec9
+    m_Address: 10900
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2a52ef00735f6ef4d9a4a9e0a8011e6d
+    m_Address: 10924
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2dc3dc2f9795f2f4d8c0a98cf8fe7dc8
+    m_Address: 10923
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 381fcc0dc3a802643bc35df7a6417dab
+    m_Address: 10904
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 3de6434ef05739f4abdc4433ddd59586
+    m_Address: 10921
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 463da82c87b0b314a9c24632ae19a15c
+    m_Address: 10901
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 63fa84919a011f04f95874c6637995a5
+    m_Address: 10929
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6a9b76770028bf6498df9f5d4a99e967
+    m_Address: 10930
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 705af77f81275e1498483eeddf402139
+    m_Address: 10922
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 759d776a95362c347aa35bf1d36525f1
+    m_Address: 10925
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 794d79ae9fcdc4d479c63fbbedd02d88
+    m_Address: 10927
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8a08cc1b609f6c6419c03232e5261b0d
+    m_Address: 10903
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: afbf160f412811e40b515ffd65db4cea
+    m_Address: 10902
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b4e9c60d9260d7c45a32ccd0e62cacc9
+    m_Address: 10920
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b94529af4acccf0418f9486bae0878c8
+    m_Address: 10928
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: b971bff94ea21944e8fbdb8504e377de
+    m_Address: 10905
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: b47cad9e11aff8a4099a43ed18346557, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 01c7218b0a8df1d40a422115d10a933e, type: 2}
+    - {fileID: 11400000, guid: b33cbde5edd3b17488a15482db3d16cb, type: 2}

@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using SpireUI;
 using SpireResources;
 using SpireAudio;
+using SpireAnimation;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
@@ -35,6 +36,7 @@ namespace SpirePresentation
         FmodAudioScope appAudio;
         readonly Dictionary<int,FmodAudioScope> characterAudio=new Dictionary<int,FmodAudioScope>();
         bool destroying;
+        public BattlePresentation BattleVisuals {get; private set;}
         public string AudioStatus=>audioManager==null?"Not initialized":audioManager.Status;
         void StopNetwork() { if(network==null) return; network.Changed-=Render; network.Dispose(); network=null; }
 
@@ -112,6 +114,9 @@ namespace SpirePresentation
             var scaler=canvas.GetComponent<CanvasScaler>(); scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution=new Vector2(1280,720); scaler.matchWidthOrHeight=.5f;
             scaler.screenMatchMode=CanvasScaler.ScreenMatchMode.Expand;
+            var stage=new GameObject("BattleStage",typeof(RectTransform)).GetComponent<RectTransform>();
+            stage.SetParent(canvas.transform,false); stage.anchorMin=Vector2.zero; stage.anchorMax=Vector2.one; stage.offsetMin=stage.offsetMax=Vector2.zero;
+            BattleVisuals=gameObject.AddComponent<BattlePresentation>(); BattleVisuals.Configure(Resources,stage);
             ui=gameObject.AddComponent<UiManager>(); ui.Configure(canvas.transform,appResources);
             UiReady=LoadViews();
         }
@@ -129,11 +134,13 @@ namespace SpirePresentation
                 ui.Hide(GameplayView.Path); page=gameplayView.Content;
                 startView=await ui.OpenAsync<GameStartView>(GameStartView.Path);
                 if(this==null) return;
-                startView.Bind(this); Render();
+                startView.Bind(this);
+                stageOrder(); Render();
             }
             catch(OperationCanceledException) { if(this!=null) throw; }
             catch(Exception error) { Debug.LogException(error); throw; }
         }
+        void stageOrder() { var stage=transform.Find("SpireCanvas/BattleStage"); if(stage!=null) stage.SetAsLastSibling(); }
         public void ReturnToMenu()
         {
             StopNetwork(); solo=null; ReleaseCharacters(); MenuPage=StartPage.Home; status=""; Render();
@@ -227,6 +234,7 @@ namespace SpirePresentation
         public void Render()
         {
             if(destroying || startView==null || gameplayView==null) return;
+            BattleVisuals.Observe(State,Player);
             lastRevision=State?.Revision??-1; lastNetworkStatus=network?.Status;
             if(State==null)
             {
@@ -263,8 +271,8 @@ namespace SpirePresentation
                     break;
                 case Phase.Combat:
                     var enemy=run.Enemies[0];
-                    Box("EnemyPanel",340,225,600,170,new Color(.22f,.15f,.17f));
-                    Label($"{enemy.Name}    HP {enemy.Hp}\nIntent: attack all for {enemy.Damage+(run.Turn%3==0?3:0)}\nPoison {enemy.Poison}",370,245,550,130,26);
+                    
+                    Label($"{enemy.Name}    HP {enemy.Hp}\nIntent: attack all for {enemy.Damage+(run.Turn%3==0?3:0)}\nPoison {enemy.Poison}",840,195,380,70,17);
                     Label($"Turn {run.Turn}     Energy {hero.Energy}     Block {hero.Block}     Strength {hero.Strength}\nDraw {hero.Draw.Count}  /  Discard {hero.Discard.Count}  /  Exhaust {hero.Exhausted.Count}",32,410,1000,65,21);
                     CardsReady=RenderCards(hero.Hand.ToArray(),false,ready && hero.Alive && !hero.Ended,renderVersion);
                     Button("EndTurn",hero.Ended?L(LocIds.UiWait):L(LocIds.UiEnd),1060,400,185,70,()=>Send("end"),ready && hero.Alive && !hero.Ended);

@@ -185,7 +185,7 @@ namespace Spire
             {
                 var c=packet.command;
                 if(c==null || c.revision!=Run.Revision || !Run.Apply(c.player,c.action,c.argument,out _)) throw new IOException("State mismatch; reconnect required");
-                Status="Co-op connected";
+                Status="Co-op connected"; Notify();
             }
             else if(packet.kind=="error") Status=packet.error;
         }
@@ -234,7 +234,7 @@ namespace Spire
                 return false;
             }
             history.Add(command);
-            peer.Send(new Packet {kind="accepted",command=command}); return true;
+            peer.Send(new Packet {kind="accepted",command=command}); Notify(); return true;
         }
         public bool Submit(string action,int argument)
         {

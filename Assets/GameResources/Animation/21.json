@@ -1,0 +1,52 @@
+{
+    "Actors": [
+        {
+            "Owner": 0,
+            "Prefab": 10000
+        },
+        {
+            "Owner": 1,
+            "Prefab": 10100
+        },
+        {
+            "Owner": 1000,
+            "Prefab": 10200
+        },
+        {
+            "Owner": 1001,
+            "Prefab": 10300
+        },
+        {
+            "Owner": 1002,
+            "Prefab": 10400
+        },
+        {
+            "Owner": 1003,
+            "Prefab": 10500
+        },
+        {
+            "Owner": 1004,
+            "Prefab": 10600
+        },
+        {
+            "Owner": 1005,
+            "Prefab": 10700
+        },
+        {
+            "Owner": 1006,
+            "Prefab": 10800
+        },
+        {
+            "Owner": 1007,
+            "Prefab": 10900
+        },
+        {
+            "Owner": 1008,
+            "Prefab": 11000
+        },
+        {
+            "Owner": 1009,
+            "Prefab": 11100
+        }
+    ]
+}

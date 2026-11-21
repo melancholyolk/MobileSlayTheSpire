@@ -7,7 +7,7 @@ public sealed class ResourceCatalogPostprocessor : AssetPostprocessor
         if(scheduled) return;
         bool relevant=false;
         foreach(var list in new[]{imported,deleted,moved,movedFrom})
-            foreach(var path in list) if(path.StartsWith("Assets/GameResources/Characters/")) relevant=true;
+            foreach(var path in list) if((path.StartsWith("Assets/GameResources/Characters/") || path.StartsWith("Assets/GameResources/Monsters/"))) relevant=true;
         if(!relevant) return;
         scheduled=true;
         EditorApplication.delayCall+=()=> {

@@ -1,2 +1,3 @@
-{"name":"Spire.Tests","references":["AssemblyRuntime","Spire.Audio","Spire.Animation"],"includePlatforms":["Editor"],"optionalUnityReferences":["TestAssemblies"]}
+{"name":"Spire.Tests","references":["AssemblyRuntime","Spire.Audio","Spire.Animation","Unity.ugui"],"includePlatforms":["Editor"],"optionalUnityReferences":["TestAssemblies"]}
+
 
