@@ -68,16 +68,28 @@ namespace SpireUI
             if(!slots.TryGetValue(path,out var slot)) return;
             slot.Visible=false; if(slot.View!=null) slot.View.OnHide();
         }
-        public void Close(int path)
+        readonly HashSet<BaseUIView> closing=new HashSet<BaseUIView>();
+        public void Close(int path) { _=CloseAsync(path); }
+        public async Task CloseAsync(int path)
         {
             if(!slots.TryGetValue(path,out var slot)) return;
             slots.Remove(path); slot.Closed=true; slot.Completion.TrySetCanceled();
-            if(slot.View!=null) { slot.View.Release(); resources.Return(slot.View.gameObject,false); }
+            var view=slot.View;
+            if(view==null) return;
+            closing.Add(view);
+            try { if(!disposed) await view.HideAsync(); }
+            finally
+            {
+                closing.Remove(view);
+                if(view!=null) { view.Release(); resources.Return(view.gameObject,false); }
+            }
         }
         void OnDestroy()
         {
             disposed=true;
             foreach(var path in new List<int>(slots.Keys)) Close(path);
+            foreach(var view in new List<BaseUIView>(closing)) if(view!=null) { view.Release(); resources.Return(view.gameObject,false); }
+            closing.Clear();
         }
     }
 }

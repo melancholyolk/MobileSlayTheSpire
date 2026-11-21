@@ -22,7 +22,8 @@ public class UiFrameworkTests
             Assert.IsTrue(first.IsCompleted && !first.IsFaulted, first.Exception?.ToString());
             Assert.AreSame(first.Result,second.Result); Assert.AreEqual(1,manager.Count);
             var view=first.Result; Assert.IsTrue(view.IsVisible);
-            manager.Hide(GameplayView.Path); Assert.IsFalse(view.gameObject.activeSelf);
+            manager.Hide(GameplayView.Path); Assert.IsFalse(view.IsVisible);
+            while(!view.Transition.IsCompleted) yield return null; Assert.IsFalse(view.gameObject.activeSelf);
             var reopen=manager.OpenAsync<GameplayView>(GameplayView.Path);
             Assert.AreSame(view,reopen.Result); Assert.IsTrue(view.IsVisible);
             var child=new GameObject("Dynamic",typeof(UiElement)); child.transform.SetParent(view.transform);
@@ -31,13 +32,15 @@ public class UiFrameworkTests
             Object.Destroy(child); yield return null;
             Assert.IsFalse(view.Elements.Contains(element));
             var wrong=manager.OpenAsync<GameStartView>(GameplayView.Path); Assert.IsTrue(wrong.IsFaulted);
-            manager.Close(GameplayView.Path); Assert.AreEqual(0,manager.Count);
+            var close=manager.CloseAsync(GameplayView.Path); Assert.AreEqual(0,manager.Count);
+            while(!close.IsCompleted) yield return null;
             yield return null; Assert.IsTrue(view==null);
             var missing=manager.OpenAsync<GameplayView>(999999);
             deadline=Time.realtimeSinceStartup+20;
             while(!missing.IsCompleted && Time.realtimeSinceStartup<deadline) yield return null;
             Assert.IsTrue(missing.IsFaulted); Assert.AreEqual(0,manager.Count);
-            var cancelled=manager.OpenAsync<GameplayView>(GameplayView.Path); manager.Close(GameplayView.Path);
+            var cancelled=manager.OpenAsync<GameplayView>(GameplayView.Path); var cancelledClose=manager.CloseAsync(GameplayView.Path);
+            while(!cancelledClose.IsCompleted) yield return null;
             yield return null;
             Assert.IsTrue(cancelled.IsCanceled || cancelled.IsCompletedSuccessfully);
             Assert.AreEqual(0,manager.Count); Assert.AreEqual(0,scope.InstanceCount);

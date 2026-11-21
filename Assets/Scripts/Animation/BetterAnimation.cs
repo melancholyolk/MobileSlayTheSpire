@@ -20,6 +20,7 @@ namespace SpireAnimation
         public event Action<PresentationPhase> Lifecycle;
         Animation animationPlayer;
         AnimationClip ownedClip;
+        bool ownsClip;
         AnimationState state;
         TaskCompletionSource<PresentationPhase> completion;
         float elapsed;
@@ -39,6 +40,18 @@ namespace SpireAnimation
             Curve(typeof(Transform),"localScale.x",scale.x*motion.FromScale,scale.x*motion.ToScale);
             Curve(typeof(Transform),"localScale.y",scale.y*motion.FromScale,scale.y*motion.ToScale);
             Curve(typeof(Transform),"localEulerAnglesRaw.z",motion.FromAngle,motion.ToAngle);
+            ownsClip=true;
+            return StartClip(clip);
+        }
+        public Task<PresentationPhase> PlayClip(AnimationClip clip)
+        {
+            if(clip==null || !clip.legacy) throw new ArgumentException("UI clips must be legacy Animation clips");
+            Cancel(); ownsClip=false; return StartClip(clip);
+        }
+        Task<PresentationPhase> StartClip(AnimationClip clip)
+        {
+            if(animationPlayer==null) animationPlayer=GetComponent<Animation>();
+            animationPlayer.playAutomatically=false; animationPlayer.cullingType=AnimationCullingType.AlwaysAnimate;
             ownedClip=clip; animationPlayer.AddClip(clip,clip.name); animationPlayer.Play(clip.name);
             state=animationPlayer[clip.name]; state.speed=0; state.time=0; animationPlayer.Sample();
             elapsed=0; Paused=false; completion=new TaskCompletionSource<PresentationPhase>(); var task=completion.Task;
@@ -63,7 +76,7 @@ namespace SpireAnimation
         {
             var pending=completion; completion=null; state=null;
             if(animationPlayer!=null) { animationPlayer.Stop(); if(ownedClip!=null) animationPlayer.RemoveClip(ownedClip); }
-            if(ownedClip!=null) Destroy(ownedClip); ownedClip=null;
+            if(ownedClip!=null && ownsClip) Destroy(ownedClip); ownedClip=null;
             Signal(phase); pending?.TrySetResult(phase);
         }
         void OnDisable() { Cancel(); }

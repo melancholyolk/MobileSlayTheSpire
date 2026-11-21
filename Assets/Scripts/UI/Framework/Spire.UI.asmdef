@@ -2,6 +2,6 @@
   "name": "Spire.UI",
   "references": [
     "Unity.ugui",
-    "Spire.Resources"
+    "Spire.Resources","Spire.Animation"
   ]
 }
