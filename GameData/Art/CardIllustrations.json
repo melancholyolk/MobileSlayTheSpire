@@ -1,0 +1,178 @@
+[
+  {
+    "CardId": "w_strike",
+    "ArtId": 1101,
+    "Owner": 0,
+    "CandidateCount": 20,
+    "Selected": 8,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\w_strike\\b2_00001_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "w_strike_2.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "w_guard",
+    "ArtId": 1102,
+    "Owner": 0,
+    "CandidateCount": 20,
+    "Selected": 3,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\w_guard\\b0_00004_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "w_guard_0.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "w_cleave",
+    "ArtId": 1103,
+    "Owner": 0,
+    "CandidateCount": 20,
+    "Selected": 14,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\w_cleave\\b3_00003_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "w_cleave_3.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "w_rage",
+    "ArtId": 1104,
+    "Owner": 0,
+    "CandidateCount": 20,
+    "Selected": 16,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\w_rage\\b4_00001_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "w_rage_4.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "w_flurry",
+    "ArtId": 1105,
+    "Owner": 0,
+    "CandidateCount": 20,
+    "Selected": 17,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\w_flurry\\b4_00002_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "w_flurry_4.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "w_wall",
+    "ArtId": 1106,
+    "Owner": 0,
+    "CandidateCount": 20,
+    "Selected": 5,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\w_wall\\b1_00002_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "w_wall_1.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "w_breath",
+    "ArtId": 1107,
+    "Owner": 0,
+    "CandidateCount": 20,
+    "Selected": 1,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\w_breath\\b0_00002_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "w_breath_0.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "w_focus",
+    "ArtId": 1108,
+    "Owner": 0,
+    "CandidateCount": 20,
+    "Selected": 0,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\w_focus\\b0_00001_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "w_focus_0.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "h_shot",
+    "ArtId": 2101,
+    "Owner": 1,
+    "CandidateCount": 20,
+    "Selected": 8,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\h_shot\\b2_00001_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "h_shot_2.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "h_dodge",
+    "ArtId": 2102,
+    "Owner": 1,
+    "CandidateCount": 20,
+    "Selected": 3,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\h_dodge\\b0_00004_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "h_dodge_0.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "h_venom",
+    "ArtId": 2103,
+    "Owner": 1,
+    "CandidateCount": 20,
+    "Selected": 2,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\h_venom\\b0_00003_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "h_venom_0.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "h_volley",
+    "ArtId": 2104,
+    "Owner": 1,
+    "CandidateCount": 20,
+    "Selected": 0,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\h_volley\\b0_00001_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "h_volley_0.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "h_focus",
+    "ArtId": 2105,
+    "Owner": 1,
+    "CandidateCount": 20,
+    "Selected": 7,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\h_focus\\b1_00004_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "h_focus_1.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "h_toxin",
+    "ArtId": 2106,
+    "Owner": 1,
+    "CandidateCount": 20,
+    "Selected": 1,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\h_toxin\\b0_00002_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "h_toxin_0.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "h_shroud",
+    "ArtId": 2107,
+    "Owner": 1,
+    "CandidateCount": 20,
+    "Selected": 17,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\h_shroud\\b4_00002_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "h_shroud_4.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "h_haste",
+    "ArtId": 2108,
+    "Owner": 1,
+    "CandidateCount": 20,
+    "Selected": 3,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Cards\\20261121\\h_haste\\b0_00004_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
+    "Workflow": "h_haste_0.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  }
+]
