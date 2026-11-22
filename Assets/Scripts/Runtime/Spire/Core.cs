@@ -183,6 +183,7 @@ namespace Spire
             h.Energy -= c.Cost; h.Hand.RemoveAt(index);
             if (c.Exhaust) h.Exhausted.Add(c.Id); else h.Discard.Add(c.Id);
             var enemy = Enemies.FirstOrDefault(e => e.Alive);
+            int enemyHpBefore=enemy?.Hp??0;
             switch (c.Effect)
             {
                 case Effect.Attack:
@@ -196,10 +197,10 @@ namespace Spire
                 case Effect.Strength: h.Strength += c.Amount; break;
                 case Effect.Poison: if (enemy != null) enemy.Poison += c.Amount; break;
                 case Effect.Draw: DrawCards(h, c.Amount); break;
-                case Effect.Heal: h.Hp = Math.Min(h.MaxHp, h.Hp + c.Amount); break;
+                case Effect.Heal: int beforeHeal=h.Hp; h.Hp = Math.Min(h.MaxHp, h.Hp + c.Amount); if(h.Hp>beforeHeal) Cue(BattleCueKind.Heal,p,amount:h.Hp-beforeHeal); break;
                 case Effect.Energy: h.Energy += c.Amount; break;
             }
-            if(c.Effect==Effect.Attack && enemy!=null && !UsePhysicalAttacks) Cue(enemy.Alive?BattleCueKind.Hit:BattleCueKind.Death,-1,p,amount:c.Amount*c.Hits);
+            if(c.Effect==Effect.Attack && enemy!=null && !UsePhysicalAttacks) Cue(enemy.Alive?BattleCueKind.Hit:BattleCueKind.Death,-1-Enemies.IndexOf(enemy),p,amount:enemyHpBefore-enemy.Hp);
             Cue(c.Exhaust?BattleCueKind.Exhaust:BattleCueKind.Discard,p,art:c.ArtId,source:CardOrigin.PlayArea,cardId:c.Id);
             CheckCombat(); return true;
         }
@@ -220,7 +221,7 @@ namespace Spire
                     }
                     Cue(BattleCueKind.Attack,-1-Enemies.IndexOf(e));
                     foreach (var h in Heroes.Where(h => h.Alive))
-                    { h.Hp = Math.Max(0, h.Hp - Hit(e.Damage + (Turn % 3 == 0 ? 3 : 0), ref h.Block)); Cue(h.Alive?BattleCueKind.Hit:BattleCueKind.Death,Heroes.IndexOf(h),-1,amount:e.Damage); }
+                    { int before=h.Hp; h.Hp = Math.Max(0, h.Hp - Hit(e.Damage + (Turn % 3 == 0 ? 3 : 0), ref h.Block)); Cue(h.Alive?BattleCueKind.Hit:BattleCueKind.Death,Heroes.IndexOf(h),-1-Enemies.IndexOf(e),amount:before-h.Hp); }
                 }
             if(PendingAttacks>0) finishEnemyTurn=true;
             else if (!CheckCombat()) BeginTurn();

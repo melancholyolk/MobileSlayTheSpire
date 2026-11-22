@@ -37,6 +37,7 @@ namespace Spire
             cues.Clear(); attacks.Remove(id);
             if(bodyPart>=0 && ActorAlive(attack.Source) && ActorAlive(attack.Target))
             {
+                int before=attack.Target>=0?Heroes[attack.Target].Hp:Enemies[-1-attack.Target].Hp;
                 if(attack.Target>=0)
                 {
                     var hero=Heroes[attack.Target];
@@ -48,7 +49,7 @@ namespace Spire
                     enemy.Hp=Math.Max(0,enemy.Hp-Hit(attack.Damage,ref enemy.Block));
                 }
                 cues.Add(new BattleCue(ActorAlive(attack.Target)?BattleCueKind.Hit:BattleCueKind.Death,
-                    attack.Target,attack.Source,amount:attack.Damage,cardId:attack.CardId,bodyPart:bodyPart));
+                    attack.Target,attack.Source,amount:before-(attack.Target>=0?Heroes[attack.Target].Hp:Enemies[-1-attack.Target].Hp),cardId:attack.CardId,bodyPart:bodyPart));
             }
             if(attacks.Count==0)
             {

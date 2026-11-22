@@ -18,7 +18,7 @@ namespace SpireAnimation
     }
     public sealed class BattlePresentation : MonoBehaviour
     {
-        sealed class Actor { public ResourceScope Scope; public SkeletonView View; public CombatBody Body; }
+        sealed class Actor { public ResourceScope Scope; public SkeletonView View; public CombatBody Body; public ActorExpressionView Expression; }
         sealed class Job { public long Id; public BattleCue Cue; }
         public event Action<CardProcessSignal> Lifecycle;
         // The presentation layer may consume local card events using persistent hand instances.
@@ -139,6 +139,7 @@ namespace SpireAnimation
                     rt.localScale=Vector3.one; actor.View=go.GetComponent<SkeletonView>(); go.SetActive(true);
                     actor.Body=go.GetComponent<CombatBody>()??go.AddComponent<CombatBody>();
                     actor.Body.Configure(bodyCatalog,owner);
+                    actor.Expression=go.GetComponent<ActorExpressionView>();
                     if(hero) actor.View.Play(MotionId.Spawn);
                 }
                 catch(OperationCanceledException) { return; }
@@ -162,6 +163,7 @@ namespace SpireAnimation
                 { yield return DiscardHandBatch(); continue; }
                 active=pending.Dequeue(); var job=active; Signal(job,PresentationPhase.Started);
                 var cue=job.Cue; actors.TryGetValue(cue.Actor,out var actor);
+                actor?.Expression?.Apply(cue);
                 if(cue.Kind==BattleCueKind.Attack && cue.AttackId>0)
                 {
                     yield return PhysicalAttack(job,actor);

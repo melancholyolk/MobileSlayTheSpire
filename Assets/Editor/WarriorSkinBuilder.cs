@@ -76,7 +76,7 @@ public static class WarriorSkinBuilder
             provider.Apply();importer.SaveAndReimport();
         }
         // The prefab is authored once; subsequent builds only refresh the resource catalog.
-        if(rebuild || !File.Exists(Folder+"/13000.prefab")) BuildPrefab(rig,joints,profile);
+        if(rebuild || !File.Exists(Folder+"/13000.prefab")) { BuildPrefab(rig,joints,profile); WarriorExpressionBuilder.Build(); }
         var catalogPath="Assets/GameResources/Animation/21.json";
         var catalog=JsonUtility.FromJson<ActorVisualCatalog>(File.ReadAllText(catalogPath));
         catalog.Actors.Single(a=>a.Owner==0).Prefab=13000;

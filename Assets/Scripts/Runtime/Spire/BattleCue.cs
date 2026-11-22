@@ -1,6 +1,6 @@
 namespace Spire
 {
-    public enum BattleCueKind { Draw, Shuffle, Play, Discard, Exhaust, Attack, Hit, Guard, Skill, Death, Victory }
+    public enum BattleCueKind { Draw, Shuffle, Play, Discard, Exhaust, Attack, Hit, Guard, Skill, Death, Victory, Heal }
     public enum CardOrigin { Automatic, Hand, DrawPile, DiscardPile, ExhaustPile, Actor, PlayArea }
     public readonly struct BattleCue
     {
