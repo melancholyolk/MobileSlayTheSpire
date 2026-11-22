@@ -1313,7 +1313,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   openAnimation:
-    Duration: 0.18
+    Duration: 0.35
     FromAlpha: 0
     ToAlpha: 1
     FromOffset: {x: 0, y: 0}
@@ -1323,7 +1323,7 @@ MonoBehaviour:
     FromAngle: 0
     ToAngle: 0
   closeAnimation:
-    Duration: 0.18
+    Duration: 0.22
     FromAlpha: 1
     ToAlpha: 0
     FromOffset: {x: 0, y: 0}

@@ -55,6 +55,9 @@ public static class GameUiPrefabBuilder
             var layout=Rect("Layout",go.transform,0,0,1280,720);
             layout.anchorMin=layout.anchorMax=layout.pivot=new Vector2(.5f,.5f); layout.anchoredPosition=Vector2.zero;
             var s=new SerializedObject(go.GetComponent<GameStartView>());
+            // BaseUIView owns playback through BetterAnimation; keep rebuilt menus in sync.
+            s.FindProperty("openAnimation").FindPropertyRelative("Duration").floatValue=.35f;
+            s.FindProperty("closeAnimation").FindPropertyRelative("Duration").floatValue=.22f;
             Set(s,"title",Label("Title",layout,64,35,700,90,52));
             var home=Rect("Home",layout,0,0,1280,720);
             var selection=Rect("Selection",layout,0,0,1280,720);
