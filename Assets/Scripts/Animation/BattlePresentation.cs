@@ -28,13 +28,15 @@ namespace SpireAnimation
         public const int MaxQueuedProcesses=128; // Initial capacity, never discard a queued card play.
         readonly Dictionary<int,Actor> actors=new Dictionary<int,Actor>();
         readonly Queue<Job> pending=new Queue<Job>(MaxQueuedProcesses);
+        readonly Dictionary<Job,Task<bool>> discarding=new Dictionary<Job,Task<bool>>();
+        int localSeat;
         readonly Dictionary<int,ResourceScope> cardScopes=new Dictionary<int,ResourceScope>();
         ResourceManager resources; ResourceScope shared; ActorVisualCatalog catalog; BodyCatalog bodyCatalog;
         RectTransform stage; Run observed; int room=-1,revision=-1,generation; long ticket;
         Job active; GameObject ghost; ResourceScope ghostOwner; Coroutine routine;
         Task ready=Task.CompletedTask;
         public Task Ready=>ready;
-        public int PendingCount=>pending.Count+(active==null?0:1);
+        public int PendingCount=>pending.Count+discarding.Count+(active==null?0:1);
         public int ActorCount=>actors.Count;
         public void Configure(ResourceManager manager,RectTransform root) { resources=manager; stage=root; shared=manager.CreateScope(); }
         RectTransform[] heroAnchors,enemyAnchors;
@@ -44,6 +46,7 @@ namespace SpireAnimation
         Vector2 EffectPosition(RectTransform anchor) => anchor==null?Vector2.zero:(Vector2)stage.InverseTransformPoint(anchor.TransformPoint(anchor.rect.center));
         public void Observe(Run run,int localPlayer)
         {
+            localSeat=localPlayer;
             if(run==null) { Clear(); return; }
             run.UsePhysicalAttacks=true;
             if(run!=observed || room!=run.Current)
@@ -155,6 +158,8 @@ namespace SpireAnimation
             if(ready.IsFaulted) { Debug.LogException(ready.Exception); Clear(); yield break; }
             while(pending.Count>0)
             {
+                if(IsHandDiscard(pending.Peek().Cue) && CardPresenter!=null)
+                { yield return DiscardHandBatch(); continue; }
                 active=pending.Dequeue(); var job=active; Signal(job,PresentationPhase.Started);
                 var cue=job.Cue; actors.TryGetValue(cue.Actor,out var actor);
                 if(cue.Kind==BattleCueKind.Attack && cue.AttackId>0)
@@ -224,6 +229,31 @@ namespace SpireAnimation
             routine=null;
         }
         void ReleaseGhost() { if(ghost!=null) { ghost.GetComponent<BetterAnimation>().Cancel(); ghostOwner?.Return(ghost); } ghost=null; ghostOwner=null; }
+        bool IsHandDiscard(BattleCue cue) => cue.Actor==localSeat && cue.Kind==BattleCueKind.Discard && !string.IsNullOrEmpty(cue.CardId) && (cue.Source==CardOrigin.Hand || cue.Source==CardOrigin.Automatic);
+        IEnumerator DiscardHandBatch()
+        {
+            float nextStart=0,elapsed=0;
+            do
+            {
+                if(pending.Count>0 && IsHandDiscard(pending.Peek().Cue) && elapsed>=nextStart)
+                {
+                    var job=pending.Dequeue(); Signal(job,PresentationPhase.Started);
+                    discarding.Add(job,CardPresenter(job.Cue));
+                    nextStart=elapsed+.1f;
+                }
+                foreach(var pair in discarding.ToArray())
+                {
+                    if(!pair.Value.IsCompleted) continue;
+                    discarding.Remove(pair.Key);
+                    if(pair.Value.IsFaulted) Debug.LogException(pair.Value.Exception);
+                    bool success=pair.Value.IsCompletedSuccessfully && pair.Value.Result;
+                    if(success) Signal(pair.Key,PresentationPhase.Impact);
+                    Signal(pair.Key,success?PresentationPhase.Completed:PresentationPhase.Cancelled);
+                }
+                elapsed+=Time.unscaledDeltaTime;
+                yield return null;
+            } while(discarding.Count>0 || (pending.Count>0 && IsHandDiscard(pending.Peek().Cue)));
+        }
         IEnumerator PhysicalAttack(Job job,Actor actor)
         {
             var cue=job.Cue;
@@ -264,6 +294,7 @@ namespace SpireAnimation
             if(stage!=null) stage.gameObject.SetActive(false);
             generation++; if(routine!=null) StopCoroutine(routine); routine=null;
             if(active!=null) Signal(active,PresentationPhase.Cancelled); active=null;
+            foreach(var job in discarding.Keys) Signal(job,PresentationPhase.Cancelled); discarding.Clear();
             while(pending.Count>0) Signal(pending.Dequeue(),PresentationPhase.Cancelled);
             ReleaseGhost(); foreach(var actor in actors.Values) actor.Scope.Dispose(); actors.Clear();
             foreach(var scope in cardScopes.Values) scope.Dispose(); cardScopes.Clear();
