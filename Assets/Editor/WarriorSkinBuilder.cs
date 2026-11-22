@@ -97,9 +97,9 @@ public static class WarriorSkinBuilder
                 var target=Child(name+"Target",controls);target.position=end.position;
                 var solver=Child(name+"IK",controls).gameObject.AddComponent<LimbSolver2D>();
                 solver.GetChain(0).effector=end;solver.GetChain(0).target=target;solver.constrainRotation=false;
-                int middle=joints.FindIndex(j=>j.Name==name);var upper=transforms[joints[middle].Parent];
-                var a=(Vector2)(transforms[middle].position-upper.position);var b=(Vector2)(end.position-upper.position);
-                solver.flip=a.x*b.y-a.y*b.x>0;solver.Initialize();manager.AddSolver(solver);
+                // Bind limbs are collinear: their cross product is rounding noise, not a bend hint.
+                // Image-space L bends left, R bends right in this frontal warrior rig.
+                solver.flip=name.EndsWith("L",StringComparison.Ordinal);solver.Initialize();manager.AddSolver(solver);
             }
             var materialPath=Folder+"/13080.mat";
             var material=new Material(Shader.Find("Sprites/Default"));AssetDatabase.CreateAsset(material,materialPath);
