@@ -7,12 +7,13 @@ namespace Spire.Tests
 {
     public class NetworkTests
     {
-        [Test] public void RealTcpCooperativeVictoryUsesProductionCards()
+        [TestCase(0,1)] [TestCase(2,3)] [TestCase(2,2)] [TestCase(3,3)]
+        public void RealTcpCooperativeVictoryUsesProductionCards(int first,int second)
         {
             byte[] table=Resources.Load<TextAsset>("Tables/cards").bytes;
             using(var host=new CoopSession(table)) using(var client=new CoopSession(table))
             {
-                host.Host(0,42); client.Join("127.0.0.1",host.Port); Wait(host,client,()=>client.Connected); StartLobby(host,client);
+                host.Host(0,42); client.Join("127.0.0.1",host.Port); Wait(host,client,()=>client.Connected); StartLobby(host,client,first,second);
                 for(int step=0;step<3000 && host.Run.Phase!=Phase.Won && host.Run.Phase!=Phase.Lost;step++)
                 {
                     for(int p=0;p<2;p++)
@@ -30,11 +31,11 @@ namespace Spire.Tests
                 Assert.AreEqual(host.Run.Heroes.Select(h=>h.Hp),client.Run.Heroes.Select(h=>h.Hp));
             }
         }
-        static void StartLobby(CoopSession host,CoopSession client)
+        static void StartLobby(CoopSession host,CoopSession client,int first=0,int second=1)
         {
             Assert.IsNull(host.Run); Assert.IsFalse(host.StartGame()); Assert.IsFalse(client.StartGame());
-            host.SelectCharacter(0); client.SelectCharacter(1);
-            Wait(host,client,()=>host.SelectedCharacter(1)==1 && client.SelectedCharacter(0)==0);
+            host.SelectCharacter(first); client.SelectCharacter(second);
+            Wait(host,client,()=>host.SelectedCharacter(1)==second && client.SelectedCharacter(0)==first);
             client.SetReady(true); Wait(host,client,()=>host.CanStart);
             Assert.IsTrue(host.StartGame()); Wait(host,client,()=>client.Run!=null);
         }

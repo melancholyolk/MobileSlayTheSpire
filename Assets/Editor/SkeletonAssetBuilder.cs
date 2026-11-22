@@ -9,7 +9,7 @@ using UnityEngine.UI;
 public static class SkeletonAssetBuilder
 {
     [Serializable] public class Rigs { public Rig[] Items; }
-    [Serializable] public class Rig { public string Name,Folder; public int Index,ResourceId; public Bone[] Bones; }
+    [Serializable] public class Rig { public string Name,Folder; public int Index,ResourceId,Owner,MotionCount; public Bone[] Bones; }
     [Serializable] public class Bone { public string Name,Parent; public float X,Y; public int Left,Top,Width,Height,Image; }
     const float Scale=.28f;
     [MenuItem("Tools/Spire/Build 2D Skeleton Assets")]
@@ -18,7 +18,7 @@ public static class SkeletonAssetBuilder
         var rigs=JsonUtility.FromJson<Rigs>(File.ReadAllText("GameData/Art/Rigs.json")).Items;
         foreach(var rig in rigs) Build(rig);
         Directory.CreateDirectory("Assets/GameResources/Animation");
-        var config=new ActorVisualCatalog {Actors=rigs.Select(r=>new ActorVisual {Owner=r.Index<2?r.Index:1000+r.Index-2,Prefab=r.ResourceId}).ToArray()};
+        var config=new ActorVisualCatalog {Actors=rigs.Select(r=>new ActorVisual {Owner=r.Owner,Prefab=r.ResourceId}).ToArray()};
         File.WriteAllText("Assets/GameResources/Animation/21.json",JsonUtility.ToJson(config,true));
         AssetDatabase.ImportAsset("Assets/GameResources/Animation/21.json");
         Directory.CreateDirectory("Assets/GameResources/UI/Shared/Effects");
@@ -55,7 +55,7 @@ public static class SkeletonAssetBuilder
         // Rear legs first; torso and front arms above. Bone hierarchy keeps sprite ownership explicit.
         transforms["ThighL"].SetAsFirstSibling(); transforms["ThighR"].SetAsFirstSibling();
         var motions=new List<MotionEntry>();
-        int count=rig.Index<2?10:5;
+        int count=rig.MotionCount;
         for(int i=0;i<count;i++)
         {
             var id=(MotionId)i; float duration=id==MotionId.Idle?2.4f:id==MotionId.Death?1.0f:id==MotionId.Walk?1f:.65f;
@@ -65,7 +65,7 @@ public static class SkeletonAssetBuilder
             Curve(clip,"Motion","localEulerAnglesRaw.z",duration,0,0,0);
             Curve(clip,"Motion","m_LocalPosition.x",duration,0,0,0);
             Curve(clip,"Motion","m_LocalPosition.y",duration,0,0,0);
-            float strength=rig.Index<2?1: .75f+(rig.Index%4)*.12f;
+            float strength=rig.Owner<1000?1: .75f+(rig.Index%4)*.12f;
             void Rotate(string bone,float mid,float end=0)=>Curve(clip,paths[bone],"localEulerAnglesRaw.z",duration,0,mid*strength,end*strength);
             switch(id)
             {

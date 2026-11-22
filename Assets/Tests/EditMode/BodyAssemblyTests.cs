@@ -42,11 +42,11 @@ public class BodyAssemblyTests
         }
         finally { UnityEngine.Object.DestroyImmediate(root); }
     }
-    [Test] public void ProductionBinaryAssembliesValidateAllTwelveActors()
+    [Test] public void ProductionBinaryAssembliesValidateAllFourteenActors()
     {
         byte[] Read(string name)=>System.IO.File.ReadAllBytes("Assets/Resources/BusinessTables/"+name+".bytes");
         var c=BodyCatalog.Read(Read("BodyParts"),Read("BodyPorts"),Read("BodyNodes"),Read("BodyMotions"));
-        Assert.AreEqual(12,c.Nodes.Select(n=>n.Owner).Distinct().Count());
+        Assert.AreEqual(14,c.Nodes.Select(n=>n.Owner).Distinct().Count());
         foreach(var group in c.Nodes.GroupBy(n=>n.Owner))
         {
             var body=new BodyAssembly(c.Parts);foreach(var row in group) body.Add(row.Node);Assert.AreEqual(11,body.Count);

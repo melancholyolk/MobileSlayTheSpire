@@ -17,13 +17,13 @@ python Tools/Tables/build_tables.py
 python -m unittest discover -s Tools/Tables -p 'test_*.py'
 ```
 
-输出 `Assets/Resources/Tables/cards.bytes`。编译器校验列头、重复 ID、枚举、数值范围和初始牌组，失败不覆盖旧文件；不接受公式字段，以免 Excel 缓存导致过期数值。运行时读取 SPCR v2 二进制，卡牌 Name 字段声明为 string(Common)，打表时替换为 int32 NameId，不需要 Excel 库。业务表第 1 行为字段名、第 2 行为类型、第 3 行起为数据。完整本地化 CSV 增量流程见 [本地化说明](GameData/Excel/Localization/README.md)。
+输出 `Assets/Resources/Tables/cards.bytes`。编译器校验列头、重复 ID、枚举、数值范围和初始牌组，失败不覆盖旧文件；不接受公式字段，以免 Excel 缓存导致过期数值。运行时读取 SPCR v3 二进制，卡牌 Name 字段声明为 string(Common)，打表时替换为 int32 NameId，不需要 Excel 库。业务表第 1 行为字段名、第 2 行为类型、第 3 行起为数据。完整本地化 CSV 增量流程见 [本地化说明](GameData/Excel/Localization/README.md)。
 
-表头：`Id, Name, Class, Cost, Effect, Amount, Hits, Exhaust, StarterCopies`。职业为 Warrior／Hunter；Effect 为 Attack／Block／Strength／Poison／Draw／Heal／Energy。Exhaust 必须是 Excel 布尔值。Hits 仅用于攻击。新增卡牌时同步维护美术主题表。
+表头：`Id, Name, Class, Cost, Effect, Amount, Hits, Exhaust, StarterCopies, ArtId`。职业 Class 为整数，Characters 工作表定义角色，目前包含战士 0、猎人 1、法师 2、射手 3；Effect 为 Attack／Block／Strength／Poison／Draw／Heal／Energy。Exhaust 必须是 Excel 布尔值。Hits 仅用于攻击。新增卡牌时同步维护美术主题表。
 
 ## 双人联机
 
-主机选择 Host co-op（战士），另一实例输入主机 IP 并选择 Join co-op（猎人），TCP 7777；同机使用 `127.0.0.1`。这是直连局域网原型，没有大厅服务、Relay、NAT 穿透或互联网部署。
+选择多人游戏后主机创建房间，另一实例输入主机 IP 加入，TCP 7777；双方选择职业（允许相同职业），客机准备后由主机开始；同机使用 `127.0.0.1`。这是直连局域网原型，没有大厅服务、Relay、NAT 穿透或互联网部署。
 
 主机按顺序验证指令；连接绑定玩家席位，客户端不能替他人行动。双方独立手牌与能量，共享路线与敌人；全员投票后进入房间、全员结束回合后敌人行动。票数相同按节点 ID 决定。双方卡表 SHA-256 必须相同。并发过期指令会拒绝并提示重试。
 
@@ -49,4 +49,12 @@ TCP 测试使用真实系统 socket，但两端在同一测试进程；不能等
 
 ## 尚未完成
 
-AI 卡图实际生产和 20 选 1 尚未执行，320 个待生成任务与风格规范见 `ArtProduction/`。当前没有绘图工具入口；没有用程序占位图代替 AI 绘图。当前也不含完整商业游戏所需的遗物、药水、存档、多幕内容、完整职业卡池、账号与在线大厅。
+24 张独立卡图已通过 D:/AiDraw 本地管线各生成 20 个候选并选用，来源见 GameData/Art/CardIllustrations.json。候选原图与生产环境不进入游戏仓库。当前也不含完整商业游戏所需的遗物、药水、存档、多幕内容、完整职业卡池、账号与在线大厅。
+
+## 四职业扩展与回归（2026-11-22）
+
+法师、射手各新增 4 张卡、10 张起始牌组、独立头像与 11 部件关节骨骼。角色和卡牌只通过 Excel 增加，无需扩展 HeroClass 枚举或注册新职业脚本。Rigs.json 使用显式 Owner/MotionCount，新增英雄不会误映射为怪物。战斗仍从 BodyParts 二进制重建关节，复用 110 条关节对动作配方；新增的静态动画仅作兼容样例。
+
+验证：38/38 EditMode、9/9 PlayMode、17/17 Python 打表测试通过。包含四职业正式卡组八层通关、每张卡效果、法师/射手混合和双法师/双射手真实 TCP 通关、新职业按钮选择/进入战斗/返回菜单释放骨骼。清理旧角色重建差异后，14 骨骼/90 动画资产检查再次通过。1280×720 实际战斗截图确认两名新英雄、卡面和图形按钮正常显示。网络验证仍为同进程真实回环 socket，不代表跨设备验收。
+
+当前展示为框架原型，AI 肢体边缘与装备连贯性仍需美术精修，未进行数值平衡。BodyPart 拓扑支持动态组合，但配置上限控制内存，不承诺无限资源；多个分组独立时间轴的分层混合尚未实现。

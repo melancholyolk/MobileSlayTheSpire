@@ -31,7 +31,7 @@ namespace Spire.Tests
                     if(best>=0) {action="play";arg=best;} break;
             }
         }
-        [TestCase(HeroClass.Warrior)] [TestCase(HeroClass.Hunter)]
+        [TestCase(HeroClass.Warrior)] [TestCase(HeroClass.Hunter)] [TestCase((HeroClass)2)] [TestCase((HeroClass)3)]
         public void ProductionDeckCanWinEightFloorRun(HeroClass cls)
         {
             var r=new Run(CardTable.Read(Resources.Load<TextAsset>("Tables/cards").bytes),42,cls);

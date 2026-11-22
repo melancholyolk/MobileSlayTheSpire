@@ -127,7 +127,9 @@
           "Height": 281,
           "Image": 10030
         }
-      ]
+      ],
+      "Owner": 0,
+      "MotionCount": 10
     },
     {
       "Name": "hunter",
@@ -256,7 +258,9 @@
           "Height": 271,
           "Image": 10130
         }
-      ]
+      ],
+      "Owner": 1,
+      "MotionCount": 10
     },
     {
       "Name": "hollow",
@@ -385,7 +389,9 @@
           "Height": 240,
           "Image": 10230
         }
-      ]
+      ],
+      "Owner": 1000,
+      "MotionCount": 5
     },
     {
       "Name": "revenant",
@@ -514,7 +520,9 @@
           "Height": 282,
           "Image": 10330
         }
-      ]
+      ],
+      "Owner": 1001,
+      "MotionCount": 5
     },
     {
       "Name": "warden",
@@ -643,7 +651,9 @@
           "Height": 207,
           "Image": 10430
         }
-      ]
+      ],
+      "Owner": 1002,
+      "MotionCount": 5
     },
     {
       "Name": "cultist",
@@ -772,7 +782,9 @@
           "Height": 203,
           "Image": 10530
         }
-      ]
+      ],
+      "Owner": 1003,
+      "MotionCount": 5
     },
     {
       "Name": "goblin",
@@ -901,7 +913,9 @@
           "Height": 261,
           "Image": 10630
         }
-      ]
+      ],
+      "Owner": 1004,
+      "MotionCount": 5
     },
     {
       "Name": "bandit",
@@ -1030,7 +1044,9 @@
           "Height": 251,
           "Image": 10730
         }
-      ]
+      ],
+      "Owner": 1005,
+      "MotionCount": 5
     },
     {
       "Name": "plague",
@@ -1159,7 +1175,9 @@
           "Height": 195,
           "Image": 10830
         }
-      ]
+      ],
+      "Owner": 1006,
+      "MotionCount": 5
     },
     {
       "Name": "frost",
@@ -1288,7 +1306,9 @@
           "Height": 226,
           "Image": 10930
         }
-      ]
+      ],
+      "Owner": 1007,
+      "MotionCount": 5
     },
     {
       "Name": "fungus",
@@ -1417,7 +1437,9 @@
           "Height": 182,
           "Image": 11030
         }
-      ]
+      ],
+      "Owner": 1008,
+      "MotionCount": 5
     },
     {
       "Name": "sentinel",
@@ -1546,7 +1568,271 @@
           "Height": 255,
           "Image": 11130
         }
-      ]
+      ],
+      "Owner": 1009,
+      "MotionCount": 5
+    },
+    {
+      "Name": "mage",
+      "Index": 12,
+      "ResourceId": 12000,
+      "Folder": "Assets/GameResources/Characters/2/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 391.68,
+          "Y": 481.28,
+          "Left": 180,
+          "Top": 476,
+          "Width": 447,
+          "Height": 57,
+          "Image": 12020
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 391.68,
+          "Y": 481.28,
+          "Left": 173,
+          "Top": 189,
+          "Width": 458,
+          "Height": 299,
+          "Image": 12021
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 384.0,
+          "Y": 194.56,
+          "Left": 313,
+          "Top": 62,
+          "Width": 150,
+          "Height": 139,
+          "Image": 12022
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 299.52,
+          "Y": 235.52,
+          "Left": 173,
+          "Top": 202,
+          "Width": 158,
+          "Height": 192,
+          "Image": 12023
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 238.07999999999998,
+          "Y": 317.44,
+          "Left": 94,
+          "Top": 237,
+          "Width": 150,
+          "Height": 130,
+          "Image": 12024
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 476.15999999999997,
+          "Y": 245.76,
+          "Left": 444,
+          "Top": 203,
+          "Width": 107,
+          "Height": 215,
+          "Image": 12025
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 529.92,
+          "Y": 348.16,
+          "Left": 525,
+          "Top": 333,
+          "Width": 144,
+          "Height": 141,
+          "Image": 12026
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 330.24,
+          "Y": 481.28,
+          "Left": 40,
+          "Top": 443,
+          "Width": 381,
+          "Height": 393,
+          "Image": 12027
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 345.6,
+          "Y": 716.8,
+          "Left": 126,
+          "Top": 712,
+          "Width": 296,
+          "Height": 274,
+          "Image": 12028
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 453.12,
+          "Y": 481.28,
+          "Left": 390,
+          "Top": 442,
+          "Width": 327,
+          "Height": 356,
+          "Image": 12029
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 483.84000000000003,
+          "Y": 716.8,
+          "Left": 426,
+          "Top": 711,
+          "Width": 293,
+          "Height": 296,
+          "Image": 12030
+        }
+      ],
+      "Owner": 2,
+      "MotionCount": 10
+    },
+    {
+      "Name": "archer",
+      "Index": 13,
+      "ResourceId": 12100,
+      "Folder": "Assets/GameResources/Characters/3/Rig",
+      "Bones": [
+        {
+          "Name": "Pelvis",
+          "Parent": "",
+          "X": 376.32,
+          "Y": 491.52,
+          "Left": 92,
+          "Top": 486,
+          "Width": 579,
+          "Height": 57,
+          "Image": 12120
+        },
+        {
+          "Name": "Torso",
+          "Parent": "Pelvis",
+          "X": 376.32,
+          "Y": 491.52,
+          "Left": 95,
+          "Top": 158,
+          "Width": 581,
+          "Height": 340,
+          "Image": 12121
+        },
+        {
+          "Name": "Head",
+          "Parent": "Torso",
+          "X": 384.0,
+          "Y": 163.84,
+          "Left": 181,
+          "Top": 28,
+          "Width": 260,
+          "Height": 142,
+          "Image": 12122
+        },
+        {
+          "Name": "ArmL",
+          "Parent": "Torso",
+          "X": 276.48,
+          "Y": 225.28,
+          "Left": 130,
+          "Top": 170,
+          "Width": 184,
+          "Height": 226,
+          "Image": 12123
+        },
+        {
+          "Name": "ForearmL",
+          "Parent": "ArmL",
+          "X": 238.07999999999998,
+          "Y": 368.64,
+          "Left": 80,
+          "Top": 363,
+          "Width": 202,
+          "Height": 245,
+          "Image": 12124
+        },
+        {
+          "Name": "ArmR",
+          "Parent": "Torso",
+          "X": 468.48,
+          "Y": 225.28,
+          "Left": 438,
+          "Top": 192,
+          "Width": 77,
+          "Height": 215,
+          "Image": 12125
+        },
+        {
+          "Name": "ForearmR",
+          "Parent": "ArmR",
+          "X": 499.20000000000005,
+          "Y": 378.88,
+          "Left": 463,
+          "Top": 374,
+          "Width": 143,
+          "Height": 249,
+          "Image": 12126
+        },
+        {
+          "Name": "ThighL",
+          "Parent": "Pelvis",
+          "X": 314.88,
+          "Y": 491.52,
+          "Left": 76,
+          "Top": 453,
+          "Width": 302,
+          "Height": 299,
+          "Image": 12127
+        },
+        {
+          "Name": "ShinL",
+          "Parent": "ThighL",
+          "X": 276.48,
+          "Y": 716.8,
+          "Left": 210,
+          "Top": 711,
+          "Width": 107,
+          "Height": 293,
+          "Image": 12128
+        },
+        {
+          "Name": "ThighR",
+          "Parent": "Pelvis",
+          "X": 437.76,
+          "Y": 491.52,
+          "Left": 351,
+          "Top": 453,
+          "Width": 264,
+          "Height": 295,
+          "Image": 12129
+        },
+        {
+          "Name": "ShinR",
+          "Parent": "ThighR",
+          "X": 422.40000000000003,
+          "Y": 716.8,
+          "Left": 372,
+          "Top": 712,
+          "Width": 129,
+          "Height": 262,
+          "Image": 12130
+        }
+      ],
+      "Owner": 3,
+      "MotionCount": 10
     }
   ]
 }

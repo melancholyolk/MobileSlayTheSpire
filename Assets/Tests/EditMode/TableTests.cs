@@ -7,11 +7,12 @@ namespace Spire.Tests
 {
     public class TableTests
     {
-        [Test] public void ProductionTableLoadsBothClassesAndAllEffects()
+        [Test] public void ProductionTableLoadsFourClassesAndAllEffects()
         {
             var cards=CardTable.Read(Resources.Load<TextAsset>("Tables/cards").bytes);
-            Assert.AreEqual(16,cards.Length);
-            foreach(HeroClass cls in Enum.GetValues(typeof(HeroClass))) Assert.AreEqual(10,cards.Where(c=>c.Class==cls).Sum(c=>c.StarterCopies));
+            Assert.AreEqual(24,cards.Length);
+            Assert.AreEqual(new[]{0,1,2,3},cards.Select(c=>(int)c.Class).Distinct().OrderBy(id=>id).ToArray());
+            foreach(var cls in cards.Select(c=>c.Class).Distinct()) Assert.AreEqual(10,cards.Where(c=>c.Class==cls).Sum(c=>c.StarterCopies));
             Assert.AreEqual(7,cards.Select(c=>c.Effect).Distinct().Count());
         }
         [Test] public void CorruptAndTruncatedTablesAreRejected()
@@ -20,7 +21,7 @@ namespace Spire.Tests
             Assert.Throws<EndOfStreamException>(()=>CardTable.Read(bytes.Take(bytes.Length-1).ToArray()));
             bytes[0]=0; Assert.Throws<InvalidDataException>(()=>CardTable.Read(bytes));
         }
-        [TestCase(HeroClass.Warrior)] [TestCase(HeroClass.Hunter)]
+        [TestCase(HeroClass.Warrior)] [TestCase(HeroClass.Hunter)] [TestCase((HeroClass)2)] [TestCase((HeroClass)3)]
         public void EveryProductionCardExecutesItsConfiguredEffect(HeroClass cls)
         {
             var cards=CardTable.Read(Resources.Load<TextAsset>("Tables/cards").bytes);

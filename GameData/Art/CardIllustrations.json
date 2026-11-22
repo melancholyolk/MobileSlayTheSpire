@@ -174,5 +174,93 @@
     "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-cards-20261121",
     "Workflow": "h_haste_0.json",
     "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "m_bolt",
+    "ArtId": 3101,
+    "Owner": 2,
+    "CandidateCount": 20,
+    "Selected": 3,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Expansion\\20261122\\m_bolt_0_00004_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-expansion-20261122",
+    "Workflow": "m_bolt_0.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "m_ward",
+    "ArtId": 3102,
+    "Owner": 2,
+    "CandidateCount": 20,
+    "Selected": 10,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Expansion\\20261122\\m_ward_2_00003_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-expansion-20261122",
+    "Workflow": "m_ward_2.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "m_insight",
+    "ArtId": 3103,
+    "Owner": 2,
+    "CandidateCount": 20,
+    "Selected": 17,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Expansion\\20261122\\m_insight_4_00002_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-expansion-20261122",
+    "Workflow": "m_insight_4.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "m_surge",
+    "ArtId": 3104,
+    "Owner": 2,
+    "CandidateCount": 20,
+    "Selected": 4,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Expansion\\20261122\\m_surge_1_00001_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-expansion-20261122",
+    "Workflow": "m_surge_1.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "a_arrow",
+    "ArtId": 4101,
+    "Owner": 3,
+    "CandidateCount": 20,
+    "Selected": 14,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Expansion\\20261122\\a_arrow_3_00003_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-expansion-20261122",
+    "Workflow": "a_arrow_3.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "a_cover",
+    "ArtId": 4102,
+    "Owner": 3,
+    "CandidateCount": 20,
+    "Selected": 13,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Expansion\\20261122\\a_cover_3_00002_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-expansion-20261122",
+    "Workflow": "a_cover_3.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "a_volley",
+    "ArtId": 4103,
+    "Owner": 3,
+    "CandidateCount": 20,
+    "Selected": 10,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Expansion\\20261122\\a_volley_2_00003_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-expansion-20261122",
+    "Workflow": "a_volley_2.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
+  },
+  {
+    "CardId": "a_aim",
+    "ArtId": 4104,
+    "Owner": 3,
+    "CandidateCount": 20,
+    "Selected": 1,
+    "Source": "D:\\AiDraw\\data\\output\\MobileSlayTheSpire\\Expansion\\20261122\\a_aim_0_00002_.png",
+    "Run": "D:\\AiDraw\\docs\\art\\runs\\spire-expansion-20261122",
+    "Workflow": "a_aim_0.json",
+    "Status": "selected from contact sheet; runtime crop review pending"
   }
 ]
