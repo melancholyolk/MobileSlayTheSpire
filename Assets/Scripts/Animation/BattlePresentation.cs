@@ -21,6 +21,8 @@ namespace SpireAnimation
         sealed class Actor { public ResourceScope Scope; public SkeletonView View; }
         sealed class Job { public long Id; public BattleCue Cue; }
         public event Action<CardProcessSignal> Lifecycle;
+        // The presentation layer may consume local card events using persistent hand instances.
+        public Func<BattleCue,Task<bool>> CardPresenter;
         public const int MaxQueuedProcesses=128; // Initial capacity, never discard a queued card play.
         readonly Dictionary<int,Actor> actors=new Dictionary<int,Actor>();
         readonly Queue<Job> pending=new Queue<Job>(MaxQueuedProcesses);
@@ -146,6 +148,14 @@ namespace SpireAnimation
                 active=pending.Dequeue(); var job=active; Signal(job,PresentationPhase.Started);
                 var cue=job.Cue; actors.TryGetValue(cue.Actor,out var actor);
                 bool card=cue.Kind==BattleCueKind.Draw || cue.Kind==BattleCueKind.Shuffle || cue.Kind==BattleCueKind.Play || cue.Kind==BattleCueKind.Discard || cue.Kind==BattleCueKind.Exhaust;
+                if(card && CardPresenter!=null)
+                {
+                    var presentation=CardPresenter(cue);
+                    while(!presentation.IsCompleted) yield return null;
+                    if(presentation.IsFaulted) { Debug.LogException(presentation.Exception); Signal(job,PresentationPhase.Cancelled); active=null; continue; }
+                    if(presentation.IsCanceled) { Signal(job,PresentationPhase.Cancelled); active=null; continue; }
+                    if(presentation.Result) { Signal(job,PresentationPhase.Impact); Signal(job,PresentationPhase.Completed); active=null; continue; }
+                }
                 float duration=card?(cue.Kind==BattleCueKind.Exhaust?.42f:cue.Kind==BattleCueKind.Play?.28f:.30f):.24f;
                 if(!card && actor?.View!=null)
                 {

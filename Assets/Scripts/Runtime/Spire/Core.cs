@@ -77,7 +77,7 @@ namespace Spire
         public const int Floors = 8;
         readonly List<BattleCue> cues=new List<BattleCue>();
         public IReadOnlyList<BattleCue> Cues=>cues;
-        void Cue(BattleCueKind kind,int actor,int target=0,int art=0,int amount=0,CardOrigin source=CardOrigin.Automatic) => cues.Add(new BattleCue(kind,actor,target,art,amount,source));
+        void Cue(BattleCueKind kind,int actor,int target=0,int art=0,int amount=0,CardOrigin source=CardOrigin.Automatic,string cardId=null,int handIndex=-1) => cues.Add(new BattleCue(kind,actor,target,art,amount,source,cardId:cardId,handIndex:handIndex));
 
         public Run(IEnumerable<Card> cards, uint seed, params HeroClass[] classes)
         {
@@ -167,7 +167,7 @@ namespace Spire
             {
                 if (h.Draw.Count == 0 && h.Discard.Count>0) { h.Draw.AddRange(h.Discard); h.Discard.Clear(); Random.Shuffle(h.Draw); Cue(BattleCueKind.Shuffle,Heroes.IndexOf(h)); }
                 if (h.Draw.Count == 0) break;
-                int last = h.Draw.Count - 1; h.Hand.Add(h.Draw[last]); h.Draw.RemoveAt(last); Cue(BattleCueKind.Draw,Heroes.IndexOf(h),art:Cards[h.Hand.Last()].ArtId);
+                int last = h.Draw.Count - 1; h.Hand.Add(h.Draw[last]); h.Draw.RemoveAt(last); Cue(BattleCueKind.Draw,Heroes.IndexOf(h),art:Cards[h.Hand.Last()].ArtId,cardId:h.Hand.Last());
             }
         }
         static int Hit(int damage, ref int block) { int absorbed = Math.Min(block, Math.Max(0, damage)); block -= absorbed; return Math.Max(0, damage - absorbed); }
@@ -177,7 +177,7 @@ namespace Spire
             if (Phase != Phase.Combat || h.Ended || index < 0 || index >= h.Hand.Count) return false;
             Card c = Cards[h.Hand[index]];
             if (h.Energy < c.Cost) return false;
-            Cue(BattleCueKind.Play,p,-1,c.ArtId);
+            Cue(BattleCueKind.Play,p,-1,c.ArtId,cardId:c.Id,handIndex:index);
             Cue(c.Effect==Effect.Attack?BattleCueKind.Attack:c.Effect==Effect.Block?BattleCueKind.Guard:BattleCueKind.Skill,p,-1);
             h.Energy -= c.Cost; h.Hand.RemoveAt(index);
             if (c.Exhaust) h.Exhausted.Add(c.Id); else h.Discard.Add(c.Id);
@@ -194,7 +194,7 @@ namespace Spire
                 case Effect.Energy: h.Energy += c.Amount; break;
             }
             if(c.Effect==Effect.Attack && enemy!=null) Cue(enemy.Alive?BattleCueKind.Hit:BattleCueKind.Death,-1,p,amount:c.Amount*c.Hits);
-            Cue(c.Exhaust?BattleCueKind.Exhaust:BattleCueKind.Discard,p,art:c.ArtId,source:CardOrigin.PlayArea);
+            Cue(c.Exhaust?BattleCueKind.Exhaust:BattleCueKind.Discard,p,art:c.ArtId,source:CardOrigin.PlayArea,cardId:c.Id);
             CheckCombat(); return true;
         }
         bool End(int p)
@@ -202,7 +202,7 @@ namespace Spire
             if (Phase != Phase.Combat || Heroes[p].Ended) return false;
             Heroes[p].Ended = true;
             if (Heroes.Any(h => h.Alive && !h.Ended)) return true;
-            foreach (var h in Heroes) { foreach(var id in h.Hand) Cue(BattleCueKind.Discard,Heroes.IndexOf(h),art:Cards[id].ArtId); h.Discard.AddRange(h.Hand); h.Hand.Clear(); }
+            foreach (var h in Heroes) { foreach(var id in h.Hand) Cue(BattleCueKind.Discard,Heroes.IndexOf(h),art:Cards[id].ArtId,cardId:id,handIndex:0); h.Discard.AddRange(h.Hand); h.Hand.Clear(); }
             foreach (var e in Enemies.Where(e => e.Alive)) { e.Hp = Math.Max(0, e.Hp - e.Poison); e.Poison = Math.Max(0, e.Poison - 1); }
             if (CheckCombat()) return true;
             foreach (var e in Enemies.Where(e => e.Alive))

@@ -87,7 +87,7 @@ public static class BattleUiPrefabBuilder
             v.drawAnchor=Node("DrawPile",bottom,124,150); Background(v.drawAnchor,new Color(.19f,.25f,.31f)); v.drawCount=Text("Count",v.drawAnchor,"抽牌堆\n5",24); Stretch(v.drawCount.rectTransform);
             var hand=Node("Hand",bottom,-1,-1,1); var hg=Layout<VerticalLayoutGroup>(hand,0,2); hg.childForceExpandWidth=true;
             v.handTitle=Text("Title",hand,"手牌 5",16,20); v.handTitle.GetComponent<LayoutElement>().minHeight=20;
-            v.hand=Node("Cards",hand,-1,180,1); var hl=v.hand.gameObject.AddComponent<BattleHandLayout>(); hl.childAlignment=TextAnchor.MiddleCenter;
+            v.hand=Node("Cards",hand,-1,180,1); var hl=v.hand.gameObject.AddComponent<BattleHandLayout>();
             var serialized=new SerializedObject(hl); serialized.FindProperty("cardSize").vector2Value=new Vector2(156,180); serialized.FindProperty("spacing").floatValue=8; serialized.ApplyModifiedPropertiesWithoutUndo();
             var piles=Node("RightPiles",bottom,128); Layout<VerticalLayoutGroup>(piles,0,16);
             v.exhaustAnchor=Node("ExhaustPile",piles,128,80); Background(v.exhaustAnchor,new Color(.29f,.21f,.20f)); v.exhaustCount=Text("Count",v.exhaustAnchor,"消耗牌堆\n0",21); Stretch(v.exhaustCount.rectTransform);

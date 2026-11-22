@@ -43,6 +43,8 @@ namespace SpirePresentation
         readonly Dictionary<int,ResourceScope> characterResources=new Dictionary<int,ResourceScope>();
         readonly List<(GameObject go,ResourceScope scope)> visibleCards=new List<(GameObject,ResourceScope)>();
         int renderVersion;
+        BattleHandLayout handMotion;
+        Run handRun;
         public Card[] Characters { get; private set; }
         public CoopSession Network=>network;
         public StartPage MenuPage { get; private set; }=StartPage.Home;
@@ -52,6 +54,7 @@ namespace SpirePresentation
         void ReleaseCharacters()
         {
             renderVersion++;
+            handMotion?.Clear(); handRun=null;
             ClearCards();
             foreach(var scope in characterResources.Values) scope.Dispose();
             characterResources.Clear(); characterAudio.Clear();
@@ -137,6 +140,8 @@ namespace SpirePresentation
                 BattleVisuals=gameObject.AddComponent<BattlePresentation>();
                 BattleVisuals.Configure(Resources,gameplayView.effects);
                 BattleVisuals.ConfigureLayout(gameplayView.heroAnchors,gameplayView.enemyAnchors,gameplayView.hand,gameplayView.drawAnchor,gameplayView.discardAnchor,gameplayView.exhaustAnchor,gameplayView.playAnchor);
+                handMotion=gameplayView.hand.GetComponent<BattleHandLayout>();
+                BattleVisuals.CardPresenter=cue=>handMotion.Present(cue);
                 startView=await ui.OpenAsync<GameStartView>(GameStartView.Path);
                 if(this==null) return;
                 startView.Bind(this);
@@ -244,9 +249,17 @@ namespace SpirePresentation
         public void Render()
         {
             if(destroying || startView==null || gameplayView==null) return;
+            if(State!=null && State.Phase==Phase.Combat && handRun!=State)
+            {
+                handMotion.Clear(); handRun=State;
+                handMotion.Configure(this,gameplayView,CharacterScope(Player));
+            }
+            BattleVisuals.Observe(State,Player);
+            if(State!=null && State.Phase!=Phase.Combat && handRun==State && BattleVisuals.PendingCount>0)
+            { CardsReady=FinishBattlePresentation(State); return; }
+            if(State==null || State.Phase!=Phase.Combat) { handMotion.Clear(); handRun=null; }
             gameplayView.backdrop.Observe(State);
             gameplayView.ShowCombat(State!=null && State.Phase==Phase.Combat);
-            BattleVisuals.Observe(State,Player);
             lastRevision=State?.Revision??-1; lastNetworkStatus=network?.Status;
             if(State==null)
             {
@@ -301,6 +314,11 @@ namespace SpirePresentation
                 Button("Room_0",a,160,320,440,150,()=>Send("room",0),enabled);
                 Button("Room_1",b,660,320,440,150,()=>Send("room",1),enabled);
             }
+        }
+        async Task FinishBattlePresentation(Run run)
+        {
+            while(this!=null && State==run && BattleVisuals.PendingCount>0) await Task.Yield();
+            if(this!=null && State==run) Render();
         }
     }
 }

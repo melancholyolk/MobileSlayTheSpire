@@ -55,7 +55,7 @@ namespace SpirePresentation
             v.status.text=network?.Status??status;
             v.reconnect.gameObject.SetActive(!ready && !network.IsHost);
             Caption(v.reconnect,L(LocIds.UiReconnect));
-            CardsReady=RenderCards(hero.Hand.ToArray(),false,ready && hero.Alive && !hero.Ended,renderVersion);
+            CardsReady=handMotion.Refresh();
         }
     }
 }
