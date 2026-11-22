@@ -10,6 +10,7 @@ namespace SpirePresentation
         public RectTransform Content=>content;
         [Header("Authored battle layout")]
         public GameObject battleRoot;
+        public RoomBackdrop backdrop;
         public RectTransform hand, effects, drawAnchor, discardAnchor, exhaustAnchor, playAnchor;
         public RectTransform[] heroAnchors, enemyAnchors;
         public Image portrait, playerHealthFill, enemyHealthFill;
@@ -23,7 +24,7 @@ namespace SpirePresentation
         }
         public void Bind(GameApp app,UiTheme theme)
         {
-            foreach(var text in battleRoot.GetComponentsInChildren<Text>(true)) text.font=UiFonts.Body;
+            backdrop.Configure(app.Resources);
             language.onClick.AddListener(app.CycleLanguage);
             menu.onClick.AddListener(app.ReturnToMenu);
             endTurn.onClick.AddListener(()=>app.Send("end"));

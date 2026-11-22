@@ -41,7 +41,7 @@ namespace SpirePresentation
             v.playerStatus.text=BattleText($"格挡 {hero.Block}   力量 {hero.Strength}",$"Block {hero.Block}   STR {hero.Strength}");
             v.turn.text=BattleText($"回合 {run.Turn}",$"TURN {run.Turn}");
             var enemy=run.Enemies[0];
-            v.enemyIntent.text=BattleText($"意图 · 攻击全体 {enemy.Damage+(run.Turn%3==0?3:0)}",$"Intent · Attack all {enemy.Damage+(run.Turn%3==0?3:0)}");
+            v.enemyIntent.text=BattleText($"攻击全体 {enemy.Damage+(run.Turn%3==0?3:0)}",$"Attack all {enemy.Damage+(run.Turn%3==0?3:0)}");
             v.enemyName.text=enemy.Name;
             v.enemyHealth.text=$"{enemy.Hp} / {enemy.MaxHp}";
             v.enemyHealthFill.fillAmount=(float)enemy.Hp/Math.Max(1,enemy.MaxHp);

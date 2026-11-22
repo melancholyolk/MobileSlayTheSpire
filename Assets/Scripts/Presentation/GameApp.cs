@@ -244,6 +244,7 @@ namespace SpirePresentation
         public void Render()
         {
             if(destroying || startView==null || gameplayView==null) return;
+            gameplayView.backdrop.Observe(State);
             gameplayView.ShowCombat(State!=null && State.Phase==Phase.Combat);
             BattleVisuals.Observe(State,Player);
             lastRevision=State?.Revision??-1; lastNetworkStatus=network?.Status;
@@ -265,7 +266,7 @@ namespace SpirePresentation
                 RenderCombat(State,network==null || network.Connected);
                 return;
             }
-            var background=Box("Background",0,0,1280,720,ink);
+            var background=Box("Background",0,0,1280,720,new Color(ink.r,ink.g,ink.b,.60f));
             background.anchorMin=Vector2.zero; background.anchorMax=Vector2.one; background.offsetMin=background.offsetMax=Vector2.zero;
             Label(L(LocIds.UiTitle),32,20,780,55,36);
             Label(L(LocIds.UiSubtitle),34,70,800,30,17);

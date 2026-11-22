@@ -11,7 +11,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 044ee41b1ce5c93448ebe685fdfce271, type: 3}
   m_Name: ResourceCatalog
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier:
   Entries:
   - Id: 4
     CharacterId: -1
@@ -24,6 +24,30 @@ MonoBehaviour:
   - Id: 31
     CharacterId: -1
     Guid: a1daf28ecb635a64890d2935674181d6
+    EstimatedBytes: 1048576
+  - Id: 500
+    CharacterId: -1
+    Guid: 8572d07f9d8adff4ab052a11bd11c0cb
+    EstimatedBytes: 1048576
+  - Id: 501
+    CharacterId: -1
+    Guid: 3230448d1f1f8fa4b960d37be7c7d4fd
+    EstimatedBytes: 1048576
+  - Id: 502
+    CharacterId: -1
+    Guid: e0988deabc708d64a94fe9eb750f599d
+    EstimatedBytes: 1048576
+  - Id: 503
+    CharacterId: -1
+    Guid: 7ab5cf65999cfdc42b071b75a99e7203
+    EstimatedBytes: 1048576
+  - Id: 504
+    CharacterId: -1
+    Guid: c8938c3e15539284684828b3a42d0469
+    EstimatedBytes: 1048576
+  - Id: 505
+    CharacterId: -1
+    Guid: 770e60fa0ef65094394b3ca3ad670beb
     EstimatedBytes: 1048576
   - Id: 1
     CharacterId: -1

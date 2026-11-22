@@ -34,6 +34,9 @@ public static class ResourceCatalogBuilder
         }
         if(File.Exists("Assets/GameResources/UI/Views/Map/4.prefab")) Add(4,-1,"Assets/GameResources/UI/Views/Map/4.prefab");
         foreach(int theme in new[]{30,31}) if(File.Exists("Assets/GameResources/UI/Shared/Skins/"+theme+".asset")) Add(theme,-1,"Assets/GameResources/UI/Shared/Skins/"+theme+".asset");
+        const string backdrops="Assets/GameResources/Rooms";
+        if(Directory.Exists(backdrops)) foreach(var path in Directory.GetFiles(backdrops,"*.prefab"))
+            Add(int.Parse(Path.GetFileNameWithoutExtension(path)),-1,path.Replace((char)92,'/'));
         Add(1,-1,"Assets/GameResources/UI/Views/GameStart/GameStartView.prefab");
         Add(2,-1,"Assets/GameResources/UI/Views/Gameplay/GameplayView.prefab");
         if(File.Exists("Assets/GameResources/Animation/21.json")) Add(21,-1,"Assets/GameResources/Animation/21.json");

@@ -17,7 +17,7 @@ namespace SpirePresentation
         public async Task Bind(Card card,ResourceScope owner,Action action,bool interactable)
         {
             int version=++generation;
-            foreach(var text in GetComponentsInChildren<Text>(true)) text.font=UiFonts.Body;
+            foreach(var text in GetComponentsInChildren<Text>(true)) if(text.font==null) text.font=UiFonts.Body;
             title.text=ExcelLocalization.Text(card.NameId); cost.text=card.Cost.ToString();
             description.text=card.Effect+" "+card.Amount+(card.Hits>1?" ×"+card.Hits:"")+(card.Exhaust?"\n"+ExcelLocalization.Text(LocIds.UiExhaust):"");
             button.onClick.RemoveAllListeners(); button.onClick.AddListener(()=>action()); button.interactable=interactable;
@@ -28,7 +28,7 @@ namespace SpirePresentation
         public async Task BindCharacter(Card character,ResourceScope owner,Action action)
         {
             int version=++generation;
-            foreach(var text in GetComponentsInChildren<Text>(true)) text.font=UiFonts.Body;
+            foreach(var text in GetComponentsInChildren<Text>(true)) if(text.font==null) text.font=UiFonts.Body;
             title.text=ExcelLocalization.Text(character.CharacterNameId);
             cost.text=""; description.text="HP "+character.CharacterMaxHp;
             button.interactable=true; button.onClick.RemoveAllListeners(); button.onClick.AddListener(()=>action());
