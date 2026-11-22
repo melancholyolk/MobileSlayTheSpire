@@ -18,11 +18,13 @@ namespace SpireAnimation
     }
     public sealed class BattlePresentation : MonoBehaviour
     {
-        sealed class Actor { public ResourceScope Scope; public SkeletonView View; }
+        sealed class Actor { public ResourceScope Scope; public SkeletonView View; public CombatBody Body; }
         sealed class Job { public long Id; public BattleCue Cue; }
         public event Action<CardProcessSignal> Lifecycle;
         // The presentation layer may consume local card events using persistent hand instances.
         public Func<BattleCue,Task<bool>> CardPresenter;
+        public Func<bool> IsCombatAuthority;
+        public Action<int,int> AttackResolved;
         public const int MaxQueuedProcesses=128; // Initial capacity, never discard a queued card play.
         readonly Dictionary<int,Actor> actors=new Dictionary<int,Actor>();
         readonly Queue<Job> pending=new Queue<Job>(MaxQueuedProcesses);
@@ -43,6 +45,7 @@ namespace SpireAnimation
         public void Observe(Run run,int localPlayer)
         {
             if(run==null) { Clear(); return; }
+            run.UsePhysicalAttacks=true;
             if(run!=observed || room!=run.Current)
             {
                 Clear(); observed=run; room=run.Current;
@@ -53,6 +56,11 @@ namespace SpireAnimation
             if(revision==run.Revision) return; revision=run.Revision;
             foreach(var cue in run.Cues)
             {
+                if(cue.BodyPart>=0 && actors.TryGetValue(cue.Actor,out var victim) && victim.Body!=null)
+                {
+                    actors.TryGetValue(cue.Target,out var source);
+                    victim.Body.React(cue.BodyPart,source?.Body!=null?source.Body.Profile(cue.CardId):AttackProfile.Default,cue.Target>=0?1:-1);
+                }
                 // Card movements of remote hands are represented too, without exposing private decision logic.
                 Queue(cue);
             }
@@ -126,6 +134,8 @@ namespace SpireAnimation
                     if(version!=generation || scope.IsDisposed) { scope.Dispose(); return; }
                     var rt=(RectTransform)go.transform; rt.anchorMin=rt.anchorMax=parent.pivot; rt.anchoredPosition=Vector2.zero;
                     rt.localScale=Vector3.one; actor.View=go.GetComponent<SkeletonView>(); go.SetActive(true);
+                    actor.Body=go.GetComponent<CombatBody>()??go.AddComponent<CombatBody>();
+                    actor.Body.Configure(bodyCatalog,owner);
                     if(hero) actor.View.Play(MotionId.Spawn);
                 }
                 catch(OperationCanceledException) { return; }
@@ -147,6 +157,18 @@ namespace SpireAnimation
             {
                 active=pending.Dequeue(); var job=active; Signal(job,PresentationPhase.Started);
                 var cue=job.Cue; actors.TryGetValue(cue.Actor,out var actor);
+                if(cue.Kind==BattleCueKind.Attack && cue.AttackId>0)
+                {
+                    yield return PhysicalAttack(job,actor);
+                    Signal(job,PresentationPhase.Completed); active=null; continue;
+                }
+                if(cue.BodyPart>=0 && actor?.Body!=null)
+                {
+                    if(cue.Kind==BattleCueKind.Hit)
+                    {
+                        Signal(job,PresentationPhase.Impact); Signal(job,PresentationPhase.Completed); active=null; continue;
+                    }
+                }
                 bool card=cue.Kind==BattleCueKind.Draw || cue.Kind==BattleCueKind.Shuffle || cue.Kind==BattleCueKind.Play || cue.Kind==BattleCueKind.Discard || cue.Kind==BattleCueKind.Exhaust;
                 if(card && CardPresenter!=null)
                 {
@@ -202,6 +224,41 @@ namespace SpireAnimation
             routine=null;
         }
         void ReleaseGhost() { if(ghost!=null) { ghost.GetComponent<BetterAnimation>().Cancel(); ghostOwner?.Return(ghost); } ghost=null; ghostOwner=null; }
+        IEnumerator PhysicalAttack(Job job,Actor actor)
+        {
+            var cue=job.Cue;
+            actors.TryGetValue(cue.Target,out var target);
+            var profile=actor?.Body!=null?actor.Body.Profile(cue.CardId):AttackProfile.Default;
+            float direction=cue.Actor>=0?1:-1;
+            var aim=target?.Body!=null?target.Body.AimPoint:Vector2.zero;
+            var scale=stage.lossyScale;
+            // Freeze aim before windup. Neither dodge motion nor active frames home on the target.
+            var box=new AttackHitbox(aim+(Vector2)stage.TransformVector(new Vector3(profile.Offset.x*direction,profile.Offset.y,0)),
+                new Vector2(profile.Size.x*Mathf.Abs(scale.x),profile.Size.y*Mathf.Abs(scale.y)),stage.eulerAngles.z+profile.Angle*direction);
+            if(actor?.View!=null && actor.View.Motions.Any(m=>m.Id==MotionId.Attack)) actor.View.Play(MotionId.Attack,.08f);
+            float elapsed=0;
+            while(elapsed<Mathf.Max(0,profile.Windup)) { elapsed+=Time.unscaledDeltaTime; yield return null; }
+            int part=-1; elapsed=0;
+            do
+            {
+                // Query in late update after IK but before rendering/Gizmos. EndOfFrame
+                // would hide the current-frame Gizmo and can stall in an unfocused Game tab.
+                if(actor?.Body!=null && target?.Body!=null) target.Body.ScheduleQuery(box);
+                yield return null;
+                if(actor?.Body!=null && target?.Body!=null) part=target.Body.QueryResult;
+                elapsed+=Time.unscaledDeltaTime;
+            } while(part<0 && elapsed<Mathf.Max(.001f,profile.ActiveTime));
+            Signal(job,PresentationPhase.Impact);
+            if(IsCombatAuthority==null || IsCombatAuthority())
+            {
+                if(AttackResolved!=null) AttackResolved(cue.AttackId,part);
+                else if(observed!=null && observed.ResolveAttack(cue.AttackId,part)) Observe(observed,0);
+            }
+            // Guests wait for the authoritative result, never mutate HP from local physics.
+            while(observed!=null && observed.TryGetAttack(cue.AttackId,out _)) yield return null;
+            elapsed=0;
+            while(elapsed<Mathf.Max(0,profile.Recovery)) { elapsed+=Time.unscaledDeltaTime; yield return null; }
+        }
         public void Clear()
         {
             if(stage!=null) stage.gameObject.SetActive(false);

@@ -15,12 +15,14 @@ namespace Spire
     {
         public int player, revision, argument;
         public string action;
+        public bool physical;
+        public int bodyPart;
     }
     [Serializable] sealed class Packet
     {
         public string kind, hash, token, error;
         public uint seed;
-        public int protocol = 2;
+        public int protocol = 3;
         public int[] characters;
         public bool ready, started;
         public int character;
@@ -52,7 +54,7 @@ namespace Spire
                     if(buffer[i]==10)
                     {
                         var packet=JsonUtility.FromJson<Packet>(Encoding.UTF8.GetString(pending.ToArray())); pending.Clear();
-                        if(packet==null || packet.protocol!=2) throw new IOException("Invalid protocol");
+                        if(packet==null || packet.protocol!=3) throw new IOException("Invalid protocol");
                         yield return packet;
                     }
                     else { pending.Add(buffer[i]); if(pending.Count>1048576) throw new IOException("Packet too large"); }
@@ -167,6 +169,7 @@ namespace Spire
                 {
                     // Bind ownership to the connection; never trust client-supplied player ids.
                     packet.command.player=1;
+                    if(packet.command.action=="impact") { peer.Send(new Packet {kind="error",error="Only the host may resolve attacks"}); return; }
                     Accept(packet.command);
                 }
             }
@@ -184,7 +187,7 @@ namespace Spire
             else if(packet.kind=="accepted" && Connected)
             {
                 var c=packet.command;
-                if(c==null || c.revision!=Run.Revision || !Run.Apply(c.player,c.action,c.argument,out _)) throw new IOException("State mismatch; reconnect required");
+                if(c==null || c.revision!=Run.Revision || !Replay(Run,c)) throw new IOException("State mismatch; reconnect required");
                 Status="Co-op connected"; Notify();
             }
             else if(packet.kind=="error") Status=packet.error;
@@ -200,7 +203,7 @@ namespace Spire
                 if(!selections.All(ValidCharacter) || packet.history==null || packet.history.Count>10000) throw new IOException("Invalid start snapshot");
                 var restored=new Run(cards,packet.seed,selections.Select(c=>(HeroClass)c).ToArray());
                 foreach(var c in packet.history)
-                    if(c.revision!=restored.Revision || !restored.Apply(c.player,c.action,c.argument,out _)) throw new IOException("Invalid session history");
+                    if(c.revision!=restored.Revision || !Replay(restored,c)) throw new IOException("Invalid session history");
                 Run=restored;
             }
         }
@@ -225,6 +228,7 @@ namespace Spire
         }
         bool Accept(CommandRecord command)
         {
+            command.physical=Run.UsePhysicalAttacks;
             string error="Stale command; try again";
             if(history.Count>=10000) { Status="Session command limit reached"; return false; }
             if(command.revision!=Run.Revision || !Run.Apply(command.player,command.action,command.argument,out error))
@@ -238,6 +242,7 @@ namespace Spire
         }
         public bool Submit(string action,int argument)
         {
+            if(action=="impact") return false;
             if(!Connected || Run==null) { Status="Waiting for teammate"; return false; }
             var command=new CommandRecord {player=LocalPlayer,revision=Run.Revision,action=action,argument=argument};
             try
@@ -255,5 +260,20 @@ namespace Spire
             Status=message; Notify();
         }
         public void Dispose() { Disconnect("Offline"); listener?.Stop(); listener=null; }
+        static bool Replay(Run run,CommandRecord command)
+        {
+            run.UsePhysicalAttacks=command.physical;
+            return command.action=="impact"?run.ResolveAttack(command.argument,command.bodyPart):run.Apply(command.player,command.action,command.argument,out _);
+        }
+        public bool ResolveAttack(int id,int bodyPart)
+        {
+            if(!IsHost || Run==null) return false;
+            var command=new CommandRecord {player=0,revision=Run.Revision,action="impact",argument=id,bodyPart=bodyPart,physical=true};
+            if(!Run.ResolveAttack(id,bodyPart)) return false;
+            history.Add(command);
+            try { if(Connected) peer.Send(new Packet {kind="accepted",command=command}); }
+            catch(Exception e) when(e is IOException || e is SocketException) { Disconnect(e.Message); }
+            Notify(); return true;
+        }
     }
 }

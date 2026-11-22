@@ -138,6 +138,13 @@ namespace SpirePresentation
                 ui.Hide(GameplayView.Path); page=gameplayView.Content;
                 gameplayView.Bind(this,uiTheme);
                 BattleVisuals=gameObject.AddComponent<BattlePresentation>();
+                BattleVisuals.IsCombatAuthority=()=>network==null || network.IsHost;
+                BattleVisuals.AttackResolved=(id,part)=>
+                {
+                    if(network!=null) network.ResolveAttack(id,part);
+                    else if(solo!=null) solo.ResolveAttack(id,part);
+                    Render();
+                };
                 BattleVisuals.Configure(Resources,gameplayView.effects);
                 BattleVisuals.ConfigureLayout(gameplayView.heroAnchors,gameplayView.enemyAnchors,gameplayView.hand,gameplayView.drawAnchor,gameplayView.discardAnchor,gameplayView.exhaustAnchor,gameplayView.playAnchor);
                 handMotion=gameplayView.hand.GetComponent<BattleHandLayout>();
@@ -174,6 +181,7 @@ namespace SpirePresentation
         }
         public void Send(string action,int argument=0)
         {
+            if(State!=null) State.UsePhysicalAttacks=true;
             if(action=="play" && characterAudio.TryGetValue(Player,out var audio)) audio.TryPlay(2);
             if(network!=null) { network.Submit(action,argument); status=network.Status; }
             else if(solo!=null) { if(!solo.Apply(0,action,argument,out var error)) status=error; else status=""; }

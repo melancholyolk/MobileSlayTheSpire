@@ -59,7 +59,7 @@ namespace Spire
     }
 
     // All state changes pass through validated commands. No Unity dependency.
-    public sealed class Run
+    public sealed partial class Run
     {
         public readonly List<int> Route=new List<int>();
         public readonly List<MapNode> Map = new List<MapNode>();
@@ -107,6 +107,7 @@ namespace Spire
         public IEnumerable<int> Choices => Current < 0 ? Map.Where(n => n.Floor == 0).Select(n => n.Id) : Map[Current].Next;
         public bool Apply(int player, string action, int argument, out string error)
         {
+            if(PendingAttacks>0) { error="Wait for the attack to resolve"; return false; }
             error = null; cues.Clear();
             if (player < 0 || player >= Heroes.Count || !Heroes[player].Alive) { error = "Invalid or defeated player"; return false; }
             bool ok = false;
@@ -178,13 +179,19 @@ namespace Spire
             Card c = Cards[h.Hand[index]];
             if (h.Energy < c.Cost) return false;
             Cue(BattleCueKind.Play,p,-1,c.ArtId,cardId:c.Id,handIndex:index);
-            Cue(c.Effect==Effect.Attack?BattleCueKind.Attack:c.Effect==Effect.Block?BattleCueKind.Guard:BattleCueKind.Skill,p,-1);
+            if(c.Effect!=Effect.Attack || !UsePhysicalAttacks)
+                Cue(c.Effect==Effect.Attack?BattleCueKind.Attack:c.Effect==Effect.Block?BattleCueKind.Guard:BattleCueKind.Skill,p,-1);
             h.Energy -= c.Cost; h.Hand.RemoveAt(index);
             if (c.Exhaust) h.Exhausted.Add(c.Id); else h.Discard.Add(c.Id);
             var enemy = Enemies.FirstOrDefault(e => e.Alive);
             switch (c.Effect)
             {
                 case Effect.Attack:
+                    if(UsePhysicalAttacks)
+                    {
+                        for(int i=0;i<c.Hits && enemy!=null;i++) RequestAttack(p,-1-Enemies.IndexOf(enemy),c.Amount+h.Strength,c.Id);
+                        break;
+                    }
                     for (int i = 0; i < c.Hits && enemy != null; i++) enemy.Hp = Math.Max(0, enemy.Hp - Hit(c.Amount + h.Strength, ref enemy.Block)); break;
                 case Effect.Block: h.Block += c.Amount; break;
                 case Effect.Strength: h.Strength += c.Amount; break;
@@ -193,7 +200,7 @@ namespace Spire
                 case Effect.Heal: h.Hp = Math.Min(h.MaxHp, h.Hp + c.Amount); break;
                 case Effect.Energy: h.Energy += c.Amount; break;
             }
-            if(c.Effect==Effect.Attack && enemy!=null) Cue(enemy.Alive?BattleCueKind.Hit:BattleCueKind.Death,-1,p,amount:c.Amount*c.Hits);
+            if(c.Effect==Effect.Attack && enemy!=null && !UsePhysicalAttacks) Cue(enemy.Alive?BattleCueKind.Hit:BattleCueKind.Death,-1,p,amount:c.Amount*c.Hits);
             Cue(c.Exhaust?BattleCueKind.Exhaust:BattleCueKind.Discard,p,art:c.ArtId,source:CardOrigin.PlayArea,cardId:c.Id);
             CheckCombat(); return true;
         }
@@ -207,15 +214,22 @@ namespace Spire
             if (CheckCombat()) return true;
             foreach (var e in Enemies.Where(e => e.Alive))
                 {
+                    if(UsePhysicalAttacks)
+                    {
+                        foreach(var h in Heroes.Where(h=>h.Alive)) RequestAttack(-1-Enemies.IndexOf(e),Heroes.IndexOf(h),e.Damage+(Turn%3==0?3:0));
+                        continue;
+                    }
                     Cue(BattleCueKind.Attack,-1-Enemies.IndexOf(e));
                     foreach (var h in Heroes.Where(h => h.Alive))
                     { h.Hp = Math.Max(0, h.Hp - Hit(e.Damage + (Turn % 3 == 0 ? 3 : 0), ref h.Block)); Cue(h.Alive?BattleCueKind.Hit:BattleCueKind.Death,Heroes.IndexOf(h),-1,amount:e.Damage); }
                 }
-            if (!CheckCombat()) BeginTurn();
+            if(PendingAttacks>0) finishEnemyTurn=true;
+            else if (!CheckCombat()) BeginTurn();
             return true;
         }
         bool CheckCombat()
         {
+            if(PendingAttacks>0) return false;
             if (Heroes.All(h => !h.Alive)) { Phase = Phase.Lost; return true; }
             if (Enemies.Any(e => e.Alive)) return false;
             if (Map[Current].Kind == RoomKind.Boss) { Phase = Phase.Won; return true; }

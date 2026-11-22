@@ -20,6 +20,7 @@ namespace SpireAnimation
         readonly List<AnimationClip> owned=new List<AnimationClip>();
         readonly Dictionary<int,Transform> bones=new Dictionary<int,Transform>();
         public BodyAssembly Assembly=>assembly;
+        public Transform Bone(int id)=>bones[id];
         public int OwnedClipCount=>owned.Count;
         void OnEnable() { if(Initial.Length>0 && assembly==null) Initialize(); }
         public async Task ConfigureAsync(BodyCatalog catalog,int owner,ResourceScope scope)
@@ -110,6 +111,7 @@ namespace SpireAnimation
                 entries.Add(new MotionEntry {Id=motion,Clip=clip,Loop=motion==MotionId.Idle || motion==MotionId.Walk,Hold=motion==MotionId.Death,Impact=.45f});
             }
             driver.Motions=entries.ToArray(); if(isActiveAndEnabled) driver.Play(MotionId.Idle,0);
+            (GetComponent<CombatBody>()??gameObject.AddComponent<CombatBody>()).BindAssembly(this);
         }
         string Path(Transform bone)
         {
