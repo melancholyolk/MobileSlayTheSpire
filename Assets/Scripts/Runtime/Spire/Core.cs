@@ -153,7 +153,6 @@ namespace Spire
             {
                 h.Strength = 0; h.Block = 0; h.Draw.Clear(); h.Draw.AddRange(h.Deck); Random.Shuffle(h.Draw);
                 h.Hand.Clear(); h.Discard.Clear(); h.Exhausted.Clear();
-                Cue(BattleCueKind.Shuffle,Heroes.IndexOf(h));
             }
             BeginTurn();
         }
