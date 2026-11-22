@@ -21,9 +21,10 @@ namespace SpireAnimation
         sealed class Actor { public ResourceScope Scope; public SkeletonView View; }
         sealed class Job { public long Id; public BattleCue Cue; }
         public event Action<CardProcessSignal> Lifecycle;
-        public const int MaxQueuedProcesses=128;
+        public const int MaxQueuedProcesses=128; // Initial capacity, never discard a queued card play.
         readonly Dictionary<int,Actor> actors=new Dictionary<int,Actor>();
-        readonly Queue<Job> pending=new Queue<Job>();
+        readonly Queue<Job> pending=new Queue<Job>(MaxQueuedProcesses);
+        readonly Dictionary<int,ResourceScope> cardScopes=new Dictionary<int,ResourceScope>();
         ResourceManager resources; ResourceScope shared; ActorVisualCatalog catalog; BodyCatalog bodyCatalog;
         RectTransform stage; Run observed; int room=-1,revision=-1,generation; long ticket;
         Job active; GameObject ghost; ResourceScope ghostOwner; Coroutine routine;
@@ -51,10 +52,45 @@ namespace SpireAnimation
             foreach(var cue in run.Cues)
             {
                 // Card movements of remote hands are represented too, without exposing private decision logic.
-                var job=new Job {Id=++ticket,Cue=cue}; Signal(job,PresentationPhase.Queued);
-                if(pending.Count>=MaxQueuedProcesses) Signal(job,PresentationPhase.Cancelled); else pending.Enqueue(job);
+                Queue(cue);
             }
             if(routine==null) routine=StartCoroutine(Process());
+        }
+        void Queue(BattleCue cue)
+        {
+            var job=new Job {Id=++ticket,Cue=cue}; pending.Enqueue(job); Signal(job,PresentationPhase.Queued);
+        }
+        // Effect systems use this for retrieval/generated plays without inventing a gameplay action.
+        public void Enqueue(BattleCue cue)
+        {
+            if(resources==null || stage==null) throw new InvalidOperationException("Configure presentation first");
+            stage.gameObject.SetActive(true); Queue(cue);
+            if(routine==null) routine=StartCoroutine(Process());
+        }
+        public Vector2 SourcePosition(BattleCue cue)
+        {
+            var source=cue.Source;
+            if(source==CardOrigin.Automatic)
+                source=cue.Kind==BattleCueKind.Draw?CardOrigin.DrawPile:cue.Kind==BattleCueKind.Shuffle?CardOrigin.DiscardPile:CardOrigin.Hand;
+            RectTransform anchor=handAnchor;
+            switch(source)
+            {
+                case CardOrigin.DrawPile: anchor=drawAnchor; break;
+                case CardOrigin.DiscardPile: anchor=discardAnchor; break;
+                case CardOrigin.ExhaustPile: anchor=exhaustAnchor; break;
+                case CardOrigin.PlayArea: anchor=playAnchor; break;
+                case CardOrigin.Actor:
+                    var anchors=cue.Actor>=0?heroAnchors:enemyAnchors; int index=cue.Actor>=0?cue.Actor:-1-cue.Actor;
+                    anchor=anchors!=null && index<anchors.Length?anchors[index]:null; break;
+            }
+            return EffectPosition(anchor);
+        }
+        ResourceScope CardScope(BattleCue cue,Actor actor)
+        {
+            if(!cue.ArtOwner.HasValue && actor!=null) return actor.Scope;
+            int owner=cue.ArtOwner??-1;
+            if(!cardScopes.TryGetValue(owner,out var scope)) cardScopes[owner]=scope=resources.CreateScope(owner);
+            return scope;
         }
         async Task LoadActors(Run run,int version)
         {
@@ -101,6 +137,8 @@ namespace SpireAnimation
         }
         IEnumerator Process()
         {
+            // StartCoroutine may advance synchronously; publish its handle before completion.
+            yield return null;
             while(!ready.IsCompleted) yield return null;
             if(ready.IsFaulted) { Debug.LogException(ready.Exception); Clear(); yield break; }
             while(pending.Count>0)
@@ -108,7 +146,7 @@ namespace SpireAnimation
                 active=pending.Dequeue(); var job=active; Signal(job,PresentationPhase.Started);
                 var cue=job.Cue; actors.TryGetValue(cue.Actor,out var actor);
                 bool card=cue.Kind==BattleCueKind.Draw || cue.Kind==BattleCueKind.Shuffle || cue.Kind==BattleCueKind.Play || cue.Kind==BattleCueKind.Discard || cue.Kind==BattleCueKind.Exhaust;
-                float duration=card?.11f:.24f;
+                float duration=card?(cue.Kind==BattleCueKind.Exhaust?.42f:cue.Kind==BattleCueKind.Play?.28f:.30f):.24f;
                 if(!card && actor?.View!=null)
                 {
                     var motion=cue.Kind==BattleCueKind.Attack?MotionId.Attack:cue.Kind==BattleCueKind.Death?MotionId.Death:cue.Kind==BattleCueKind.Hit?MotionId.Hit:cue.Kind==BattleCueKind.Guard?MotionId.Guard:cue.Kind==BattleCueKind.Victory?MotionId.Victory:MotionId.Skill;
@@ -116,24 +154,24 @@ namespace SpireAnimation
                     duration=motion==MotionId.Death?.8f:.36f;
                 }
                 Task<PresentationPhase> animation=null;
-                if(card && actor!=null)
+                if(card)
                 {
-                    var load=actor.Scope.InstantiateAsync(22,stage); while(!load.IsCompleted) yield return null;
+                    var scope=CardScope(cue,actor);
+                    var load=scope.InstantiateAsync(22,stage,false); while(!load.IsCompleted) yield return null;
                     if(load.IsFaulted || load.IsCanceled) { Signal(job,PresentationPhase.Cancelled); active=null; continue; }
-                    ghost=load.Result; ghostOwner=actor.Scope; var rect=(RectTransform)ghost.transform;
-                    rect.anchorMin=rect.anchorMax=stage.pivot; rect.anchoredPosition=EffectPosition(handAnchor); rect.localScale=Vector3.one;
+                    ghost=load.Result; ghostOwner=scope; var rect=(RectTransform)ghost.transform;
+                    rect.anchorMin=rect.anchorMax=stage.pivot; rect.anchoredPosition=Vector2.zero; rect.localScale=Vector3.one;
+                    rect.localRotation=Quaternion.identity; rect.SetAsLastSibling();
                     var image=ghost.GetComponent<Image>(); image.sprite=null; image.color=cue.Kind==BattleCueKind.Shuffle?new Color(.55f,.38f,.20f):Color.white;
                     if(cue.ArtId>0)
                     {
-                        var sprite=actor.Scope.LoadAsync<Sprite>(cue.ArtId); while(!sprite.IsCompleted) yield return null;
+                        var sprite=scope.LoadAsync<Sprite>(cue.ArtId); while(!sprite.IsCompleted) yield return null;
                         if(sprite.IsCompletedSuccessfully) image.sprite=sprite.Result;
                     }
                     ghost.SetActive(true);
-                    var source=cue.Kind==BattleCueKind.Draw?drawAnchor:cue.Kind==BattleCueKind.Shuffle?discardAnchor:handAnchor;
                     var target=cue.Kind==BattleCueKind.Play?playAnchor:cue.Kind==BattleCueKind.Draw?handAnchor:cue.Kind==BattleCueKind.Shuffle?drawAnchor:cue.Kind==BattleCueKind.Exhaust?exhaustAnchor:discardAnchor;
-                    Vector2 from=EffectPosition(source)-rect.anchoredPosition;
-                    Vector2 to=EffectPosition(target)-rect.anchoredPosition;
-                    animation=ghost.GetComponent<BetterAnimation>().Play(new UiMotion {Duration=duration,FromAlpha=.5f,ToAlpha=cue.Kind==BattleCueKind.Draw?1:0,FromOffset=from,ToOffset=to,FromScale=.7f,ToScale=cue.Kind==BattleCueKind.Exhaust?.05f:.85f,FromAngle=-12,ToAngle=cue.Kind==BattleCueKind.Shuffle?180:10});
+                    bool play=cue.Kind==BattleCueKind.Play, exhaust=cue.Kind==BattleCueKind.Exhaust;
+                    animation=ghost.GetComponent<BetterAnimation>().Play(new UiMotion {Duration=duration,FromAlpha=1,ToAlpha=play||cue.Kind==BattleCueKind.Draw?1:0,FromOffset=SourcePosition(cue),ToOffset=EffectPosition(target),FromScale=cue.Source==CardOrigin.PlayArea?1.8f:.85f,ToScale=exhaust?.05f:play?1.8f:1,FromAngle=0,ToAngle=exhaust?100:cue.Kind==BattleCueKind.Shuffle?180:0});
                 }
                 float elapsed=0; bool impact=false;
                 while(elapsed<duration || (animation!=null && !animation.IsCompleted))
@@ -141,6 +179,13 @@ namespace SpireAnimation
                     elapsed+=Time.unscaledDeltaTime;
                     if(!impact && elapsed>=duration*.45f) { impact=true; Signal(job,PresentationPhase.Impact); }
                     yield return null;
+                }
+                if(cue.Kind==BattleCueKind.Play && ghost!=null)
+                {
+                    // Own the display slot until arrival, readable hold, and exit all finish.
+                    float hold=0; while(hold<.40f) { hold+=Time.unscaledDeltaTime; yield return null; }
+                    var exit=ghost.GetComponent<BetterAnimation>().Play(new UiMotion {Duration=.16f,FromAlpha=1,ToAlpha=0,FromScale=1,ToScale=.92f});
+                    while(!exit.IsCompleted) yield return null;
                 }
                 ReleaseGhost(); Signal(job,PresentationPhase.Completed); active=null;
             }
@@ -154,6 +199,7 @@ namespace SpireAnimation
             if(active!=null) Signal(active,PresentationPhase.Cancelled); active=null;
             while(pending.Count>0) Signal(pending.Dequeue(),PresentationPhase.Cancelled);
             ReleaseGhost(); foreach(var actor in actors.Values) actor.Scope.Dispose(); actors.Clear();
+            foreach(var scope in cardScopes.Values) scope.Dispose(); cardScopes.Clear();
             observed=null; room=revision=-1; ready=Task.CompletedTask;
         }
         void OnDestroy() { Clear(); shared?.Dispose(); Lifecycle=null; }

@@ -77,7 +77,7 @@ namespace Spire
         public const int Floors = 8;
         readonly List<BattleCue> cues=new List<BattleCue>();
         public IReadOnlyList<BattleCue> Cues=>cues;
-        void Cue(BattleCueKind kind,int actor,int target=0,int art=0,int amount=0) => cues.Add(new BattleCue(kind,actor,target,art,amount));
+        void Cue(BattleCueKind kind,int actor,int target=0,int art=0,int amount=0,CardOrigin source=CardOrigin.Automatic) => cues.Add(new BattleCue(kind,actor,target,art,amount,source));
 
         public Run(IEnumerable<Card> cards, uint seed, params HeroClass[] classes)
         {
@@ -194,7 +194,7 @@ namespace Spire
                 case Effect.Energy: h.Energy += c.Amount; break;
             }
             if(c.Effect==Effect.Attack && enemy!=null) Cue(enemy.Alive?BattleCueKind.Hit:BattleCueKind.Death,-1,p,amount:c.Amount*c.Hits);
-            Cue(c.Exhaust?BattleCueKind.Exhaust:BattleCueKind.Discard,p,art:c.ArtId);
+            Cue(c.Exhaust?BattleCueKind.Exhaust:BattleCueKind.Discard,p,art:c.ArtId,source:CardOrigin.PlayArea);
             CheckCombat(); return true;
         }
         bool End(int p)
