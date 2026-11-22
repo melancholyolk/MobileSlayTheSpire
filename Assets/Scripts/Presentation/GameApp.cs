@@ -19,7 +19,7 @@ using UnityEngine.UI;
 
 namespace SpirePresentation
 {
-    public sealed class GameApp : MonoBehaviour
+    public sealed partial class GameApp : MonoBehaviour
     {
         public static GameApp Instance { get; private set; }
         public Run State => network!=null ? network.Run : solo;
@@ -115,9 +115,6 @@ namespace SpirePresentation
             var scaler=canvas.GetComponent<CanvasScaler>(); scaler.uiScaleMode=CanvasScaler.ScaleMode.ScaleWithScreenSize;
             scaler.referenceResolution=new Vector2(1280,720); scaler.matchWidthOrHeight=.5f;
             scaler.screenMatchMode=CanvasScaler.ScreenMatchMode.Expand;
-            var stage=new GameObject("BattleStage",typeof(RectTransform)).GetComponent<RectTransform>();
-            stage.SetParent(canvas.transform,false); stage.anchorMin=Vector2.zero; stage.anchorMax=Vector2.one; stage.offsetMin=stage.offsetMax=Vector2.zero;
-            BattleVisuals=gameObject.AddComponent<BattlePresentation>(); BattleVisuals.Configure(Resources,stage);
             ui=gameObject.AddComponent<UiManager>(); ui.Configure(canvas.transform,appResources);
             UiReady=LoadViews();
         }
@@ -136,15 +133,18 @@ namespace SpirePresentation
                 gameplayView=await ui.OpenAsync<GameplayView>(GameplayView.Path);
                 if(this==null) return;
                 ui.Hide(GameplayView.Path); page=gameplayView.Content;
+                gameplayView.Bind(this,uiTheme);
+                BattleVisuals=gameObject.AddComponent<BattlePresentation>();
+                BattleVisuals.Configure(Resources,gameplayView.effects);
+                BattleVisuals.ConfigureLayout(gameplayView.heroAnchors,gameplayView.enemyAnchors,gameplayView.hand,gameplayView.drawAnchor,gameplayView.discardAnchor,gameplayView.exhaustAnchor,gameplayView.playAnchor);
                 startView=await ui.OpenAsync<GameStartView>(GameStartView.Path);
                 if(this==null) return;
                 startView.Bind(this);
-                stageOrder(); Render();
+                Render();
             }
             catch(OperationCanceledException) { if(this!=null) throw; }
             catch(Exception error) { Debug.LogException(error); throw; }
         }
-        void stageOrder() { var stage=transform.Find("SpireCanvas/BattleStage"); if(stage!=null) stage.SetAsLastSibling(); }
         public void ReturnToMenu()
         {
             StopNetwork(); solo=null; ReleaseCharacters(); MenuPage=StartPage.Home; status=""; Render();
@@ -216,17 +216,22 @@ namespace SpirePresentation
         {
             if(cards.Length==0) return;
             var run=State; var scope=CharacterScope(Player);
-            float width=Math.Min(reward?250:180,1160f/cards.Length);
+            float width=Math.Min(250,1160f/cards.Length);
+
+
             try
             {
                 for(int i=0;i<cards.Length;i++)
                 {
                     if(version!=renderVersion || scope.IsDisposed) return;
                     int index=i; var card=run.Cards[cards[i]];
-                    var go=await scope.InstantiateAsync(ResourceIds.CardView,page);
+                    var go=await scope.InstantiateAsync(ResourceIds.CardView,reward?page:gameplayView.hand);
                     if(version!=renderVersion || this==null) { scope.Return(go); return; }
-                    var rt=go.GetComponent<RectTransform>(); rt.anchorMin=rt.anchorMax=rt.pivot=new Vector2(0,1);
-                    rt.anchoredPosition=new Vector2(40+i*(width+4),reward?-310:-475); rt.sizeDelta=new Vector2(width-4,reward?220:180);
+                    if(reward)
+                    {
+                        var rt=go.GetComponent<RectTransform>(); rt.anchorMin=rt.anchorMax=rt.pivot=new Vector2(0,1);
+                        rt.anchoredPosition=new Vector2(40+i*(width+4),-310); rt.sizeDelta=new Vector2(width-4,220);
+                    }
                     go.name=(reward?"Reward_":"Card_")+i; go.SetActive(true);
                     var view=go.GetComponent<CardUIView>(); gameplayView.Register(view); visibleCards.Add((go,scope));
                     await view.Bind(card,scope,()=>Send(reward?"reward":"play",index),enabled && (reward || run.Heroes[Player].Energy>=card.Cost));
@@ -239,6 +244,7 @@ namespace SpirePresentation
         public void Render()
         {
             if(destroying || startView==null || gameplayView==null) return;
+            gameplayView.ShowCombat(State!=null && State.Phase==Phase.Combat);
             BattleVisuals.Observe(State,Player);
             lastRevision=State?.Revision??-1; lastNetworkStatus=network?.Status;
             if(State==null)
@@ -254,6 +260,11 @@ namespace SpirePresentation
             ui.Hide(MapUIView.Path); ui.Show(GameplayView.Path);
             renderVersion++; ClearCards();
             foreach(Transform child in page) { child.gameObject.SetActive(false); Destroy(child.gameObject); }
+            if(State.Phase==Phase.Combat)
+            {
+                RenderCombat(State,network==null || network.Connected);
+                return;
+            }
             var background=Box("Background",0,0,1280,720,ink);
             background.anchorMin=Vector2.zero; background.anchorMax=Vector2.one; background.offsetMin=background.offsetMax=Vector2.zero;
             Label(L(LocIds.UiTitle),32,20,780,55,36);
@@ -272,14 +283,6 @@ namespace SpirePresentation
             var hero=run.Heroes[Player];
             switch(run.Phase)
             {
-                case Phase.Combat:
-                    var enemy=run.Enemies[0];
-                    
-                    Label($"{enemy.Name}    HP {enemy.Hp}\nIntent: attack all for {enemy.Damage+(run.Turn%3==0?3:0)}\nPoison {enemy.Poison}",840,195,380,70,17);
-                    Label($"Turn {run.Turn}     Energy {hero.Energy}     Block {hero.Block}     Strength {hero.Strength}\nDraw {hero.Draw.Count}  /  Discard {hero.Discard.Count}  /  Exhaust {hero.Exhausted.Count}",32,410,1000,65,21);
-                    CardsReady=RenderCards(hero.Hand.ToArray(),false,ready && hero.Alive && !hero.Ended,renderVersion);
-                    Button("EndTurn",hero.Ended?L(LocIds.UiWait):L(LocIds.UiEnd),1060,400,185,70,()=>Send("end"),ready && hero.Alive && !hero.Ended,ButtonIntent.Primary);
-                    break;
                 case Phase.Reward:
                     Label(L(LocIds.UiReward),60,240,1100,50,27);
                     CardsReady=RenderCards(run.Rewards[Player].ToArray(),true,ready && !run.Resolved.Contains(Player) && hero.Alive,renderVersion);

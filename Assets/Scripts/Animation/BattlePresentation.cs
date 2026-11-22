@@ -18,7 +18,7 @@ namespace SpireAnimation
     }
     public sealed class BattlePresentation : MonoBehaviour
     {
-        sealed class Actor { public ResourceScope Scope; public SkeletonView View; public Vector2 Position; }
+        sealed class Actor { public ResourceScope Scope; public SkeletonView View; }
         sealed class Job { public long Id; public BattleCue Cue; }
         public event Action<CardProcessSignal> Lifecycle;
         public const int MaxQueuedProcesses=128;
@@ -32,6 +32,11 @@ namespace SpireAnimation
         public int PendingCount=>pending.Count+(active==null?0:1);
         public int ActorCount=>actors.Count;
         public void Configure(ResourceManager manager,RectTransform root) { resources=manager; stage=root; shared=manager.CreateScope(); }
+        RectTransform[] heroAnchors,enemyAnchors;
+        RectTransform handAnchor,drawAnchor,discardAnchor,exhaustAnchor,playAnchor;
+        public void ConfigureLayout(RectTransform[] heroes,RectTransform[] enemies,RectTransform hand,RectTransform draw,RectTransform discard,RectTransform exhaust,RectTransform play)
+        { heroAnchors=heroes; enemyAnchors=enemies; handAnchor=hand; drawAnchor=draw; discardAnchor=discard; exhaustAnchor=exhaust; playAnchor=play; }
+        Vector2 EffectPosition(RectTransform anchor) => anchor==null?Vector2.zero:(Vector2)stage.InverseTransformPoint(anchor.TransformPoint(anchor.rect.center));
         public void Observe(Run run,int localPlayer)
         {
             if(run==null) { Clear(); return; }
@@ -66,11 +71,14 @@ namespace SpireAnimation
                 bool hero=i<run.Heroes.Count; int seat=hero?i:-1-(i-run.Heroes.Count);
                 int owner=hero?(int)run.Heroes[i].Class:1000+run.Enemies[-1-seat].VisualId;
                 var config=catalog.Actors.FirstOrDefault(a=>a.Owner==owner); if(config==null) continue;
-                var scope=resources.CreateScope(owner); var actor=new Actor {Scope=scope,Position=new Vector2(hero?230+i*210:990-(-1-seat)*180,-405)};
+                var scope=resources.CreateScope(owner); var actor=new Actor {Scope=scope};
                 actors[seat]=actor;
                 try
                 {
-                    var go=await scope.InstantiateAsync(config.Prefab,stage,false);
+                    var anchors=hero?heroAnchors:enemyAnchors;
+                    int slot=hero?seat:-1-seat;
+                    var parent=anchors!=null && slot<anchors.Length?anchors[slot]:stage;
+                    var go=await scope.InstantiateAsync(config.Prefab,parent,false);
                     if(version!=generation || scope.IsDisposed) { scope.Dispose(); return; }
                     if(go.GetComponent<SkinnedActorView>()==null)
                     {
@@ -78,8 +86,8 @@ namespace SpireAnimation
                         await body.ConfigureAsync(bodyCatalog,owner,scope);
                     }
                     if(version!=generation || scope.IsDisposed) { scope.Dispose(); return; }
-                    var rt=(RectTransform)go.transform; rt.anchorMin=rt.anchorMax=new Vector2(0,1); rt.anchoredPosition=actor.Position;
-                    rt.localScale=new Vector3(hero?.68f:-.73f,.73f,1); actor.View=go.GetComponent<SkeletonView>(); go.SetActive(true);
+                    var rt=(RectTransform)go.transform; rt.anchorMin=rt.anchorMax=parent.pivot; rt.anchoredPosition=Vector2.zero;
+                    rt.localScale=Vector3.one; actor.View=go.GetComponent<SkeletonView>(); go.SetActive(true);
                     if(hero) actor.View.Play(MotionId.Spawn);
                 }
                 catch(OperationCanceledException) { return; }
@@ -113,7 +121,7 @@ namespace SpireAnimation
                     var load=actor.Scope.InstantiateAsync(22,stage); while(!load.IsCompleted) yield return null;
                     if(load.IsFaulted || load.IsCanceled) { Signal(job,PresentationPhase.Cancelled); active=null; continue; }
                     ghost=load.Result; ghostOwner=actor.Scope; var rect=(RectTransform)ghost.transform;
-                    rect.anchorMin=rect.anchorMax=new Vector2(0,1); rect.anchoredPosition=new Vector2(630,-480); rect.localScale=Vector3.one;
+                    rect.anchorMin=rect.anchorMax=stage.pivot; rect.anchoredPosition=EffectPosition(handAnchor); rect.localScale=Vector3.one;
                     var image=ghost.GetComponent<Image>(); image.sprite=null; image.color=cue.Kind==BattleCueKind.Shuffle?new Color(.55f,.38f,.20f):Color.white;
                     if(cue.ArtId>0)
                     {
@@ -121,8 +129,10 @@ namespace SpireAnimation
                         if(sprite.IsCompletedSuccessfully) image.sprite=sprite.Result;
                     }
                     ghost.SetActive(true);
-                    Vector2 from=cue.Kind==BattleCueKind.Draw?new Vector2(-540,0):Vector2.zero;
-                    Vector2 to=cue.Kind==BattleCueKind.Play?new Vector2(0,150):cue.Kind==BattleCueKind.Draw?new Vector2(-150,0):new Vector2(510,30);
+                    var source=cue.Kind==BattleCueKind.Draw?drawAnchor:cue.Kind==BattleCueKind.Shuffle?discardAnchor:handAnchor;
+                    var target=cue.Kind==BattleCueKind.Play?playAnchor:cue.Kind==BattleCueKind.Draw?handAnchor:cue.Kind==BattleCueKind.Shuffle?drawAnchor:cue.Kind==BattleCueKind.Exhaust?exhaustAnchor:discardAnchor;
+                    Vector2 from=EffectPosition(source)-rect.anchoredPosition;
+                    Vector2 to=EffectPosition(target)-rect.anchoredPosition;
                     animation=ghost.GetComponent<BetterAnimation>().Play(new UiMotion {Duration=duration,FromAlpha=.5f,ToAlpha=cue.Kind==BattleCueKind.Draw?1:0,FromOffset=from,ToOffset=to,FromScale=.7f,ToScale=cue.Kind==BattleCueKind.Exhaust?.05f:.85f,FromAngle=-12,ToAngle=cue.Kind==BattleCueKind.Shuffle?180:10});
                 }
                 float elapsed=0; bool impact=false;

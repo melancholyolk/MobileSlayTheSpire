@@ -47,7 +47,7 @@ namespace Spire
     [Serializable] public sealed class Enemy
     {
         public string Name;
-        public int Hp, Block, Poison, Damage;
+        public int Hp, MaxHp, Block, Poison, Damage;
         public int VisualId;
         public bool Alive => Hp > 0;
     }
@@ -147,7 +147,7 @@ namespace Spire
             bool boss = Map[Current].Kind == RoomKind.Boss, elite = Map[Current].Kind == RoomKind.Elite;
             int visual=boss?2:elite?1:new[]{0,3,4,5,6,7,8,9}[Current%8];
             string[] names={"Hollow","Iron Revenant","Ash Warden","Cultist","Goblin","Bandit","Plague Doctor","Frost Giant","Sporekin","Bronze Sentinel"};
-            Enemies.Add(new Enemy { VisualId=visual, Name = names[visual], Hp = (boss ? 100 : elite ? 48 : 28) * Heroes.Count, Damage = boss ? 12 : elite ? 9 : 6 });
+            Enemies.Add(new Enemy { VisualId=visual, Name = names[visual], Hp = (boss ? 100 : elite ? 48 : 28) * Heroes.Count, MaxHp = (boss ? 100 : elite ? 48 : 28) * Heroes.Count, Damage = boss ? 12 : elite ? 9 : 6 });
             foreach (var h in Heroes)
             {
                 h.Strength = 0; h.Block = 0; h.Draw.Clear(); h.Draw.AddRange(h.Deck); Random.Shuffle(h.Draw);

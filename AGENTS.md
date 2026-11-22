@@ -16,3 +16,7 @@
 - 已知兼容性限制：`uloop compile`（包括 `--no-wait-for-domain-reload`）在程序集重载时可能误报 `UNITY_NOT_RUNNING`。不要因此重启编辑器或立即重复编译；先确认 `Tuanjie.exe` 仍在运行，等待重载后重新查询 `uloop status` 和 `uloop get-logs --log-type Error`。编译命令返回失败不能视为编译验证通过。
 - `uloop launch` 的 Unity Hub 自动发现尚未验证支持团结引擎；已有编辑器实例时直接连接，不另开实例。
 - `.uloop/` 与 `UserSettings/` 为本机缓存和设置，不提交。
+
+# 修改后的交付
+
+本项目修改完成后默认执行 [commit-and-push](.agents/skills/commit-and-push/SKILL.md)：验证本次改动、仅提交当前任务范围并推送 Git。用户明确要求暂不提交或暂不推送时除外。

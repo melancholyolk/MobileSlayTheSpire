@@ -82,12 +82,7 @@ public static class GameUiPrefabBuilder
             PrefabUtility.SaveAsPrefabAsset(go,"Assets/GameResources/UI/Views/GameStart/GameStartView.prefab");
         }
         finally { Object.DestroyImmediate(go); }
-        var game=new GameObject("GameplayView",typeof(RectTransform),typeof(GameplayView)); game.SetActive(false);
-        try {
-            Stretch(game.GetComponent<RectTransform>()); var content=Rect("Content",game.transform,0,0,1280,720); Stretch(content);
-            var s=new SerializedObject(game.GetComponent<GameplayView>()); Set(s,"content",content); s.ApplyModifiedPropertiesWithoutUndo();
-            PrefabUtility.SaveAsPrefabAsset(game,"Assets/GameResources/UI/Views/Gameplay/GameplayView.prefab");
-        } finally { Object.DestroyImmediate(game); }
+        BattleUiPrefabBuilder.EnsureLayout();
         System.IO.Directory.CreateDirectory("Assets/GameResources/UI/Views/Card");
         AssetDatabase.Refresh();
         var card=new GameObject("CardView",typeof(RectTransform),typeof(Image),typeof(Button),typeof(CardUIView)); card.SetActive(false);
