@@ -24,7 +24,7 @@ namespace SpireAnimation
         public const int MaxQueuedProcesses=128;
         readonly Dictionary<int,Actor> actors=new Dictionary<int,Actor>();
         readonly Queue<Job> pending=new Queue<Job>();
-        ResourceManager resources; ResourceScope shared; ActorVisualCatalog catalog;
+        ResourceManager resources; ResourceScope shared; ActorVisualCatalog catalog; BodyCatalog bodyCatalog;
         RectTransform stage; Run observed; int room=-1,revision=-1,generation; long ticket;
         Job active; GameObject ghost; ResourceScope ghostOwner; Coroutine routine;
         Task ready=Task.CompletedTask;
@@ -54,6 +54,12 @@ namespace SpireAnimation
         async Task LoadActors(Run run,int version)
         {
             if(catalog==null) catalog=JsonUtility.FromJson<ActorVisualCatalog>((await shared.LoadAsync<TextAsset>(21)).text);
+            if(bodyCatalog==null)
+            {
+                var parts=await shared.LoadAsync<TextAsset>(23);var ports=await shared.LoadAsync<TextAsset>(24);
+                var nodes=await shared.LoadAsync<TextAsset>(25);var motions=await shared.LoadAsync<TextAsset>(26);
+                bodyCatalog=BodyCatalog.Read(parts.bytes,ports.bytes,nodes.bytes,motions.bytes);
+            }
             if(version!=generation) return;
             for(int i=0;i<run.Heroes.Count+run.Enemies.Count;i++)
             {
@@ -65,6 +71,9 @@ namespace SpireAnimation
                 try
                 {
                     var go=await scope.InstantiateAsync(config.Prefab,stage,false);
+                    if(version!=generation || scope.IsDisposed) { scope.Dispose(); return; }
+                    var body=go.GetComponent<BodyAssemblyView>()??go.AddComponent<BodyAssemblyView>();
+                    await body.ConfigureAsync(bodyCatalog,owner,scope);
                     if(version!=generation || scope.IsDisposed) { scope.Dispose(); return; }
                     var rt=(RectTransform)go.transform; rt.anchorMin=rt.anchorMax=new Vector2(0,1); rt.anchoredPosition=actor.Position;
                     rt.localScale=new Vector3(hero?.68f:-.73f,.73f,1); actor.View=go.GetComponent<SkeletonView>(); go.SetActive(true);

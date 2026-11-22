@@ -38,6 +38,7 @@ public static class ResourceCatalogBuilder
         Add(2,-1,"Assets/GameResources/UI/Views/Gameplay/GameplayView.prefab");
         if(File.Exists("Assets/GameResources/Animation/21.json")) Add(21,-1,"Assets/GameResources/Animation/21.json");
         if(File.Exists("Assets/GameResources/UI/Shared/Effects/22.prefab")) Add(22,-1,"Assets/GameResources/UI/Shared/Effects/22.prefab");
+        for(int id=23;id<=26;id++) if(File.Exists("Assets/GameResources/Tables/"+id+".bytes")) Add(id,-1,"Assets/GameResources/Tables/"+id+".bytes");
         Add(20,-1,"Assets/GameResources/Audio/20.json");
         Add(3,-1,"Assets/GameResources/UI/Views/Card/3.prefab");
         // Tables stay in Resources for the localization plugin and existing table tooling.

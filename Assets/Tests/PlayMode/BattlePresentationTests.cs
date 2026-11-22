@@ -22,8 +22,11 @@ public class BattlePresentationTests
             while((!app.BattleVisuals.Ready.IsCompleted || app.BattleVisuals.PendingCount>0) && Time.realtimeSinceStartup<deadline) yield return null;
             Assert.IsTrue(app.BattleVisuals.Ready.IsCompletedSuccessfully,app.BattleVisuals.Ready.Exception?.ToString());
             Assert.AreEqual(2,app.BattleVisuals.ActorCount);
+            var bodies=root.GetComponentsInChildren<BodyAssemblyView>(); Assert.AreEqual(2,bodies.Length);
+            foreach(var body in bodies) { Assert.AreEqual(11,body.Assembly.Count); Assert.AreEqual(10,body.OwnedClipCount); }
             Assert.AreEqual(5,events.Count(e=>e.Cue.Kind==BattleCueKind.Draw && e.Phase==PresentationPhase.Completed));
             app.Send("end"); yield return null; app.ReturnToMenu(); yield return null;
+            foreach(var body in bodies) if(body!=null) Assert.AreEqual(0,body.OwnedClipCount);
             Assert.AreEqual(0,app.BattleVisuals.ActorCount); Assert.AreEqual(0,app.BattleVisuals.PendingCount);
             foreach(var group in events.GroupBy(e=>e.Ticket))
                 Assert.AreEqual(1,group.Count(e=>e.Phase==PresentationPhase.Completed||e.Phase==PresentationPhase.Cancelled),"Each process terminates exactly once");
@@ -32,3 +35,4 @@ public class BattlePresentationTests
         yield return null;
     }
 }
+

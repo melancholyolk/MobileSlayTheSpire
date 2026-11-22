@@ -9,6 +9,7 @@ import time
 from business_tables import discover
 from compile_cards import validate, encode
 from compile_localization import Registry
+from body_tables import validate_body
 ROOT=Path(__file__).resolve().parents[2]
 
 @contextmanager
@@ -53,6 +54,7 @@ def build(root=ROOT):
         tables=discover(root/'GameData/Excel')
         if 'Cards' not in tables: raise ValueError('Cards table is required')
         validate(tables['Cards'],tables.get('Characters'))
+        validate_body(tables)
         directory=root/'GameData/Excel/Localization'
         registry=Registry(directory)
         registry.synchronize(ref for table in tables.values() for ref in table.references())
@@ -70,6 +72,9 @@ def build(root=ROOT):
         outputs[root/'Assets/GameResources/Tables/11.bytes']=outputs[root/'Assets/Resources/Localization/catalog.bytes']
         for name,table in tables.items():
             if name!='Cards': outputs[root/f'Assets/Resources/BusinessTables/{name}.bytes']=table.binary(registry)
+        for resource_id,name in enumerate(('BodyParts','BodyPorts','BodyNodes','BodyMotions'),23):
+            if name in tables:
+                outputs[root/f'Assets/GameResources/Tables/{resource_id}.bytes']=tables[name].binary(registry)
         if snapshot(root)!=synced: raise RuntimeError('CSV changed during encoding; retry build')
         changed+=publish(outputs)
         # This directory is owned exclusively by this compiler. Removed business tables must not ship stale data.
@@ -98,3 +103,4 @@ if __name__=='__main__':
     parser=argparse.ArgumentParser(description=__doc__); parser.add_argument('--watch',action='store_true'); args=parser.parse_args()
     try: watch() if args.watch else build()
     except KeyboardInterrupt: pass
+
