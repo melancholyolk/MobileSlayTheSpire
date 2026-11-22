@@ -1,0 +1,164 @@
+{
+  "Rig": {
+    "Name": "warrior-side-comic",
+    "Index": 0,
+    "ResourceId": 13000,
+    "Folder": "Assets/GameResources/Characters/0/Skin",
+    "Bones": [
+      {
+        "Name": "Pelvis",
+        "Parent": "",
+        "X": 400,
+        "Y": 495,
+        "Left": 307,
+        "Top": 428,
+        "Width": 183,
+        "Height": 156,
+        "Image": 13020
+      },
+      {
+        "Name": "Torso",
+        "Parent": "Pelvis",
+        "X": 400,
+        "Y": 480,
+        "Left": 267,
+        "Top": 158,
+        "Width": 250,
+        "Height": 303,
+        "Image": 13021
+      },
+      {
+        "Name": "Head",
+        "Parent": "Torso",
+        "X": 403,
+        "Y": 176,
+        "Left": 345,
+        "Top": 44,
+        "Width": 146,
+        "Height": 160,
+        "Image": 13022
+      },
+      {
+        "Name": "ArmL",
+        "Parent": "Torso",
+        "X": 426,
+        "Y": 289,
+        "Left": 348,
+        "Top": 248,
+        "Width": 119,
+        "Height": 201,
+        "Image": 13023
+      },
+      {
+        "Name": "ForearmL",
+        "Parent": "ArmL",
+        "X": 394,
+        "Y": 426,
+        "Left": 395,
+        "Top": 425,
+        "Width": 146,
+        "Height": 142,
+        "Image": 13024
+      },
+      {
+        "Name": "ArmR",
+        "Parent": "Torso",
+        "X": 350,
+        "Y": 289,
+        "Left": 272,
+        "Top": 248,
+        "Width": 119,
+        "Height": 201,
+        "Image": 13025
+      },
+      {
+        "Name": "ForearmR",
+        "Parent": "ArmR",
+        "X": 318,
+        "Y": 426,
+        "Left": 319,
+        "Top": 425,
+        "Width": 146,
+        "Height": 142,
+        "Image": 13026
+      },
+      {
+        "Name": "ThighL",
+        "Parent": "Pelvis",
+        "X": 385,
+        "Y": 538,
+        "Left": 264,
+        "Top": 536,
+        "Width": 168,
+        "Height": 281,
+        "Image": 13027
+      },
+      {
+        "Name": "ShinL",
+        "Parent": "ThighL",
+        "X": 300,
+        "Y": 790,
+        "Left": 240,
+        "Top": 777,
+        "Width": 144,
+        "Height": 177,
+        "Image": 13028
+      },
+      {
+        "Name": "ThighR",
+        "Parent": "Pelvis",
+        "X": 437,
+        "Y": 542,
+        "Left": 423,
+        "Top": 551,
+        "Width": 113,
+        "Height": 264,
+        "Image": 13029
+      },
+      {
+        "Name": "ShinR",
+        "Parent": "ThighR",
+        "X": 478,
+        "Y": 779,
+        "Left": 435,
+        "Top": 770,
+        "Width": 164,
+        "Height": 201,
+        "Image": 13030
+      }
+    ],
+    "Owner": 0,
+    "MotionCount": 10
+  },
+  "EndPoints": [
+    {
+      "x": 516,
+      "y": 544
+    },
+    {
+      "x": 440,
+      "y": 544
+    },
+    {
+      "x": 292,
+      "y": 933
+    },
+    {
+      "x": 487,
+      "y": 945
+    }
+  ],
+  "Sorting": [
+    12,
+    15,
+    16,
+    5,
+    6,
+    22,
+    23,
+    2,
+    3,
+    10,
+    11
+  ]
+}

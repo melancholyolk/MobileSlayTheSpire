@@ -5,9 +5,9 @@ using UnityEngine;
 using UnityEngine.U2D.IK;
 public class WarriorBendDirectionTests
 {
-    [TestCase("ForearmLIK",1)] [TestCase("ForearmRIK",-1)]
-    [TestCase("ShinLIK",1)] [TestCase("ShinRIK",-1)]
-    public void CompressedLimbBendsOutwardAndKeepsItsSideWhenMirrored(string name,int expected)
+    [TestCase("ForearmLIK",1)] [TestCase("ForearmRIK",1)]
+    [TestCase("ShinLIK",-1)] [TestCase("ShinRIK",-1)]
+    public void SideViewLimbKeepsAnatomicalBendWhenMirrored(string name,int expected)
     {
         var prefab=AssetDatabase.LoadAssetAtPath<GameObject>("Assets/GameResources/Characters/0/Skin/13000.prefab");
         var go=Object.Instantiate(prefab);go.SetActive(false);

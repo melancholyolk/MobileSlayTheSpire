@@ -268,47 +268,47 @@ MonoBehaviour:
   - Id: 13020
     CharacterId: 0
     Guid: d49d5d0e2e1f6b3449939d6fad484260
-    EstimatedBytes: 21660
+    EstimatedBytes: 114192
   - Id: 13021
     CharacterId: 0
     Guid: b46aa51b4c9416e4296e0ccaf770e743
-    EstimatedBytes: 314592
+    EstimatedBytes: 303000
   - Id: 13022
     CharacterId: 0
     Guid: 1a55034e7663ea84a9a04c4d4b924367
-    EstimatedBytes: 120280
+    EstimatedBytes: 93440
   - Id: 13023
     CharacterId: 0
     Guid: 59f81830ecfa0c04e86d465638a5f4a6
-    EstimatedBytes: 107040
+    EstimatedBytes: 95676
   - Id: 13024
     CharacterId: 0
     Guid: 913419357b734764393270b3c11925f3
-    EstimatedBytes: 66676
+    EstimatedBytes: 82928
   - Id: 13025
     CharacterId: 0
     Guid: 954bcd0890d309a489d079b343485eb0
-    EstimatedBytes: 103896
+    EstimatedBytes: 95676
   - Id: 13026
     CharacterId: 0
     Guid: aa58d82bea019524f95c53cbef8eeb71
-    EstimatedBytes: 77832
+    EstimatedBytes: 82928
   - Id: 13027
     CharacterId: 0
     Guid: 29119b07a0df9bb41bcf41cf394e302d
-    EstimatedBytes: 183804
+    EstimatedBytes: 188832
   - Id: 13028
     CharacterId: 0
     Guid: a716e9a386858d146b0fb8923a68d3c0
-    EstimatedBytes: 123808
+    EstimatedBytes: 101952
   - Id: 13029
     CharacterId: 0
     Guid: 3eb7fb2aae9932740940d72cfc2069d4
-    EstimatedBytes: 180120
+    EstimatedBytes: 119328
   - Id: 13030
     CharacterId: 0
     Guid: 2be7ccc0b65cdd74cb6275372150e529
-    EstimatedBytes: 159608
+    EstimatedBytes: 131856
   - Id: 13080
     CharacterId: 0
     Guid: 75d430f90e52dcf4ba44b6043f9c174a

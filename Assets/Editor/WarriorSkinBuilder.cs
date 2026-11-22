@@ -16,21 +16,27 @@ public static class WarriorSkinBuilder
 {
     public const string Folder="Assets/GameResources/Characters/0/Skin";
     const float Ppu=100;
+    [Serializable] public class SideProfile { public SkeletonAssetBuilder.Rig Rig; public Vector2[] EndPoints; public int[] Sorting; }
+    [MenuItem("Tools/Spire/Warrior Skin/Rebuild Side View From Source")]
+    public static void RebuildSideView() => BuildInternal(true);
     sealed class Joint { public string Name; public int Parent; public Vector2 Point; }
     static Transform Child(string name,Transform parent) { var t=new GameObject(name).transform; t.SetParent(parent,false); return t; }
     [MenuItem("Tools/Spire/Warrior Skin/Build Missing Assets")]
-    public static void Build()
+    public static void Build() => BuildInternal(false);
+    static void BuildInternal(bool rebuild)
     {
-        var rig=JsonUtility.FromJson<SkeletonAssetBuilder.Rigs>(File.ReadAllText("GameData/Art/Rigs.json")).Items.Single(r=>r.Owner==0);
+        var profile=JsonUtility.FromJson<SideProfile>(File.ReadAllText("GameData/Art/WarriorSideSkin.json"));
+        var rig=profile.Rig;
         Directory.CreateDirectory(Folder);
         var joints=new List<Joint>();
         foreach(var b in rig.Bones) joints.Add(new Joint {Name=b.Name,Parent=Array.FindIndex(rig.Bones,p=>p.Name==b.Parent),Point=new Vector2(b.X,1024-b.Y)});
+        int endpoint=0;
         foreach(var name in new[]{"ForearmL","ForearmR","ShinL","ShinR"})
         {
             int parent=joints.FindIndex(j=>j.Name==name); var b=rig.Bones[parent];
             var direction=(joints[parent].Point-joints[joints[parent].Parent].Point).normalized;
             float length=Mathf.Clamp(Mathf.Max(b.Width,b.Height)*.72f,70,210);
-            joints.Add(new Joint {Name=name+"End",Parent=parent,Point=joints[parent].Point+direction*length});
+            joints.Add(new Joint {Name=name+"End",Parent=parent,Point=new Vector2(profile.EndPoints[endpoint].x,1024-profile.EndPoints[endpoint++].y)});
         }
         for(int i=0;i<rig.Bones.Length;i++)
         {
@@ -44,7 +50,7 @@ public static class WarriorSkinBuilder
             var rect=provider.GetSpriteRects().Single();
             var boneProvider=provider.GetDataProvider<ISpriteBoneDataProvider>();
             // Never overwrite hand-painted weights or hand-adjusted bind poses on a routine rebuild.
-            if(boneProvider.GetBones(rect.spriteID).Count>0) continue;
+            if(!rebuild && boneProvider.GetBones(rect.spriteID).Count>0) continue;
             var b=rig.Bones[i];
             var bones=new List<SpriteBone>();
             foreach(var j in joints)
@@ -54,30 +60,50 @@ public static class WarriorSkinBuilder
                 bones.Add(new SpriteBone {name=j.Name,parentId=j.Parent,position=position,rotation=Quaternion.identity,length=child==null?25:Vector2.Distance(j.Point,child.Point)});
             }
             boneProvider.SetBones(rect.spriteID,bones);
-            const int grid=8; var vertices=new List<Vertex2DMetaData>();var indices=new List<int>();var edges=new List<Vector2Int>();
-            for(int y=0;y<=grid;y++) for(int x=0;x<=grid;x++)
+            // Sample at <= 16 pixels so the shared elbow/knee transition has several vertex rows.
+            int columns=Mathf.Max(4,Mathf.CeilToInt(b.Width/16f)),rows=Mathf.Max(4,Mathf.CeilToInt(b.Height/16f));
+            var vertices=new List<Vertex2DMetaData>();var indices=new List<int>();var edges=new List<Vector2Int>();
+            for(int y=0;y<=rows;y++) for(int x=0;x<=columns;x++)
             {
-                var point=new Vector2(x*b.Width/(float)grid,y*b.Height/(float)grid);
+                var point=new Vector2(x*b.Width/(float)columns,y*b.Height/(float)rows);
                 var global=point+new Vector2(b.Left,1024-b.Top-b.Height);
-                int parent=joints[i].Parent;
-                float blend=parent<0?0:.3f*(1-Mathf.SmoothStep(0,1,Vector2.Distance(global,joints[i].Point)/80));
-                vertices.Add(new Vertex2DMetaData {position=point,boneWeight=new BoneWeight {boneIndex0=i,weight0=1-blend,boneIndex1=Mathf.Max(0,parent),weight1=blend}});
-                if(x<grid && y<grid) { int a=y*(grid+1)+x;indices.AddRange(new[]{a,a+grid+1,a+1,a+1,a+grid+1,a+grid+2}); }
-                if(x<grid&&(y==0||y==grid))edges.Add(new Vector2Int(y*(grid+1)+x,y*(grid+1)+x+1));
-                if(y<grid&&(x==0||x==grid))edges.Add(new Vector2Int(y*(grid+1)+x,(y+1)*(grid+1)+x));
+                vertices.Add(new Vertex2DMetaData {position=point,boneWeight=JointWeight(i,global,joints)});
+                if(x<columns && y<rows) {int a=y*(columns+1)+x;indices.AddRange(new[]{a,a+columns+1,a+1,a+1,a+columns+1,a+columns+2});}
+                if(x<columns&&(y==0||y==rows))edges.Add(new Vector2Int(y*(columns+1)+x,y*(columns+1)+x+1));
+                if(y<rows&&(x==0||x==columns))edges.Add(new Vector2Int(y*(columns+1)+x,(y+1)*(columns+1)+x));
             }
             var mesh=provider.GetDataProvider<ISpriteMeshDataProvider>();mesh.SetVertices(rect.spriteID,vertices.ToArray());mesh.SetIndices(rect.spriteID,indices.ToArray());mesh.SetEdges(rect.spriteID,edges.ToArray());
             provider.Apply();importer.SaveAndReimport();
         }
         // The prefab is authored once; subsequent builds only refresh the resource catalog.
-        if(!File.Exists(Folder+"/13000.prefab")) BuildPrefab(rig,joints);
+        if(rebuild || !File.Exists(Folder+"/13000.prefab")) BuildPrefab(rig,joints,profile);
         var catalogPath="Assets/GameResources/Animation/21.json";
         var catalog=JsonUtility.FromJson<ActorVisualCatalog>(File.ReadAllText(catalogPath));
         catalog.Actors.Single(a=>a.Owner==0).Prefab=13000;
         File.WriteAllText(catalogPath,JsonUtility.ToJson(catalog,true));AssetDatabase.ImportAsset(catalogPath);
         AssetDatabase.SaveAssets();ResourceCatalogBuilder.Build();
     }
-    static void BuildPrefab(SkeletonAssetBuilder.Rig rig,List<Joint> joints)
+    // Both sprites evaluate the SAME world-space field around a shared joint. At the joint
+    // they are 50/50; towards either segment the corresponding bone smoothly takes over.
+    static BoneWeight JointWeight(int owner,Vector2 point,List<Joint> joints)
+    {
+        int joint=-1;
+        var name=joints[owner].Name;
+        if(name.StartsWith("Forearm")||name.StartsWith("Shin")) joint=owner;
+        else if(name.StartsWith("Arm")||name.StartsWith("Thigh"))
+            joint=joints.FindIndex(j=>j.Parent==owner);
+        if(joint<0) return new BoneWeight {boneIndex0=owner,weight0=1};
+        int parent=joints[joint].Parent;
+        int tip=joints.FindIndex(j=>j.Parent==joint);
+        var incoming=(joints[joint].Point-joints[parent].Point).normalized;
+        var outgoing=tip<0?incoming:(joints[tip].Point-joints[joint].Point).normalized;
+        var tangent=(incoming+outgoing).normalized;
+        if(tangent.sqrMagnitude<.001f)tangent=incoming;
+        float radius=Mathf.Min(65,Vector2.Distance(joints[parent].Point,joints[joint].Point)*.4f);
+        float t=Mathf.SmoothStep(0,1,Mathf.InverseLerp(-radius,radius,Vector2.Dot(point-joints[joint].Point,tangent)));
+        return new BoneWeight {boneIndex0=parent,weight0=1-t,boneIndex1=joint,weight1=t};
+    }
+    static void BuildPrefab(SkeletonAssetBuilder.Rig rig,List<Joint> joints,SideProfile profile)
     {
         var root=new GameObject("WarriorSkin",typeof(RectTransform),typeof(Animator),typeof(SkeletonView),typeof(SkinnedActorView));root.SetActive(false);
         try
@@ -97,18 +123,18 @@ public static class WarriorSkinBuilder
                 var target=Child(name+"Target",controls);target.position=end.position;
                 var solver=Child(name+"IK",controls).gameObject.AddComponent<LimbSolver2D>();
                 solver.GetChain(0).effector=end;solver.GetChain(0).target=target;solver.constrainRotation=false;
-                // Bind limbs are collinear: their cross product is rounding noise, not a bend hint.
-                // Image-space L bends left, R bends right in this frontal warrior rig.
-                solver.flip=name.EndsWith("L",StringComparison.Ordinal);solver.Initialize();manager.AddSolver(solver);
+                // Side view: both elbows bend behind the hands; both knees bend forward.
+                solver.flip=name.StartsWith("Forearm",StringComparison.Ordinal);solver.Initialize();manager.AddSolver(solver);
             }
             var materialPath=Folder+"/13080.mat";
-            var material=new Material(Shader.Find("Sprites/Default"));AssetDatabase.CreateAsset(material,materialPath);
+            var material=AssetDatabase.LoadAssetAtPath<Material>(materialPath);
+            if(material==null) {material=new Material(Shader.Find("Sprites/Default"));AssetDatabase.CreateAsset(material,materialPath);}
             for(int i=0;i<rig.Bones.Length;i++)
             {
                 var b=rig.Bones[i];var visual=Child("Skin_"+b.Name,motion);visual.gameObject.layer=30;
                 visual.localPosition=new Vector3((b.Left+b.Width*.5f-384)/Ppu,(1000-b.Top-b.Height*.5f)/Ppu,0);
                 var renderer=visual.gameObject.AddComponent<SpriteRenderer>();renderer.sprite=AssetDatabase.LoadAssetAtPath<Sprite>(Folder+"/"+(13020+i)+".png");
-                renderer.sharedMaterial=material; renderer.sortingOrder=i<3?10+i:i>=7?i:20+i;
+                renderer.sharedMaterial=material; renderer.sortingOrder=profile.Sorting[i];
                 var skin=visual.gameObject.AddComponent<SpriteSkin>();skin.alwaysUpdate=true;
                 var serialized=new SerializedObject(skin);serialized.FindProperty("m_RootBone").objectReferenceValue=transforms[0];
                 var bindings=serialized.FindProperty("m_BoneTransforms");bindings.arraySize=transforms.Length;
@@ -144,7 +170,10 @@ public static class WarriorSkinBuilder
                 var pelvis=transforms[0];float breath=id==MotionId.Idle?.06f:id==MotionId.Walk?.12f:0;
                 Curve(pelvis,"m_LocalPosition.y",pelvis.localPosition.y,pelvis.localPosition.y+breath,pelvis.localPosition.y);
                 var head=transforms[2];Curve(head,"localEulerAnglesRaw.z",0,id==MotionId.Hit?-8:id==MotionId.Idle?2:0,0);
-                AssetDatabase.CreateAsset(clip,Folder+"/"+(13001+i)+".anim");
+                var clipPath=Folder+"/"+(13001+i)+".anim";
+                var existing=AssetDatabase.LoadAssetAtPath<AnimationClip>(clipPath);
+                if(existing!=null) {EditorUtility.CopySerialized(clip,existing);UnityEngine.Object.DestroyImmediate(clip);clip=existing;EditorUtility.SetDirty(clip);}
+                else AssetDatabase.CreateAsset(clip,clipPath);
                 entries.Add(new MotionEntry {Id=id,Clip=clip,Loop=id==MotionId.Idle||id==MotionId.Walk,Hold=id==MotionId.Death});
             }
             root.GetComponent<SkeletonView>().Motions=entries.ToArray();

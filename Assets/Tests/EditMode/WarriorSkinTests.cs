@@ -24,6 +24,8 @@ public class WarriorSkinTests
             var provider=factory.GetSpriteEditorDataProviderFromObject(AssetImporter.GetAtPath(AssetDatabase.GetAssetPath(sprite)));provider.InitSpriteEditorDataProvider();
             var vertices=provider.GetDataProvider<UnityEditor.U2D.Sprites.ISpriteMeshDataProvider>().GetVertices(provider.GetSpriteRects().Single().spriteID);
             Assert.Greater(vertices.Length,4);
+            if(skin.name.Contains("Arm")||skin.name.Contains("Forearm")||skin.name.Contains("Thigh")||skin.name.Contains("Shin"))
+                Assert.Greater(vertices.Count(v=>v.boneWeight.weight0>.05f && v.boneWeight.weight1>.05f),3,"Both sides of each joint need blended vertices: "+skin.name);
             foreach(var vertex in vertices) { var w=vertex.boneWeight;Assert.That(w.weight0+w.weight1+w.weight2+w.weight3,Is.EqualTo(1).Within(.0001));if(w.weight1>0)blended++; }
         }
         Assert.Greater(blended,0);
