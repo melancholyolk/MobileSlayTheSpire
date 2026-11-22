@@ -16,7 +16,7 @@ namespace SpireAnimation
         public readonly int Ticket; public readonly MotionId Motion; public readonly PresentationPhase Phase;
         public MotionSignal(int ticket,MotionId motion,PresentationPhase phase) { Ticket=ticket; Motion=motion; Phase=phase; }
     }
-    // A rigid-cutout skeleton: child transforms are joints, sprites remain attached to their bone.
+    // Plays transform clips for cutout bones or skinned-rig IK controls.
     // No AnimatorController or frame sequence. Graph owns at most two clip playables.
     [RequireComponent(typeof(Animator))]
     public sealed class SkeletonView : MonoBehaviour

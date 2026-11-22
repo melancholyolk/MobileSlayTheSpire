@@ -16,9 +16,9 @@ public static class SkeletonAssetBuilder
     public static void Build()
     {
         var rigs=JsonUtility.FromJson<Rigs>(File.ReadAllText("GameData/Art/Rigs.json")).Items;
-        foreach(var rig in rigs) Build(rig);
+        foreach(var rig in rigs) if(rig.Owner==0) WarriorSkinBuilder.Build(); else Build(rig);
         Directory.CreateDirectory("Assets/GameResources/Animation");
-        var config=new ActorVisualCatalog {Actors=rigs.Select(r=>new ActorVisual {Owner=r.Owner,Prefab=r.ResourceId}).ToArray()};
+        var config=new ActorVisualCatalog {Actors=rigs.Select(r=>new ActorVisual {Owner=r.Owner,Prefab=r.Owner==0?13000:r.ResourceId}).ToArray()};
         File.WriteAllText("Assets/GameResources/Animation/21.json",JsonUtility.ToJson(config,true));
         AssetDatabase.ImportAsset("Assets/GameResources/Animation/21.json");
         Directory.CreateDirectory("Assets/GameResources/UI/Shared/Effects");

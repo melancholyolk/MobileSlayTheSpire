@@ -1,3 +1,19 @@
-{"name":"Spire.Tests","references":["AssemblyRuntime","Spire.Audio","Spire.Animation","Unity.ugui"],"includePlatforms":["Editor"],"optionalUnityReferences":["TestAssemblies"]}
-
+{
+  "name": "Spire.Tests",
+  "references": [
+    "AssemblyRuntime",
+    "Spire.Audio",
+    "Spire.Animation",
+    "Unity.ugui",
+    "Unity.2D.Animation.Runtime",
+    "Unity.2D.IK.Runtime",
+    "Unity.2D.Common.Runtime", "Unity.2D.Sprite.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
 

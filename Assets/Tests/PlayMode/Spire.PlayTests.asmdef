@@ -6,10 +6,13 @@
     "Spire.UI",
     "Unity.ugui",
     "Spire.Localization",
-    "Spire.Resources","Spire.Animation"
+    "Spire.Resources",
+    "Spire.Animation",
+    "Unity.2D.Animation.Runtime",
+    "Unity.2D.IK.Runtime",
+    "Unity.2D.Common.Runtime"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"
   ]
 }
-

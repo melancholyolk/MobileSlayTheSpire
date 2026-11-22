@@ -72,8 +72,11 @@ namespace SpireAnimation
                 {
                     var go=await scope.InstantiateAsync(config.Prefab,stage,false);
                     if(version!=generation || scope.IsDisposed) { scope.Dispose(); return; }
-                    var body=go.GetComponent<BodyAssemblyView>()??go.AddComponent<BodyAssemblyView>();
-                    await body.ConfigureAsync(bodyCatalog,owner,scope);
+                    if(go.GetComponent<SkinnedActorView>()==null)
+                    {
+                        var body=go.GetComponent<BodyAssemblyView>()??go.AddComponent<BodyAssemblyView>();
+                        await body.ConfigureAsync(bodyCatalog,owner,scope);
+                    }
                     if(version!=generation || scope.IsDisposed) { scope.Dispose(); return; }
                     var rt=(RectTransform)go.transform; rt.anchorMin=rt.anchorMax=new Vector2(0,1); rt.anchoredPosition=actor.Position;
                     rt.localScale=new Vector3(hero?.68f:-.73f,.73f,1); actor.View=go.GetComponent<SkeletonView>(); go.SetActive(true);

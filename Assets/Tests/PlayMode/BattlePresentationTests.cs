@@ -54,7 +54,8 @@ public class BattlePresentationTests
             while((!app.BattleVisuals.Ready.IsCompleted || app.BattleVisuals.PendingCount>0) && Time.realtimeSinceStartup<deadline) yield return null;
             Assert.IsTrue(app.BattleVisuals.Ready.IsCompletedSuccessfully,app.BattleVisuals.Ready.Exception?.ToString());
             Assert.AreEqual(2,app.BattleVisuals.ActorCount);
-            var bodies=root.GetComponentsInChildren<BodyAssemblyView>(); Assert.AreEqual(2,bodies.Length);
+            var bodies=root.GetComponentsInChildren<BodyAssemblyView>(); Assert.AreEqual(1,bodies.Length);
+            Assert.AreEqual(1,root.GetComponentsInChildren<SkinnedActorView>().Length);
             foreach(var body in bodies) { Assert.AreEqual(11,body.Assembly.Count); Assert.AreEqual(10,body.OwnedClipCount); }
             Assert.AreEqual(5,events.Count(e=>e.Cue.Kind==BattleCueKind.Draw && e.Phase==PresentationPhase.Completed));
             app.Send("end"); yield return null; app.ReturnToMenu(); yield return null;

@@ -1,1 +1,11 @@
-{"name":"Spire.Animation","references":["Unity.ugui","Spire.Resources","AssemblyRuntime"]}
+{
+  "name": "Spire.Animation",
+  "references": [
+    "Unity.ugui",
+    "Spire.Resources",
+    "AssemblyRuntime",
+    "Unity.2D.Animation.Runtime",
+    "Unity.2D.IK.Runtime",
+    "Unity.2D.Common.Runtime"
+  ]
+}
