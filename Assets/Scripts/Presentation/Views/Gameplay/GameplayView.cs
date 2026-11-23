@@ -1,13 +1,16 @@
 using SpireUI;
 using UnityEngine;
 using UnityEngine.UI;
+
 namespace SpirePresentation
 {
     public sealed class GameplayView : BaseUIView
     {
-        public const int Path=2;
-        [SerializeField] RectTransform content;
-        public RectTransform Content=>content;
+        public const int Path = 2;
+        [SerializeField]
+        RectTransform content;
+        public RectTransform Content => content;
+
         [Header("Authored battle layout")]
         public GameObject battleRoot;
         public RoomBackdrop backdrop;
@@ -22,15 +25,18 @@ namespace SpirePresentation
             battleRoot.SetActive(combat);
             content.gameObject.SetActive(!combat);
         }
-        public void Bind(GameApp app,UiTheme theme)
+
+        public void Bind(GameApp app, UiTheme theme)
         {
             backdrop.Configure(app.Resources);
             language.onClick.AddListener(app.CycleLanguage);
             menu.onClick.AddListener(app.ReturnToMenu);
-            endTurn.onClick.AddListener(()=>app.Send("end"));
-            reconnect.onClick.AddListener(()=>app.Join(true));
-            theme.Apply(language); theme.Apply(menu,ButtonIntent.Destructive);
-            theme.Apply(endTurn,ButtonIntent.Primary); theme.Apply(reconnect,ButtonIntent.Primary);
+            endTurn.onClick.AddListener(() => app.Send("end"));
+            reconnect.onClick.AddListener(() => app.Join(true));
+            theme.Apply(language);
+            theme.Apply(menu, ButtonIntent.Destructive);
+            theme.Apply(endTurn, ButtonIntent.Primary);
+            theme.Apply(reconnect, ButtonIntent.Primary);
         }
     }
 }

@@ -12,12 +12,15 @@ namespace SpireLocalization
         AsyncOperationHandle<LocalizationSettings> ready;
         public override AsyncOperationHandle<LocalizationSettings> GetInitializationOperation()
         {
-            if(!ready.IsValid()) ready=Addressables.ResourceManager.CreateCompletedOperation<LocalizationSettings>(this,null);
+            if (!ready.IsValid())
+                ready = Addressables.ResourceManager.CreateCompletedOperation<LocalizationSettings>(this, null);
             return ready;
         }
+
         void OnDestroy()
         {
-            if(ready.IsValid()) Addressables.Release(ready);
+            if (ready.IsValid())
+                Addressables.Release(ready);
         }
     }
 }

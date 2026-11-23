@@ -33,10 +33,11 @@ python -m unittest discover -s Tools/Tables -p 'test_*.py'
 
 ## 代码边界
 
-- `Assets/Scripts/Runtime/Spire/Core.cs`：不依赖 Unity 的确定性地图、战斗、卡牌、房间和团队规则。
+- [代码架构与开发指南](Docs/CodeArchitecture.md)：模块职责、调用链、文件分工与新功能扩展入口。
+- `Assets/Scripts/Runtime/Spire/Run.cs` 与 `Run.*.cs`：不依赖 Unity 的确定性地图、战斗、卡牌、房间和团队规则。
 - `CardTable.cs`：带版本与边界检查的二进制表读取。
 - `CoopSession.cs`：主机权威 TCP 指令传输与重连重放。
-- `Assets/Scripts/Presentation/GameApp.cs`：uGUI 功能原型与网络入口。
+- `Assets/Scripts/Presentation/GameApp.cs` 与 `GameApp.*.cs`：按启动、会话、资源、页面渲染和战斗 HUD 分工的应用协调器。
 - `Assets/Tests`：规则、正式卡表、通关、TCP 和 PlayMode 界面测试。
 
 ## 验证记录（2026-11-21）

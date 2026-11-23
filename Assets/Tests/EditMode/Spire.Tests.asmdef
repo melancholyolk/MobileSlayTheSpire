@@ -2,6 +2,7 @@
   "name": "Spire.Tests",
   "references": [
     "AssemblyRuntime",
+    "Spire.Events",
     "Spire.Audio",
     "Spire.Animation",
     "Unity.ugui",

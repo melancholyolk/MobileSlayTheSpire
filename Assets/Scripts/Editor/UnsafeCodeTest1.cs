@@ -12,6 +12,7 @@ public class UnsafeFixed
                 sum += p[i];
             }
         }
+
         return sum;
     }
 }
